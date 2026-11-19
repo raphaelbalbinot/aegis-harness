@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Engineering Harness Keynote: Arquitetura Determinística e Adversarial para IA</title>
-  <meta name="description" content="Keynote interativo widescreen de 25 slides (Teams-ready) com 15 diagramas e gráficos SVG sobre a arquitetura de Engineering Harness para desenvolvimento assistido por IA: AGENTS.md Unificado, Tríade Constitucional docs/, Agent Skills, EGM Goldfish, review.ps1, 22 regras de Clean Code, 12 portões determinísticos, Blast Radius, MCPs, Archify 3D e Aegis Harness.">
+  <meta name="description" content="Keynote interativo widescreen de 26 slides (Teams-ready) com 11 diagramas e grafos SVG técnicos sobre a arquitetura de Engineering Harness para desenvolvimento assistido por IA: AGENTS.md Unificado, Tríade Constitucional docs/, Agent Skills, EGM Goldfish, dag-slice-orchestrator, review.ps1, 22 regras de Clean Code, 12 portões determinísticos, Blast Radius, MCPs, Archify 3D e Aegis Harness.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,12 +12,12 @@
 </head>
 <body>
   <div class="keynote-shell">
-    <!-- TOP BAR: Horizontal Slide Strip (01 .. 25) & Controls -->
+    <!-- TOP BAR: Horizontal Slide Strip (01 .. 26) & Controls -->
     <header class="keynote-topbar">
       <div class="container keynote-topbar__inner">
         <div class="keynote-brand">
           <a class="wordmark" href="#slide-01" aria-label="AI Engineering Harness">Engineering Harness</a>
-          <span class="chip chip--instrument" id="slideCounterBadge">01 / 25</span>
+          <span class="chip chip--instrument" id="slideCounterBadge">01 / 26</span>
         </div>
 
         <div class="slide-strip" role="tablist" aria-label="Seletor de slides">
@@ -32,20 +32,21 @@
           <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-09" id="tab-09" tabindex="-1" type="button" title="09. Agent Skills (Parte 3: Campanha Mantis & Persistência)">09</button>
           <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-10" id="tab-10" tabindex="-1" type="button" title="10. EGM Goldfish (Parte 1: Cold Spec & Context Firewall)">10</button>
           <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-11" id="tab-11" tabindex="-1" type="button" title="11. EGM Goldfish (Parte 2: Matriz GF-01..N & Default Approve)">11</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-12" id="tab-12" tabindex="-1" type="button" title="12. EGM Goldfish (Parte 3: 2º Portão de Implementação)">12</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-13" id="tab-13" tabindex="-1" type="button" title="13. Automação PowerShell: review.ps1 & audit-repo.ps1">13</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-14" id="tab-14" tabindex="-1" type="button" title="14. Clean Code (Parte 1: Faixas de Risco & R1 a R7)">14</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-15" id="tab-15" tabindex="-1" type="button" title="15. Clean Code (Parte 2: Curva CRAP < 10 & R8 a R15)">15</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-16" id="tab-16" tabindex="-1" type="button" title="16. Clean Code (Parte 3: R16 a R22 & Scanner CLI)">16</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-17" id="tab-17" tabindex="-1" type="button" title="17. audit-verify.mjs (Parte 1: Portões 01 a 06)">17</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-18" id="tab-18" tabindex="-1" type="button" title="18. audit-verify.mjs (Parte 2: Portões 07 a 12)">18</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-19" id="tab-19" tabindex="-1" type="button" title="19. Pré-Voo: Grafo Blast Radius & Lock Paralelo">19</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-20" id="tab-20" tabindex="-1" type="button" title="20. Ecossistema MCP: Sequential Thinking & Repomix">20</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-21" id="tab-21" tabindex="-1" type="button" title="21. Skill Archify: Central 3D de 5 Abas">21</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-22" id="tab-22" tabindex="-1" type="button" title="22. Governança de Testes & Paridade Dual E2E">22</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-23" id="tab-23" tabindex="-1" type="button" title="23. Constituição Dupla: AGENTS.md + Tríade docs/">23</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-24" id="tab-24" tabindex="-1" type="button" title="24. Portabilidade Políglota: Bootstrapper aegis-harness">24</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-25" id="tab-25" tabindex="-1" type="button" title="25. Fechamento & Bancada Interativa de Comandos">25</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-12" id="tab-12" tabindex="-1" type="button" title="12. Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas">12</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-13" id="tab-13" tabindex="-1" type="button" title="13. EGM Goldfish (Parte 3: 2º Portão de Implementação)">13</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-14" id="tab-14" tabindex="-1" type="button" title="14. Automação PowerShell: review.ps1 & audit-repo.ps1">14</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-15" id="tab-15" tabindex="-1" type="button" title="15. Clean Code (Parte 1: Faixas de Risco & R1 a R7)">15</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-16" id="tab-16" tabindex="-1" type="button" title="16. Clean Code (Parte 2: Curva CRAP < 10 & R8 a R15)">16</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-17" id="tab-17" tabindex="-1" type="button" title="17. Clean Code (Parte 3: R16 a R22 & Scanner CLI)">17</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-18" id="tab-18" tabindex="-1" type="button" title="18. audit-verify.mjs (Parte 1: Portões 01 a 06)">18</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-19" id="tab-19" tabindex="-1" type="button" title="19. audit-verify.mjs (Parte 2: Portões 07 a 12)">19</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-20" id="tab-20" tabindex="-1" type="button" title="20. Pré-Voo: Grafo Blast Radius & Lock Paralelo">20</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-21" id="tab-21" tabindex="-1" type="button" title="21. Ecossistema MCP: Sequential Thinking & Repomix">21</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-22" id="tab-22" tabindex="-1" type="button" title="22. Skill Archify: Central 3D de 5 Abas">22</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-23" id="tab-23" tabindex="-1" type="button" title="23. Governança de Testes & Paridade Dual E2E">23</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-24" id="tab-24" tabindex="-1" type="button" title="24. Constituição Dupla: AGENTS.md + Tríade docs/">24</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-25" id="tab-25" tabindex="-1" type="button" title="25. Portabilidade Políglota: Bootstrapper aegis-harness">25</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-26" id="tab-26" tabindex="-1" type="button" title="26. Fechamento & Bancada Interativa de Comandos">26</button>
         </div>
 
         <div class="keynote-actions">
@@ -66,7 +67,7 @@
             <div>
               <h1>Engineering Harness para Desenvolvimento Assistido por IA</h1>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 01 de 25</span>
+                <span class="chip chip--person">Slide 01 de 26</span>
                 <span class="measured tone-cool">Arquitetura Reutilizável Multi-Projeto · Governança Determinística e Adversarial</span>
               </div>
             </div>
@@ -128,7 +129,7 @@
                 <h3>3. Portabilidade Políglota Instantânea</h3>
                 <span class="chip chip--ok">Aegis Bootstrapper</span>
               </div>
-              <p>Um único comando instala as 54 skills (Upstream GitHub + Fallback Offline) e adapta os motores para TypeScript, Python, Go, Rust ou Java.</p>
+              <p>Um único comando instala as 55 skills (Upstream GitHub + Fallback Offline) e adapta os motores para TypeScript, Python, Go, Rust ou Java.</p>
             </div>
           </div>
         </section>
@@ -139,7 +140,7 @@
             <div>
               <h2>A Tese em Dados: Vibe Coding vs. Engineering Harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 02 de 25</span>
+                <span class="chip chip--person">Slide 02 de 26</span>
                 <span class="measured tone-cool">Curva de Velocidade Efetiva de Entrega vs. Acúmulo de Dívida Técnica (Dia 1 ao Dia 30)</span>
               </div>
             </div>
@@ -229,7 +230,7 @@
             <div>
               <h2>As 5 Camadas Concêntricas do Nosso Harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 03 de 25</span>
+                <span class="chip chip--person">Slide 03 de 26</span>
                 <span class="measured tone-cool">Topologia Defense-in-Depth da Intenção ao Commit</span>
               </div>
             </div>
@@ -243,23 +244,49 @@
                 <span class="chip chip--person">5 Escudos Encadeados</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 02: 5 Camadas Concêntricas -->
-                <svg class="svg-canvas" viewBox="0 0 540 340" role="img" aria-label="Diagrama de 5 anéis concêntricos representando as camadas do Engineering Harness: 1. Constituição AGENTS.md, 2. Agent Skills, 3. Cognição MCP Local, 4. Crítica EGM Goldfish e 5. Barreira audit-verify.mjs">
-                  <ellipse cx="270" cy="170" rx="250" ry="152" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
-                  <text x="270" y="38" text-anchor="middle" font-size="12" font-weight="500" class="svg-amber">1. CONSTITUIÇÃO: AGENTS.md (20 Leis + Tríade docs/)</text>
+                <!-- SVG 02: 5 Camadas Concêntricas + Vetor de Travessia Defense-in-Depth -->
+                <svg class="svg-canvas" viewBox="0 0 560 340" role="img" aria-label="Diagrama de 5 anéis concêntricos com Vetor de Travessia Defense-in-Depth: a Intenção/Prompt entra pela esquerda, atravessa os 5 filtros numerados ① AGENTS.md, ② Agent Skills, ③ Cognição MCP, ④ Duplo Goldfish e converge no núcleo ⑤ Barreira de 12 Portões (Exit 0)">
+                  <ellipse cx="300" cy="168" rx="242" ry="150" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
+                  <text x="300" y="38" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">1. CONSTITUIÇÃO: AGENTS.md (20 Leis + Tríade docs/)</text>
 
-                  <ellipse cx="270" cy="178" rx="205" ry="122" fill="var(--color-paper-3)" stroke="var(--color-cool)" stroke-width="2"/>
-                  <text x="270" y="76" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">2. PROCEDIMENTOS: 54 Agent Skills (Roteador 5 Fases)</text>
+                  <ellipse cx="300" cy="176" rx="198" ry="120" fill="var(--color-paper-3)" stroke="var(--color-cool)" stroke-width="2"/>
+                  <text x="300" y="75" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-cool">2. PROCEDIMENTOS: 55 Agent Skills (Roteador 5 Fases)</text>
 
-                  <ellipse cx="270" cy="186" rx="160" ry="92" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-dasharray="5 3" stroke-width="1.8"/>
-                  <text x="270" y="114" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-cool">3. COGNIÇÃO: MCPs stdio (Sequential + DevTools)</text>
+                  <ellipse cx="300" cy="184" rx="154" ry="90" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-dasharray="5 3" stroke-width="1.8"/>
+                  <text x="300" y="113" text-anchor="middle" font-size="11" font-weight="500" class="svg-cool">3. COGNIÇÃO: MCPs stdio (Sequential + DevTools)</text>
 
-                  <ellipse cx="270" cy="194" rx="115" ry="64" fill="var(--color-paper-3)" stroke="var(--color-accent)" stroke-width="2"/>
-                  <text x="270" y="152" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">4. CRÍTICA: Duplo Goldfish</text>
+                  <ellipse cx="300" cy="192" rx="110" ry="62" fill="var(--color-paper-3)" stroke="var(--color-accent)" stroke-width="2"/>
+                  <text x="300" y="150" text-anchor="middle" font-size="11" font-weight="500" class="svg-amber">4. CRÍTICA: Duplo Goldfish</text>
 
-                  <ellipse cx="270" cy="204" rx="68" ry="34" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2.5"/>
-                  <text x="270" y="201" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">5. BARREIRA</text>
-                  <text x="270" y="217" text-anchor="middle" font-size="10.5" class="svg-ok">12 Portões (Exit 0)</text>
+                  <ellipse cx="300" cy="202" rx="64" ry="34" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2.5"/>
+                  <text x="300" y="199" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-ok">5. BARREIRA</text>
+                  <text x="300" y="215" text-anchor="middle" font-size="10.5" class="svg-ok">12 Portões (Exit 0)</text>
+
+                  <!-- Vetor Horizontal de Travessia (GF-03: Zero colisão com títulos superiores) -->
+                  <rect x="6" y="182" width="46" height="38" rx="5" fill="var(--color-paper-3)" stroke="var(--color-rule-2)" stroke-width="1.5"/>
+                  <text x="29" y="198" text-anchor="middle" font-size="9.5" font-weight="500" class="svg-amber">INTENÇÃO</text>
+                  <text x="29" y="212" text-anchor="middle" font-size="9" class="svg-muted">Prompt IA</text>
+
+                  <line x1="52" y1="202" x2="230" y2="202" stroke="var(--color-ok)" stroke-width="2.5"/>
+                  <polygon points="234,202 224,196 224,208" fill="var(--color-ok)"/>
+
+                  <!-- Marcadores das 5 Fronteiras Atravessadas -->
+                  <circle cx="62" cy="202" r="10" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
+                  <text x="62" y="206" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-amber">①</text>
+
+                  <circle cx="104" cy="202" r="10" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
+                  <text x="104" y="206" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-cool">②</text>
+
+                  <circle cx="147" cy="202" r="10" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
+                  <text x="147" y="206" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-cool">③</text>
+
+                  <circle cx="190" cy="202" r="10" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
+                  <text x="190" y="206" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-amber">④</text>
+
+                  <circle cx="236" cy="202" r="10" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.8"/>
+                  <text x="236" y="206" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-ok">⑤</text>
+
+                  <text x="300" y="295" text-anchor="middle" font-size="10.5" class="svg-ink2">Vetor de Filtragem ①→⑤: Escopo · Procedimento · Causa Raiz · Crítica Fria · Prova Matemática</text>
                 </svg>
               </div>
             </div>
@@ -283,7 +310,7 @@
                   <p class="measured tone-cool">Roteador 5 Fases</p>
                 </div>
                 <div class="layer-band__cols">
-                  <div class="layer-box"><strong class="measured tone-cool">using-agent-skills</strong><span>Define (interview-me), Plan (doubt-driven), Build, Verify (TDD) e Review &amp; Ship.</span></div>
+                  <div class="layer-box"><strong class="measured tone-cool">using-agent-skills</strong><span>Define (interview-me), Plan (doubt-driven), Build (dag-slice-orchestrator), Verify e Ship.</span></div>
                   <div class="layer-box"><strong class="measured tone-cool">Domain-as-a-Skill</strong><span>Isola normas complexas do produto em cartuchos sob demanda (ex.: KDP / Fiscal).</span></div>
                   <div class="layer-box"><strong class="measured tone-cool">Qualidade &amp; Segurança</strong><span>clean-code-audit (22 regras), archify (5 abas 3D), suíte Mantis e Regras de Dados.</span></div>
                 </div>
@@ -334,7 +361,7 @@
             <div>
               <h2>AGENTS.md (Parte 1): Leis Constitucionais 1.1 a 1.10</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 04 de 25</span>
+                <span class="chip chip--person">Slide 04 de 26</span>
                 <span class="measured tone-cool">Controle de Versão, Planejamento BDD, Execução Serverless/Containers e TDD</span>
               </div>
             </div>
@@ -369,7 +396,7 @@
                 <tr>
                   <td class="measured tone-amber">Regra 1.3</td>
                   <td>Implementation Plan, Trade-offs &amp; BDD 1:1</td>
-                  <td>Plano isolado em <span class="measured tone-cool">brain/&lt;conversation-id&gt;/implementation_plan.md</span>, exigindo <strong class="tone-ok">Boost Trade-off Matrix (Opção A vs. B)</strong>, cenários BDD Gherkin 1:1 e Cold Spec Review com Pre-Mortem e Navalha de Occam.</td>
+                  <td>Plano isolado em <span class="measured tone-cool">brain/&lt;conversation-id&gt;/implementation_plan.md</span>, exigindo <strong class="tone-ok">Boost Trade-off Matrix (Opção A vs. B)</strong>, cenários BDD Gherkin 1:1, Cold Spec Review com Pre-Mortem / Occam e fechamento com o <strong class="tone-cool">Grafo DAG Pós-Goldfish (dag-slice-orchestrator)</strong>.</td>
                 </tr>
                 <tr>
                   <td class="measured tone-amber">Regra 1.4</td>
@@ -407,7 +434,7 @@
             <div>
               <h2>AGENTS.md (Parte 2): Leis 1.11 a 1.20 e a Matriz dos 5 Eixos</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 05 de 25</span>
+                <span class="chip chip--person">Slide 05 de 26</span>
                 <span class="measured tone-cool">Anti-Scope Creep (Stop-and-Warn), Zero Dual-Schema, Telemetria e Plataforma Web Moderna</span>
               </div>
             </div>
@@ -435,15 +462,20 @@
                 <span class="chip chip--bad">Bloqueio &gt; 2 Eixos ou A + D</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 03: Pentágono dos 5 Eixos e Stop-and-Warn -->
-                <svg class="svg-canvas" viewBox="0 0 520 330" role="img" aria-label="Diagrama pentagonal mostrando os 5 Eixos Arquiteturais da Regra 1.11 (Eixo A Infra Serverless, Eixo B Segurança CWE, Eixo C IA e Domínio, Eixo D UI e Editor, Eixo E Persistência) com linha vermelha de bloqueio Stop-and-Warn entre Eixo A e Eixo D">
+                <!-- SVG 03: Pentágono dos 5 Eixos e Duplo Gatilho Stop-and-Warn -->
+                <svg class="svg-canvas" viewBox="0 0 520 330" role="img" aria-label="Diagrama pentagonal mostrando os 5 Eixos Arquiteturais da Regra 1.11 (Eixo A Infra, Eixo B Segurança, Eixo C IA e Domínio, Eixo D UI e Frontend, Eixo E Persistência) e os dois gatilhos Stop-and-Warn: cruzamento A com D e tarefa tocando mais de 2 Eixos simultâneos">
                   <!-- Conexões permitidas (máx 2 adjacentes) -->
                   <polygon points="260,38 455,128 385,285 135,285 65,128" fill="none" stroke="var(--color-rule-2)" stroke-width="1.8" stroke-dasharray="5 4"/>
 
-                  <!-- Cruzamento Proibido A <-> D -->
-                  <line x1="260" y1="62" x2="375" y2="265" stroke="var(--color-bad)" stroke-width="3"/>
-                  <rect x="235" y="152" width="168" height="28" rx="5" fill="var(--color-bad-soft)" stroke="var(--color-bad)" stroke-width="1.5"/>
-                  <text x="319" y="170" text-anchor="middle" font-size="11" font-weight="500" class="svg-bad">STOP-AND-WARN (A + D)</text>
+                  <!-- Gatilho 2: Cruzamento > 2 Eixos simultâneos (Triângulo C - E - B) -->
+                  <polygon points="95,148 135,264 425,148" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="4 3"/>
+                  <rect x="64" y="196" width="188" height="26" rx="5" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="1.5"/>
+                  <text x="158" y="213" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-amber">STOP: &gt; 2 EIXOS SIMULTÂNEOS</text>
+
+                  <!-- Gatilho 1: Cruzamento Proibido A <-> D -->
+                  <line x1="260" y1="60" x2="375" y2="264" stroke="var(--color-bad)" stroke-width="3"/>
+                  <rect x="242" y="150" width="174" height="28" rx="5" fill="var(--color-bad-soft)" stroke="var(--color-bad)" stroke-width="1.5"/>
+                  <text x="329" y="168" text-anchor="middle" font-size="11" font-weight="500" class="svg-bad">STOP-AND-WARN (A + D)</text>
 
                   <!-- Eixo A -->
                   <rect x="175" y="14" width="170" height="46" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="2"/>
@@ -481,7 +513,7 @@
             <div>
               <h2>AGENTS.md (Parte 3): Os 7 Core Operating Behaviors</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 06 de 25</span>
+                <span class="chip chip--person">Slide 06 de 26</span>
                 <span class="measured tone-cool">Seção 3 do AGENTS.md · Postura Sênior Anti-Sycophancy e Coalescência Nula Estrita</span>
               </div>
             </div>
@@ -545,52 +577,72 @@
             <div>
               <h2>Suíte Agent Skills (Parte 1): Roteador de 5 Fases e Loop Duplo</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 07 de 25</span>
+                <span class="chip chip--person">Slide 07 de 26</span>
                 <span class="measured tone-cool">.agents/skills/using-agent-skills/SKILL.md · 18 Skills de Fluxo + Regra 1.16</span>
               </div>
             </div>
             <p>Em todas as chamadas, a meta-skill <span class="measured tone-cool">using-agent-skills</span> identifica a fase da engenharia e combina o ciclo rápido de TDD com a barreira completa do Precommit.</p>
           </div>
 
-          <div class="svg-ribbon">
-            <!-- SVG 04: Pipeline 5 Fases + Two-Cycle Loop -->
-            <svg class="svg-canvas" viewBox="0 0 1360 96" role="img" aria-label="Diagrama linear das 5 fases do roteador using-agent-skills (Define, Plan, Build, Verify, Review and Ship) integrado ao Loop Duplo: Inner Loop TDD em segundos entre Build e Verify, e Outer Loop Precommit de 12 portões na entrega">
-              <!-- Caixas das 5 Fases -->
-              <rect x="16" y="20" width="210" height="56" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="121" y="44" text-anchor="middle" font-size="13" font-weight="500" class="svg-cool">1. DEFINE (/grill-me)</text>
-              <text x="121" y="63" text-anchor="middle" font-size="11" class="svg-muted">interview-me · spec-driven</text>
+          <div class="svg-ribbon svg-ribbon--graph">
+            <!-- SVG 04: Grafo do Duplo Loop Fechado (∞ Inner Loop TDD vs. Outer Loop Precommit) -->
+            <svg class="svg-canvas" viewBox="0 0 1600 118" role="img" aria-label="Grafo do Duplo Loop Fechado (Two-Cycle Workflow): as fases 1. Define e 2. Plan alimentam o Inner Loop fechado entre 3. Build e 4. Verify (com arcos bidirecionais Red-Green-Refactor em 3 segundos via blast-radius), enquanto a fase 5. Review and Ship fecha o arco externo do Outer Loop (12 Portões e 2º Goldfish) até liberar o Commit Exit 0">
+              <!-- Fase 1: Define -->
+              <rect x="16" y="26" width="215" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
+              <text x="123" y="49" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">1. DEFINE (/grill-me)</text>
+              <text x="123" y="67" text-anchor="middle" font-size="10.5" class="svg-muted">interview-me · spec-driven</text>
 
-              <line x1="226" y1="48" x2="276" y2="48" stroke="var(--color-rule-2)" stroke-width="2"/>
-              <polygon points="276,48 268,43 268,53" fill="var(--color-rule-2)"/>
+              <line x1="231" y1="53" x2="275" y2="53" stroke="var(--color-rule-2)" stroke-width="2"/>
+              <polygon points="277,53 268,48 268,58" fill="var(--color-rule-2)"/>
 
-              <rect x="278" y="20" width="225" height="56" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
-              <text x="390" y="44" text-anchor="middle" font-size="13" font-weight="500" class="svg-amber">2. PLAN (1º Goldfish)</text>
-              <text x="390" y="63" text-anchor="middle" font-size="11" class="svg-muted">blast-radius · Cold Spec</text>
+              <!-- Fase 2: Plan -->
+              <rect x="279" y="26" width="225" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <text x="391" y="49" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">2. PLAN (1º Goldfish)</text>
+              <text x="391" y="67" text-anchor="middle" font-size="10.5" class="svg-muted">blast-radius · Cold Spec</text>
 
-              <line x1="503" y1="48" x2="553" y2="48" stroke="var(--color-rule-2)" stroke-width="2"/>
-              <polygon points="553,48 545,43 545,53" fill="var(--color-rule-2)"/>
+              <line x1="504" y1="53" x2="554" y2="53" stroke="var(--color-ok)" stroke-width="2"/>
+              <polygon points="556,53 547,48 547,58" fill="var(--color-ok)"/>
 
-              <!-- Inner Loop Box enclosing Build + Verify -->
-              <rect x="555" y="6" width="510" height="84" rx="8" fill="none" stroke="var(--color-ok)" stroke-dasharray="6 4" stroke-width="1.8"/>
-              <text x="810" y="18" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-ok">∞ INNER LOOP TDD (~3s por domínio impactado: Red → Green → Refactor)</text>
+              <!-- Fase 3: Build (Nó Esquerdo do Inner Loop) -->
+              <rect x="558" y="26" width="220" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="2"/>
+              <text x="668" y="49" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">3. BUILD (Fatia Vertical)</text>
+              <text x="668" y="67" text-anchor="middle" font-size="10.5" class="svg-muted">modern-web · api-design</text>
 
-              <rect x="570" y="24" width="220" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="680" y="46" text-anchor="middle" font-size="13" font-weight="500" class="svg-ok">3. BUILD (Incremental)</text>
-              <text x="680" y="64" text-anchor="middle" font-size="11" class="svg-muted">modern-web · api-design</text>
+              <!-- Arco Superior do Inner Loop (Build ↷ Verify: Red -> Green) -->
+              <path d="M 730 26 C 785 2, 865 2, 920 26" fill="none" stroke="var(--color-ok)" stroke-width="2.2"/>
+              <polygon points="922,27 912,24 916,17" fill="var(--color-ok)"/>
+              <text x="825" y="14" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-ok">∞ INNER LOOP TDD (~3s: Red → Green)</text>
 
-              <line x1="790" y1="51" x2="830" y2="51" stroke="var(--color-ok)" stroke-width="2"/>
+              <!-- Arco Inferior do Inner Loop (Verify ↶ Build: Refactor ↺) -->
+              <path d="M 920 80 C 865 100, 785 100, 730 80" fill="none" stroke="var(--color-ok)" stroke-width="2" stroke-dasharray="5 3"/>
+              <polygon points="728,79 738,82 734,89" fill="var(--color-ok)"/>
+              <text x="825" y="96" text-anchor="middle" font-size="10" class="svg-ok">↺ Refactor &amp; Re-test (Suítes do Domínio)</text>
 
-              <rect x="830" y="24" width="220" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="940" y="46" text-anchor="middle" font-size="13" font-weight="500" class="svg-ok">4. VERIFY (TDD + MCP)</text>
-              <text x="940" y="64" text-anchor="middle" font-size="11" class="svg-muted">vitest domínio · devtools</text>
+              <!-- Fase 4: Verify (Nó Direito do Inner Loop) -->
+              <rect x="875" y="26" width="220" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="2"/>
+              <text x="985" y="49" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">4. VERIFY (Vitest + MCP)</text>
+              <text x="985" y="67" text-anchor="middle" font-size="10.5" class="svg-muted">TDD domínio · DevTools</text>
 
-              <line x1="1065" y1="48" x2="1115" y2="48" stroke="var(--color-rule-2)" stroke-width="2"/>
-              <polygon points="1115,48 1107,43 1107,53" fill="var(--color-rule-2)"/>
+              <line x1="1095" y1="53" x2="1145" y2="53" stroke="var(--color-accent)" stroke-width="2"/>
+              <polygon points="1147,53 1138,48 1138,58" fill="var(--color-accent)"/>
 
-              <rect x="1117" y="16" width="228" height="64" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2"/>
-              <text x="1231" y="39" text-anchor="middle" font-size="13" font-weight="500" class="svg-ok">5. REVIEW &amp; SHIP</text>
-              <text x="1231" y="56" text-anchor="middle" font-size="11" class="svg-ink2">Outer Loop: 12 Portões</text>
-              <text x="1231" y="71" text-anchor="middle" font-size="10.5" class="svg-amber">+ 2º Goldfish (review.ps1)</text>
+              <!-- Fase 5: Review & Ship (Outer Loop Gate) -->
+              <rect x="1149" y="22" width="248" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
+              <text x="1273" y="45" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">5. REVIEW &amp; PRECOMMIT</text>
+              <text x="1273" y="63" text-anchor="middle" font-size="10.5" class="svg-ink2">12 Portões + 2º Goldfish (review.ps1)</text>
+
+              <!-- Arco Externo do Outer Loop (Review ↶ Build se reprovado) -->
+              <path d="M 1273 84 C 1220 116, 710 116, 635 82" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="6 4"/>
+              <polygon points="633,81 643,83 639,90" fill="var(--color-accent)"/>
+              <rect x="855" y="99" width="265" height="17" rx="4" fill="var(--color-paper-3)" stroke="var(--color-accent)" stroke-width="1.2"/>
+              <text x="987" y="111" text-anchor="middle" font-size="9.5" font-weight="500" class="svg-amber">↺ OUTER LOOP: Se Reprovado → Fix via TDD</text>
+
+              <!-- Saída Aprovada (Exit 0) -->
+              <line x1="1397" y1="53" x2="1443" y2="53" stroke="var(--color-ok)" stroke-width="2.2"/>
+              <polygon points="1445,53 1436,48 1436,58" fill="var(--color-ok)"/>
+              <rect x="1447" y="26" width="137" height="54" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2"/>
+              <text x="1515" y="49" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">SHIP (EXIT 0)</text>
+              <text x="1515" y="67" text-anchor="middle" font-size="10" class="svg-ink2">APROVADO 1:1</text>
             </svg>
           </div>
 
@@ -609,14 +661,14 @@
               <ul class="list-compact">
                 <li><strong class="measured tone-cool">planning-and-task-breakdown</strong><span>Decompõe a especificação em tarefas S/M ordenadas e independentes.</span></li>
                 <li><strong class="measured tone-cool">constraint-driven-development</strong><span>Fixa barras de qualidade, limites de latência e invariantes arquiteturais.</span></li>
-                <li><strong class="measured tone-cool">doubt-driven &amp; egm-goldfish</strong><span>Submete decisões não-triviais à revisão adversarial em contexto limpo (1º Portão).</span></li>
+                <li><strong class="measured tone-cool">egm-goldfish &amp; dag-slice-orchestrator</strong><span>1º Portão Cold Spec seguido do Grafo DAG Pós-Goldfish com alocação GF-01..N.</span></li>
               </ul>
             </div>
 
             <div class="cell">
               <div class="cell__top"><h3>3. Fase Build</h3><span class="chip chip--instrument">Execução</span></div>
               <ul class="list-compact">
-                <li><strong class="measured tone-cool">incremental-implementation</strong><span>Entrega alterações em fatias verticais finas com <span class="measured tone-cool">doubt-driven-development</span>.</span></li>
+                <li><strong class="measured tone-cool">incremental-implementation</strong><span>Despacho em ondas de fatias verticais via <span class="measured tone-cool">dag-slice-orchestrator</span> (<span class="measured tone-cool">slice-executor</span>).</span></li>
                 <li><strong class="measured tone-cool">modern-web-guidance + UI</strong><span>Combina <span class="measured tone-cool">modern-web-guidance</span>, <span class="measured tone-cool">frontend-ui-engineering</span>, <span class="measured tone-cool">accessibility</span> e <span class="measured tone-cool">core-web-vitals</span>.</span></li>
                 <li><strong class="measured tone-cool">api-and-interface-design</strong><span>Contratos REST/TypeScript estáveis + <span class="measured tone-cool">source-driven-development</span>.</span></li>
               </ul>
@@ -648,35 +700,11 @@
             <div>
               <h2>Suíte Agent Skills (Parte 2): Padrão Domain-as-a-Skill e Web</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 08 de 25</span>
+                <span class="chip chip--person">Slide 08 de 26</span>
                 <span class="measured tone-cool">Cartuchos Sob Demanda (Exemplo Heldora) + Governança Modern Web (Regra 1.20)</span>
               </div>
             </div>
             <p>Em vez de inflar o prompt global ou confiar na memória do modelo para normas complexas de negócio, o harness isola o conhecimento específico de cada produto em cartuchos de Skills carregados sob demanda.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 05: Arquitetura de Cartuchos Domain-as-a-Skill -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Diagrama da arquitetura Plug and Play Domain-as-a-Skill: o Núcleo Imutável do Harness permanece com 0 tokens de poluição de domínio e acopla sob demanda cartuchos especialistas como Editorial KDP, Financeiro Bacen ou Saúde HIPAA">
-              <rect x="20" y="16" width="350" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
-              <text x="195" y="42" text-anchor="middle" font-size="13" font-weight="500" class="svg-amber">NÚCLEO IMUTÁVEL DO HARNESS</text>
-              <text x="195" y="62" text-anchor="middle" font-size="11" class="svg-muted">0 Tokens de Poluição no Prompt Base</text>
-
-              <line x1="370" y1="47" x2="475" y2="47" stroke="var(--color-cool)" stroke-dasharray="5 3" stroke-width="2.2"/>
-              <text x="422" y="36" text-anchor="middle" font-size="10.5" class="svg-cool">Lazy Load</text>
-
-              <rect x="478" y="16" width="275" height="62" rx="6" fill="var(--color-cool-soft)" stroke="var(--color-cool)" stroke-width="2"/>
-              <text x="615" y="42" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">Cartucho A: Editorial KDP</text>
-              <text x="615" y="62" text-anchor="middle" font-size="10.5" class="svg-ink2">DOCX v9.x · EPUB 3.3 · ISBD/RDA</text>
-
-              <rect x="775" y="16" width="275" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-rule-2)" stroke-width="1.5"/>
-              <text x="912" y="42" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ink2">Cartucho B: FinOps / Fiscal</text>
-              <text x="912" y="62" text-anchor="middle" font-size="10.5" class="svg-muted">Regras Tributárias, Bacen, Ledger</text>
-
-              <rect x="1072" y="16" width="268" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="1206" y="42" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">Cartucho C: Modern Web</text>
-              <text x="1206" y="62" text-anchor="middle" font-size="10.5" class="svg-muted">legacy-scan = 0 · WCAG 2.2 · CWV</text>
-            </svg>
           </div>
 
           <div class="panels panels--3">
@@ -724,38 +752,11 @@
             <div>
               <h2>Suíte Agent Skills (Parte 3): Campanha Mantis e Segurança de Dados</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 09 de 25</span>
+                <span class="chip chip--person">Slide 09 de 26</span>
                 <span class="measured tone-cool">19 Skills de Segurança Defensiva (Mantis) + Subagentes Especialistas de Persistência</span>
               </div>
             </div>
             <p>Uma linha de montagem completa de engenharia de segurança para mapear superfícies de ataque, eliminar falsos positivos, reproduzir falhas e blindar regras de banco de dados.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 06: Funil Defensivo Mantis em 4 Estágios -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Pipeline de 4 estágios da campanha defensiva Mantis: Estágio 1 Knowledge Base (summarize, index, history, architecture), Estágio 2 Threat Model e Audit (threat-model, plan, researcher, dedupe), Estágio 3 Exploit e Patch (critic, reproduce, chain, patch) e Estágio 4 Governança de Persistência e Regras de Acesso">
-              <rect x="16" y="16" width="310" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="171" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">ESTÁGIO 1: KNOWLEDGE BASE</text>
-              <text x="171" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">summarize · structural-index · history</text>
-
-              <line x1="326" y1="47" x2="356" y2="47" stroke="var(--color-rule-2)" stroke-width="2"/>
-
-              <rect x="358" y="16" width="310" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="513" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">ESTÁGIO 2: THREAT &amp; HUNT</text>
-              <text x="513" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">threat-model · researcher · dedupe</text>
-
-              <line x1="668" y1="47" x2="698" y2="47" stroke="var(--color-rule-2)" stroke-width="2"/>
-
-              <rect x="700" y="16" width="310" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="855" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">ESTÁGIO 3: PROVA &amp; PATCH</text>
-              <text x="855" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">reproduce · chain · calibrate · patch</text>
-
-              <line x1="1010" y1="47" x2="1040" y2="47" stroke="var(--color-accent)" stroke-width="2"/>
-
-              <rect x="1042" y="16" width="302" height="62" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
-              <text x="1193" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">4. SEGURANÇA DE DADOS</text>
-              <text x="1193" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Políticas RLS / ACL / Regras de Banco</text>
-            </svg>
           </div>
 
           <div class="panels panels--4">
@@ -806,7 +807,7 @@
             <div>
               <h2>Padrão EGM (Parte 1): O 1º Portão Cold Spec Review</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 10 de 25</span>
+                <span class="chip chip--person">Slide 10 de 26</span>
                 <span class="measured tone-cool">Regra 1.3.7 · Barreira de Isolamento Cognitivo (Context Firewall) na Fase Plan</span>
               </div>
             </div>
@@ -908,7 +909,7 @@
             <div>
               <h2>Padrão EGM (Parte 2): A Matriz GF-01..N e o Controle Humano</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 11 de 25</span>
+                <span class="chip chip--person">Slide 11 de 26</span>
                 <span class="measured tone-cool">Transparência Total entre Crítica Fria (Goldfish) e Contexto de Negócio (Elephant)</span>
               </div>
             </div>
@@ -977,13 +978,118 @@
           </div>
         </section>
 
-        <!-- SLIDE 12: PADRÃO EGM (PARTE 3: 2º PORTÃO GOLDFISH DE IMPLEMENTAÇÃO) -->
-        <section class="slide" role="tabpanel" id="slide-12" aria-labelledby="tab-12" data-title="EGM Goldfish (Parte 3: 2º Portão de Implementação)" hidden>
+        <!-- SLIDE 12: ORQUESTRAÇÃO PÓS-GOLDFISH (GRAFO DAG & SUBAGENTES POR ONDAS) -->
+        <section class="slide" role="tabpanel" id="slide-12" aria-labelledby="tab-12" data-title="Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Orquestração Reativa: Grafo DAG e Subagentes por Ondas</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 12 de 26</span>
+                <span class="measured tone-cool">.agents/skills/dag-slice-orchestrator/SKILL.md · Pós-Goldfish DAG, 3 Tiers de Modelo e 5 Travas Caixa-Forte</span>
+              </div>
+            </div>
+            <p>O Grafo DAG só fecha após o 1º Goldfish: aloca 100% dos achados <span class="measured tone-amber">GF-01..N</span> nas fatias, roteia cada nó para o tier ideal (<span class="measured tone-ok">"flash"</span>, <span class="measured tone-cool">"inherit"</span>, <span class="measured tone-amber">"pro"</span>) e despacha subagentes <span class="measured tone-cool">slice-executor</span> em ondas paralelas disjuntas.</p>
+          </div>
+
+          <div class="svg-ribbon svg-ribbon--graph">
+            <!-- SVG 08: Grafo DAG de Execução por Ondas (Pós-Goldfish -> Onda 1 -> Onda 2 Paralela Disjunta -> Onda 3 Convergência) -->
+            <svg class="svg-canvas" viewBox="0 0 1600 122" role="img" aria-label="Grafo Acíclico Dirigido (DAG) de Execução por Ondas: o 1º Portão Goldfish (GF-01..07) alimenta a Onda 1 (Fatia 1 com Model flash para Tríade docs e contratos base), que bifurca via arestas curvas em paralelo para a Onda 2A (Fatia 2 com Model inherit e GF-01..04) e Onda 2B (Fatia 3 com Model pro, GF-05..07 e Retry Escalation) sob a invariante Files(F2) interseção Files(F3) igual a vazio, convergindo na Onda 3 (Portão Final Orquestrador com audit-verify, review.ps1 e 2º Goldfish até APROVADO)">
+              <!-- Nó 0: 1º Portão Goldfish -->
+              <rect x="14" y="34" width="210" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
+              <text x="119" y="57" text-anchor="middle" font-size="12" font-weight="500" class="svg-amber">1º Portão 🐠 Goldfish</text>
+              <text x="119" y="75" text-anchor="middle" font-size="10" class="svg-ink2">Cold Spec · Achados GF-01..07</text>
+
+              <line x1="224" y1="61" x2="272" y2="61" stroke="var(--color-accent)" stroke-width="2.2"/>
+              <polygon points="274,61 265,56 265,66" fill="var(--color-accent)"/>
+
+              <!-- Nó 1: Onda 1 (Fatia Base) -->
+              <rect x="276" y="32" width="270" height="58" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="2"/>
+              <text x="411" y="55" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">Onda 1 · Fatia 1 (Model: "flash")</text>
+              <text x="411" y="74" text-anchor="middle" font-size="10" class="svg-ink2">Tríade docs/ + Contratos Base (Hydrogen)</text>
+
+              <!-- Arestas Curvas de Bifurcação (Onda 1 -> Onda 2A e 2B) -->
+              <path d="M 546 48 C 590 48, 600 26, 644 26" fill="none" stroke="var(--color-cool)" stroke-width="2.2"/>
+              <polygon points="646,26 637,21 637,31" fill="var(--color-cool)"/>
+
+              <path d="M 546 74 C 590 74, 600 96, 644 96" fill="none" stroke="var(--color-accent)" stroke-width="2.2"/>
+              <polygon points="646,96 637,91 637,101" fill="var(--color-accent)"/>
+
+              <!-- Nó 2A: Onda 2 Paralela Superior (Fatia 2 - inherit) -->
+              <rect x="648" y="6" width="380" height="42" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
+              <text x="838" y="25" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-cool">Onda 2A · Fatia 2 (Model: "inherit" · GF-01..04)</text>
+              <text x="838" y="40" text-anchor="middle" font-size="9.8" class="svg-muted">slice-executor · Domínio/API + tests/ (Argon/Neon)</text>
+
+              <!-- Badge Central de Disjunção Estrita -->
+              <rect x="728" y="51" width="220" height="20" rx="4" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.4"/>
+              <text x="838" y="65" text-anchor="middle" font-size="10" font-weight="500" class="svg-ok">Files(F2) ∩ Files(F3) = ∅ (Disjuntos)</text>
+
+              <!-- Nó 2B: Onda 2 Paralela Inferior (Fatia 3 - pro) -->
+              <rect x="648" y="74" width="380" height="42" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <text x="838" y="93" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">Onda 2B · Fatia 3 (Model: "pro" · GF-05..07 · Retry Escalation)</text>
+              <text x="838" y="108" text-anchor="middle" font-size="9.8" class="svg-muted">slice-executor · Algoritmo Crítico/CWE + tests/ (Carbon)</text>
+
+              <!-- Arestas Curvas de Convergência (Onda 2A e 2B -> Onda 3) -->
+              <path d="M 1028 26 C 1072 26, 1084 48, 1126 48" fill="none" stroke="var(--color-cool)" stroke-width="2.2"/>
+              <polygon points="1128,48 1119,43 1119,53" fill="var(--color-cool)"/>
+
+              <path d="M 1028 96 C 1072 96, 1084 74, 1126 74" fill="none" stroke="var(--color-accent)" stroke-width="2.2"/>
+              <polygon points="1128,74 1119,69 1119,79" fill="var(--color-accent)"/>
+
+              <!-- Nó 3: Onda 3 (Portão Final de Convergência no Orquestrador) -->
+              <rect x="1130" y="24" width="456" height="74" rx="8" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2.2"/>
+              <text x="1358" y="48" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">Onda 3 · Portão Final Orquestrador (🐘 Elephant)</text>
+              <text x="1358" y="67" text-anchor="middle" font-size="10.5" class="svg-ink2">Reactive Wakeup → audit-verify (12 Gates) + review.ps1</text>
+              <text x="1358" y="84" text-anchor="middle" font-size="10.5" font-weight="500" class="svg-ok">+ 2º Portão 🐠 Goldfish → VEREDITO: "APROVADO"</text>
+            </svg>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>1. Sequenciamento Pós-Goldfish &amp; Tabela DAG</h3>
+                <span class="chip chip--person">Post-Goldfish DAG</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Ordem Cronológica Inegociável</strong><span class="measured">Após 1º Goldfish</span></div><span>O Elephant nunca fecha o Grafo DAG antes do Cold Spec Review: 100% dos achados aprovados entram em <span class="measured tone-amber">GF-IDs Vinculados</span> (ou ganham Slice base na <span class="measured">Onda 1</span> se tocarem contrato compartilhado).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Seção DAG Execution Plan (7 Colunas)</strong><span class="measured">implementation_plan.md</span></div><span>Gera a tabela oficial com <span class="measured">Fatia, Onda, depends_on, GF-IDs Vinculados, Model Tier, Allowed Files Whitelist</span> e <span class="measured">Comando Inner Loop</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Sincronia 1:1 antes do Proceed</strong><span class="measured">task.md + plano</span></div><span>Alinha os checkboxes da conversa 1:1 com as ondas e fatias do grafo antes do clique humano em Proceed.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>2. Roteamento de 3 Tiers + Retry Escalation</h3>
+                <span class="chip chip--instrument">Equivalência Gemini 4</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Tier 1: "flash" (Gemini 4 Hydrogen)</strong><span class="measured">XS/S · LOW</span></div><span>Documentação da Tríade <span class="measured">docs/</span>, templates, configurações, constantes e schemas lineares.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Tier 2: "inherit" (Parent Argon / Neon)</strong><span class="measured">M · MEDIUM</span></div><span>Lógica de domínio, rotas de API, persistência, UI e suítes de integração com mocks moderados.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Tier 3: "pro" (Gemini 4 Carbon)</strong><span class="measured">HIGH · DSP / CWE</span></div><span>Algoritmos pesados, concorrência crítica, segurança/CWE e escalonamento do próprio auditor Goldfish para <span class="measured tone-amber">"pro"</span> em segurança crítica.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Protocolo Retry Escalation (1ª → 2ª Falha)</strong><span class="measured">Auto-Upgrade</span></div><span><strong class="tone-cool">1ª falha:</strong> <span class="measured tone-cool">send_message</span> cirúrgico para o mesmo <span class="measured">conversationId</span>; <strong class="tone-amber">2ª falha seguida:</strong> escalona automaticamente a fatia para <span class="measured tone-amber">Model: "pro"</span>.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>3. As 5 Travas Caixa-Forte (slice-executor)</h3>
+                <span class="chip chip--ok">Zero Drift Paralelo</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Travas 1 e 2: Fonte Única &amp; Disjunção</strong><span class="measured">Files(F2) ∩ Files(F3) = ∅</span></div><span>Leitura direta do <span class="measured">implementation_plan.md</span> (zero telefone sem fio) e paralelismo permitido apenas quando as Whitelists da onda são disjuntas.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Trava 3: Subagente Restrito slice-executor</strong><span class="measured">define_subagent</span></div><span>Criado com <span class="measured">EnableWriteTools: true</span>, <span class="measured">EnableSubagentTools: false</span>, enjaulado na <span class="measured tone-cool">Allowed Files Whitelist</span>, obrigado a rodar TDD (<span class="measured">Red → Green → Refactor</span> + <span class="measured">scan-clean-code.mjs</span>) e proibido de rodar <span class="measured tone-bad">git commit</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Travas 4 e 5: Reactive Wakeup &amp; Convergência</strong><span class="measured">Nó Final Único</span></div><span>Audita cada nó ao acordar (diff restrito à Whitelist + Exit 0) e converge no Orquestrador para os 12 Portões + <span class="measured tone-amber">review.ps1</span> + 2º Goldfish.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 13: PADRÃO EGM (PARTE 3: 2º PORTÃO GOLDFISH DE IMPLEMENTAÇÃO) -->
+        <section class="slide" role="tabpanel" id="slide-13" aria-labelledby="tab-13" data-title="EGM Goldfish (Parte 3: 2º Portão de Implementação)" hidden>
           <div class="slide-head">
             <div>
               <h2>Padrão EGM (Parte 3): O 2º Portão Goldfish de Implementação</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 12 de 25</span>
+                <span class="chip chip--person">Slide 13 de 26</span>
                 <span class="measured tone-cool">Regra 1.18 · Loop Autônomo Pré-Entrega Compatível com /goal</span>
               </div>
             </div>
@@ -1077,13 +1183,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 13: AUTOMAÇÃO POWERSHELL (REVIEW.PS1 & AUDIT-REPO.PS1) -->
-        <section class="slide" role="tabpanel" id="slide-13" aria-labelledby="tab-13" data-title="Automação PowerShell: review.ps1 & audit-repo.ps1" hidden>
+        <!-- SLIDE 14: AUTOMAÇÃO POWERSHELL (REVIEW.PS1 & AUDIT-REPO.PS1) -->
+        <section class="slide" role="tabpanel" id="slide-14" aria-labelledby="tab-14" data-title="Automação PowerShell: review.ps1 & audit-repo.ps1" hidden>
           <div class="slide-head">
             <div>
               <h2>Radiografia do review.ps1 e do audit-repo.ps1</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 13 de 25</span>
+                <span class="chip chip--person">Slide 14 de 26</span>
                 <span class="measured tone-cool">Dossiês Determinísticos com Blindagem Anti-Alucinação de Escopo</span>
               </div>
             </div>
@@ -1119,13 +1225,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 14: CLEAN CODE (PARTE 1: FAIXAS DE RISCO & REGRAS R1 A R7) -->
-        <section class="slide" role="tabpanel" id="slide-14" aria-labelledby="tab-14" data-title="Clean Code (Parte 1: Faixas de Risco & Regras R1 a R7)" hidden>
+        <!-- SLIDE 15: CLEAN CODE (PARTE 1: FAIXAS DE RISCO & REGRAS R1 A R7) -->
+        <section class="slide" role="tabpanel" id="slide-15" aria-labelledby="tab-15" data-title="Clean Code (Parte 1: Faixas de Risco & Regras R1 a R7)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 1): Faixas de Risco e Regras R1 a R7</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 14 de 25</span>
+                <span class="chip chip--person">Slide 15 de 26</span>
                 <span class="measured tone-cool">.agents/skills/clean-code-audit/SKILL.md · Coesão, SRP, Semântica e Tipos</span>
               </div>
             </div>
@@ -1163,13 +1269,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 15: CLEAN CODE (PARTE 2: CURVA CRAP < 10 & REGRAS R8 A R15) -->
-        <section class="slide" role="tabpanel" id="slide-15" aria-labelledby="tab-15" data-title="Clean Code (Parte 2: Curva CRAP < 10 & Regras R8 a R15)" hidden>
+        <!-- SLIDE 16: CLEAN CODE (PARTE 2: CURVA CRAP < 10 & REGRAS R8 A R15) -->
+        <section class="slide" role="tabpanel" id="slide-16" aria-labelledby="tab-16" data-title="Clean Code (Parte 2: Curva CRAP < 10 & Regras R8 a R15)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 2): Curva CRAP &lt; 10 e Regras R8 a R15</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 15 de 25</span>
+                <span class="chip chip--person">Slide 16 de 26</span>
                 <span class="measured tone-cool">Injeção de Dependência, Fronteira Matemática CRAP(m) &lt; 10, Erros Estruturados e Assinaturas</span>
               </div>
             </div>
@@ -1247,13 +1353,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 16: CLEAN CODE (PARTE 3: REGRAS R16 A R22 & PROTOCOLO ANTI-CASCATA) -->
-        <section class="slide" role="tabpanel" id="slide-16" aria-labelledby="tab-16" data-title="Clean Code (Parte 3: Regras R16 a R22 & Scanner CLI)" hidden>
+        <!-- SLIDE 17: CLEAN CODE (PARTE 3: REGRAS R16 A R22 & PROTOCOLO ANTI-CASCATA) -->
+        <section class="slide" role="tabpanel" id="slide-17" aria-labelledby="tab-17" data-title="Clean Code (Parte 3: Regras R16 a R22 & Scanner CLI)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 3): Regras R16 a R22 e Scanner CLI</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 16 de 25</span>
+                <span class="chip chip--person">Slide 17 de 26</span>
                 <span class="measured tone-cool">Imutabilidade, Runtime Anti-Freeze/Stateless, Fronteiras de Schema e Zero Ciclos</span>
               </div>
             </div>
@@ -1292,56 +1398,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 17: AUDIT-VERIFY.MJS (PARTE 1: PORTÕES 01 A 06) -->
-        <section class="slide" role="tabpanel" id="slide-17" aria-labelledby="tab-17" data-title="audit-verify.mjs (Parte 1: Portões Determinísticos 01 a 06)" hidden>
+        <!-- SLIDE 18: AUDIT-VERIFY.MJS (PARTE 1: PORTÕES 01 A 06) -->
+        <section class="slide" role="tabpanel" id="slide-18" aria-labelledby="tab-18" data-title="audit-verify.mjs (Parte 1: Portões Determinísticos 01 a 06)" hidden>
           <div class="slide-head">
             <div>
               <h2>audit-verify.mjs (Parte 1): Portões Determinísticos 01 a 06</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 17 de 25</span>
+                <span class="chip chip--person">Slide 18 de 26</span>
                 <span class="measured tone-cool">scripts/audit-verify.mjs · Supply Chain, AST, Fronteiras, Código Morto e Frontend</span>
               </div>
             </div>
             <p>A primeira metade da esteira <span class="measured tone-cool">npm run precommit</span> blinda a integridade das dependências, a árvore sintática, o grafo de camadas e a tipagem do Frontend.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 10A: Pipeline Portões 01 a 06 -->
-            <svg class="svg-canvas" viewBox="0 0 1360 90" role="img" aria-label="Diagrama sequencial Fail-Fast dos Portões 01 a 06 do audit-verify.mjs: G01 Lockfile Sync, G02 NPM Audit High, G03 ast-grep AST Scan, G04 Dependency Cruiser, G05 Knip Dead Code e G06 Typecheck Frontend">
-              <rect x="14" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="116" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G01 · Lockfile Sync</text>
-              <text x="116" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">check-lockfile-sync</text>
-
-              <line x1="219" y1="45" x2="241" y2="45" stroke="var(--color-ok)" stroke-width="2"/>
-
-              <rect x="241" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="343" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G02 · Supply Chain</text>
-              <text x="343" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">npm audit (level=high)</text>
-
-              <line x1="446" y1="45" x2="468" y2="45" stroke="var(--color-ok)" stroke-width="2"/>
-
-              <rect x="468" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="570" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G03 · Tree-sitter AST</text>
-              <text x="570" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">ast-grep scan</text>
-
-              <line x1="673" y1="45" x2="695" y2="45" stroke="var(--color-cool)" stroke-width="2"/>
-
-              <rect x="695" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="797" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">G04 · Fronteiras</text>
-              <text x="797" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">dependency-cruiser</text>
-
-              <line x1="900" y1="45" x2="922" y2="45" stroke="var(--color-cool)" stroke-width="2"/>
-
-              <rect x="922" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="1024" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">G05 · Zero Órfãos</text>
-              <text x="1024" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">knip dead-code</text>
-
-              <line x1="1127" y1="45" x2="1149" y2="45" stroke="var(--color-cool)" stroke-width="2"/>
-
-              <rect x="1149" y="15" width="197" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="1247" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">G06 · TSC Frontend</text>
-              <text x="1247" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">Next.js + TipTap UI</text>
-            </svg>
           </div>
 
           <div class="panels panels--3">
@@ -1389,56 +1456,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 18: AUDIT-VERIFY.MJS (PARTE 2: PORTÕES 07 A 12) -->
-        <section class="slide" role="tabpanel" id="slide-18" aria-labelledby="tab-18" data-title="audit-verify.mjs (Parte 2: Portões Determinísticos 07 a 12)" hidden>
+        <!-- SLIDE 19: AUDIT-VERIFY.MJS (PARTE 2: PORTÕES 07 A 12) -->
+        <section class="slide" role="tabpanel" id="slide-19" aria-labelledby="tab-19" data-title="audit-verify.mjs (Parte 2: Portões Determinísticos 07 a 12)" hidden>
           <div class="slide-head">
             <div>
               <h2>audit-verify.mjs (Parte 2): Portões Determinísticos 07 a 12</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 18 de 25</span>
+                <span class="chip chip--person">Slide 19 de 26</span>
                 <span class="measured tone-cool">scripts/audit-verify.mjs · Backend, Landing, Archify 3D, Vitest e Clean Code 22/22</span>
               </div>
             </div>
             <p>A segunda metade valida os contratos de IA e da Landing Page, a paridade do grafo arquitetural 3D, a regressão funcional completa e as 22 regras em tolerância zero.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 10B: Pipeline Portões 07 a 12 -->
-            <svg class="svg-canvas" viewBox="0 0 1360 90" role="img" aria-label="Diagrama sequencial Fail-Fast dos Portões 07 a 12 do audit-verify.mjs: G07 Typecheck Backend, G08 Typecheck Landing, G09 Archify 3D Fitness Check, G10 Vitest Suite, G11 Test Naming Governance e G12 Clean Code 22 de 22 Zero Tolerance">
-              <rect x="14" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="116" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">G07 · TSC Backend</text>
-              <text x="116" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">Orquestradores IA</text>
-
-              <line x1="219" y1="45" x2="241" y2="45" stroke="var(--color-cool)" stroke-width="2"/>
-
-              <rect x="241" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="343" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">G08 · TSC Landing</text>
-              <text x="343" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">Vitrine Comercial</text>
-
-              <line x1="446" y1="45" x2="468" y2="45" stroke="var(--color-cool)" stroke-width="2"/>
-
-              <rect x="468" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
-              <text x="570" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-amber">G09 · Archify 3D</text>
-              <text x="570" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">sync-graph --check</text>
-
-              <line x1="673" y1="45" x2="695" y2="45" stroke="var(--color-ok)" stroke-width="2"/>
-
-              <rect x="695" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="797" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G10 · Vitest Suite</text>
-              <text x="797" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">Regressão BDD/TDD</text>
-
-              <line x1="900" y1="45" x2="922" y2="45" stroke="var(--color-ok)" stroke-width="2"/>
-
-              <rect x="922" y="15" width="205" height="60" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="1024" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G11 · Test Naming</text>
-              <text x="1024" y="59" text-anchor="middle" font-size="10.5" class="svg-muted">6 Pastas de Domínio</text>
-
-              <line x1="1127" y1="45" x2="1149" y2="45" stroke="var(--color-ok)" stroke-width="2"/>
-
-              <rect x="1149" y="15" width="197" height="60" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2.2"/>
-              <text x="1247" y="40" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">G12 · Clean Code</text>
-              <text x="1247" y="59" text-anchor="middle" font-size="10.5" class="svg-ok">22/22 Zero Tolerance</text>
-            </svg>
           </div>
 
           <div class="panels panels--3">
@@ -1486,48 +1514,106 @@
           </div>
         </section>
 
-        <!-- SLIDE 19: PREVENÇÃO PRÉ-VOO (BLAST RADIUS & PLAN COLLISION) -->
-        <section class="slide" role="tabpanel" id="slide-19" aria-labelledby="tab-19" data-title="Inteligência Pré-Voo: blast-radius.mjs & plan-collision.mjs" hidden>
+        <!-- SLIDE 20: PREVENÇÃO PRÉ-VOO (BLAST RADIUS & PLAN COLLISION) -->
+        <section class="slide" role="tabpanel" id="slide-20" aria-labelledby="tab-20" data-title="Inteligência Pré-Voo: blast-radius.mjs & plan-collision.mjs" hidden>
           <div class="slide-head">
             <div>
               <h2>Inteligência Pré-Voo: Blast Radius e Radar de Colisão</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 19 de 25</span>
+                <span class="chip chip--person">Slide 20 de 26</span>
                 <span class="measured tone-cool">Regras 1.3.2 e 1.7.1 · Proteção Topológica Antes da Primeira Linha de Código</span>
               </div>
             </div>
             <p>Dois motores determinísticos executados durante o planejamento: um calcula todos os consumidores reversos do módulo; o outro impede colisões entre sessões paralelas.</p>
           </div>
 
-          <div class="svg-ribbon">
-            <!-- SVG 11: Grafo Blast Radius Reverso + Lock Paralelo .git/active-plans.json -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Diagrama duplo mostrando à esquerda o grafo de Blast Radius Reverso irradiando de types/project.ts para 6 consumidores (acionando Alerta HIGH e selecionando as suítes Vitest) e à direita o semáforo de colisão paralela em .git/active-plans.json">
-              <!-- Lado Esquerdo: Blast Radius -->
-              <rect x="16" y="18" width="215" height="58" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
-              <text x="123" y="42" text-anchor="middle" font-size="12" font-weight="500" class="svg-amber">Alvo: types/project.ts</text>
-              <text x="123" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Camada: Core · Eixo C/E</text>
+          <div class="svg-ribbon svg-ribbon--graph">
+            <!-- SVG 11: Grafo Direcionado Real de Blast Radius (Grade 2x3) + Grafo de Lock Paralelo .git/active-plans.json -->
+            <svg class="svg-canvas" viewBox="0 0 1600 122" role="img" aria-label="Grafo Direcionado Duplo: à esquerda, o nó types/project.ts irradia 6 arestas Bezier para 6 módulos consumidores organizados em grade 2 por 3 (api/export.ts, services/parser.ts, hooks/useBook.ts, store/project.ts, ui/Editor.tsx e workers/job.ts), disparando o limiar 6 maior ou igual a 5 (RISCO HIGH) e selecionando 3 suítes .spec.ts; à direita, o semáforo .git/active-plans.json concede LOCK OK para a Sessão A #52 e bloqueia por COLLISION BLOCK a Sessão B #53 ao tentar reservar o mesmo arquivo">
+              <!-- METADE ESQUERDA: GRAFO DE BLAST RADIUS REVERSO (FAN-OUT 1 -> 6 EM GRADE 2x3) -->
+              <rect x="14" y="34" width="164" height="54" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
+              <text x="96" y="57" text-anchor="middle" font-size="12" font-weight="500" class="svg-amber">types/project.ts</text>
+              <text x="96" y="75" text-anchor="middle" font-size="10" class="svg-ink2">Nó Alvo · Core (Eixo C/E)</text>
 
-              <line x1="231" y1="47" x2="295" y2="47" stroke="var(--color-accent)" stroke-width="2"/>
-              <polygon points="295,47 287,42 287,52" fill="var(--color-accent)"/>
+              <!-- 6 Arestas Bezier irradiando para a Grade 2x3 -->
+              <path d="M 178 46 C 202 46, 206 23, 228 23" fill="none" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <path d="M 178 61 L 228 61" fill="none" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <path d="M 178 76 C 202 76, 206 99, 228 99" fill="none" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <path d="M 358 23 L 376 23" fill="none" stroke="var(--color-cool)" stroke-width="1.6" stroke-dasharray="3 2"/>
+              <path d="M 358 61 L 376 61" fill="none" stroke="var(--color-cool)" stroke-width="1.6" stroke-dasharray="3 2"/>
+              <path d="M 358 99 L 376 99" fill="none" stroke="var(--color-cool)" stroke-width="1.6" stroke-dasharray="3 2"/>
 
-              <rect x="297" y="18" width="295" height="58" rx="6" fill="var(--color-paper-2)" stroke="var(--color-bad)" stroke-width="1.8"/>
-              <text x="444" y="42" text-anchor="middle" font-size="12" font-weight="500" class="svg-bad">6 Dependentes Reversos (≥ 5 = HIGH)</text>
-              <text x="444" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">Aciona Sequential Thinking + Cold Spec</text>
+              <!-- Coluna 1 de Dependentes (Backend / Services / Hooks) -->
+              <rect x="228" y="10" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="293" y="27" text-anchor="middle" font-size="11" class="svg-cool">api/export.ts</text>
 
-              <!-- Divisória Central -->
-              <line x1="645" y1="10" x2="645" y2="84" stroke="var(--color-rule-2)" stroke-dasharray="4 4" stroke-width="1.5"/>
+              <rect x="228" y="48" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="293" y="65" text-anchor="middle" font-size="11" class="svg-cool">services/parser.ts</text>
 
-              <!-- Lado Direito: Plan Collision -->
-              <rect x="690" y="18" width="280" height="58" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="830" y="42" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">.git/active-plans.json</text>
-              <text x="830" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">Fora do Working Tree (Zero git status)</text>
+              <rect x="228" y="86" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="293" y="103" text-anchor="middle" font-size="11" class="svg-cool">hooks/useBook.ts</text>
 
-              <line x1="970" y1="47" x2="1030" y2="47" stroke="var(--color-ok)" stroke-width="2"/>
-              <polygon points="1030,47 1022,42 1022,52" fill="var(--color-ok)"/>
+              <!-- Coluna 2 de Dependentes (Store / UI / Workers) -->
+              <rect x="376" y="10" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="441" y="27" text-anchor="middle" font-size="11" class="svg-cool">store/project.ts</text>
 
-              <rect x="1032" y="18" width="312" height="58" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="1188" y="42" text-anchor="middle" font-size="12" font-weight="500" class="svg-ok">Isolamento de Sessões Paralelas</text>
-              <text x="1188" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Detecta sobreposição de arquivos no Plan</text>
+              <rect x="376" y="48" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="441" y="65" text-anchor="middle" font-size="11" class="svg-cool">ui/Editor.tsx</text>
+
+              <rect x="376" y="86" width="130" height="26" rx="4" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.5"/>
+              <text x="441" y="103" text-anchor="middle" font-size="11" class="svg-cool">workers/job.ts</text>
+
+              <!-- Arestas de Convergência para o Gatilho de Risco High -->
+              <path d="M 506 23 C 528 23, 530 48, 552 48" fill="none" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <path d="M 506 61 L 552 61" fill="none" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <path d="M 506 99 C 528 99, 530 74, 552 74" fill="none" stroke="var(--color-bad)" stroke-width="1.8"/>
+
+              <rect x="552" y="12" width="218" height="46" rx="6" fill="var(--color-bad-soft)" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <text x="661" y="32" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-bad">6 Dependentes ≥ 5 = HIGH</text>
+              <text x="661" y="48" text-anchor="middle" font-size="10" class="svg-ink2">Exige Sequential + Cold Spec</text>
+
+              <rect x="552" y="66" width="218" height="44" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.8"/>
+              <text x="661" y="85" text-anchor="middle" font-size="11" font-weight="500" class="svg-ok">Inner Loop: 3 Suítes .spec.ts</text>
+              <text x="661" y="101" text-anchor="middle" font-size="10" class="svg-ink2">Seleção Cirúrgica Vitest (~3s)</text>
+
+              <!-- DIVISÓRIA CENTRAL -->
+              <line x1="802" y1="8" x2="802" y2="114" stroke="var(--color-rule-2)" stroke-dasharray="4 4" stroke-width="1.8"/>
+
+              <!-- METADE DIREITA: GRAFO DE LOCK CONCORRENTE (.git/active-plans.json) -->
+              <rect x="832" y="12" width="180" height="42" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
+              <text x="922" y="31" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-ok">Sessão A #52 (Ativa)</text>
+              <text x="922" y="46" text-anchor="middle" font-size="10" class="svg-muted">register --files project.ts</text>
+
+              <rect x="832" y="68" width="180" height="42" rx="6" fill="var(--color-paper-2)" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <text x="922" y="87" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-bad">Sessão B #53 (Paralela)</text>
+              <text x="922" y="102" text-anchor="middle" font-size="10" class="svg-muted">register --files project.ts</text>
+
+              <!-- Aresta Sessão A -> Lock OK -->
+              <path d="M 1012 33 C 1055 33, 1065 46, 1108 46" fill="none" stroke="var(--color-ok)" stroke-width="2.2"/>
+              <polygon points="1110,46 1101,41 1101,51" fill="var(--color-ok)"/>
+              <text x="1060" y="25" text-anchor="middle" font-size="10" font-weight="500" class="svg-ok">1º Lock</text>
+
+              <!-- Aresta Sessão B -> Collision Block -->
+              <path d="M 1012 89 C 1055 89, 1065 76, 1108 76" fill="none" stroke="var(--color-bad)" stroke-width="2.2" stroke-dasharray="5 3"/>
+              <polygon points="1110,76 1101,71 1101,81" fill="var(--color-bad)"/>
+              <text x="1060" y="104" text-anchor="middle" font-size="10" font-weight="500" class="svg-bad">Conflito!</text>
+
+              <!-- Nó Guardião .git/active-plans.json -->
+              <rect x="1112" y="28" width="212" height="66" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="2"/>
+              <text x="1218" y="53" text-anchor="middle" font-size="12" font-weight="500" class="svg-cool">.git/active-plans.json</text>
+              <text x="1218" y="71" text-anchor="middle" font-size="10" class="svg-muted">Semáforo Fora do Working Tree</text>
+              <text x="1218" y="85" text-anchor="middle" font-size="9.5" class="svg-amber">Recurso: types/project.ts</text>
+
+              <!-- Estados de Saída do Semáforo -->
+              <line x1="1324" y1="45" x2="1364" y2="33" stroke="var(--color-ok)" stroke-width="2"/>
+              <rect x="1366" y="12" width="218" height="42" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.8"/>
+              <text x="1475" y="31" text-anchor="middle" font-size="11" font-weight="500" class="svg-ok">✓ SESSÃO A: LOCK OK</text>
+              <text x="1475" y="46" text-anchor="middle" font-size="10" class="svg-ink2">Segue para Build + Release</text>
+
+              <line x1="1324" y1="77" x2="1364" y2="89" stroke="var(--color-bad)" stroke-width="2" stroke-dasharray="4 3"/>
+              <rect x="1366" y="68" width="218" height="42" rx="6" fill="var(--color-bad-soft)" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <text x="1475" y="87" text-anchor="middle" font-size="11" font-weight="500" class="svg-bad">✕ SESSÃO B: COLLISION BLOCK</text>
+              <text x="1475" y="102" text-anchor="middle" font-size="10" class="svg-ink2">Alerta Pré-Voo antes do código</text>
             </svg>
           </div>
 
@@ -1562,37 +1648,50 @@
           </div>
         </section>
 
-        <!-- SLIDE 20: ECOSSISTEMA MCP, SEQUENTIAL-THINKING & REPOMIX -->
-        <section class="slide" role="tabpanel" id="slide-20" aria-labelledby="tab-20" data-title="Ecossistema MCP: Sequential Thinking, DevTools & Repomix" hidden>
+        <!-- SLIDE 21: ECOSSISTEMA MCP, SEQUENTIAL-THINKING & REPOMIX -->
+        <section class="slide" role="tabpanel" id="slide-21" aria-labelledby="tab-21" data-title="Ecossistema MCP: Sequential Thinking, DevTools & Repomix" hidden>
           <div class="slide-head">
             <div>
               <h2>Ecossistema MCP, Sequential Thinking e Repomix</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 20 de 25</span>
+                <span class="chip chip--person">Slide 21 de 26</span>
                 <span class="measured tone-cool">.agents/skills/mcp-ecosystem-guide/SKILL.md · Tolerância Zero a Tentativa e Erro</span>
               </div>
             </div>
             <p>Princípio Anti-Guessing: o agente isola a causa raiz via <span class="measured tone-cool">sequential-thinking</span>, inspeciona o navegador real via <span class="measured tone-cool">chrome-devtools-mcp</span> e comprime a árvore sintática com Repomix.</p>
           </div>
 
-          <div class="svg-ribbon">
-            <!-- SVG 12: Funil Repomix Tree-sitter + Trava Brave Search -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Diagrama do protocolo cognitivo MCP: Funil de compressão Tree-sitter do Repomix reduzindo 50.000 tokens brutos para menos de 3.000 tokens de assinaturas, aliado ao Córtex Sequential Thinking em 5 fases e à Trava de Confrontação Local sobre buscas externas">
-              <rect x="16" y="16" width="380" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
-              <text x="206" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">1. CÓRTEX: sequential-thinking (5 Fases)</text>
-              <text x="206" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">Sintoma ≠ Causa → 2 Hipóteses → AST → BDD</text>
+          <div class="svg-ribbon svg-ribbon--graph">
+            <!-- SVG 12: Gráfico Quantitativo de Escala de Tokens (Tree-sitter AST vs. Leitura Bruta) -->
+            <svg class="svg-canvas" viewBox="0 0 1600 118" role="img" aria-label="Gráfico quantitativo em escala comparando a leitura de código bruto (~50.000 tokens, 100% da janela ocupada com implementação imperativa e ruído) contra o compressor Tree-sitter AST do Repomix (menos de 3.000 tokens, apenas 6% da barra com 100% das assinaturas e tipos, gerando redução líquida de -94% de tokens) para liberar orçamento cognitivo para o Córtex sequential-thinking">
+              <!-- Rótulos do Eixo Y (Comparativo Direto em Escala 800px = 100%) -->
+              <text x="16" y="36" font-size="11.5" font-weight="500" class="svg-bad">Sem AST (Código Bruto)</text>
+              <text x="16" y="52" font-size="10" class="svg-muted">~50.000 tokens (100%)</text>
 
-              <line x1="396" y1="47" x2="438" y2="47" stroke="var(--color-rule-2)" stroke-width="2"/>
+              <text x="16" y="84" font-size="11.5" font-weight="500" class="svg-ok">Tree-sitter (repomix)</text>
+              <text x="16" y="100" font-size="10" class="svg-cool">&lt; 3.000 tokens (6%)</text>
 
-              <rect x="440" y="16" width="440" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="660" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">2. COMPRESSOR TREE-SITTER (repomix --compress)</text>
-              <text x="660" y="61" text-anchor="middle" font-size="10.5" class="svg-ok">~50.000 tokens brutos ➔ &lt; 3.000 tokens (Assinaturas Puras)</text>
+              <!-- Barra 1: 100% Código Bruto (width="800") -->
+              <rect x="200" y="16" width="800" height="36" rx="5" fill="var(--color-bad-soft)" stroke="var(--color-bad)" stroke-width="1.8"/>
+              <text x="600" y="39" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-bad">100% JANELA POLUÍDA (~50.000 tokens de corpos de funções, loops e ruído sintático → Diluição de Atenção)</text>
 
-              <line x1="880" y1="47" x2="922" y2="47" stroke="var(--color-rule-2)" stroke-width="2"/>
+              <!-- Barra 2: 6% Assinaturas Puras Tree-sitter AST (width="48") + Faixa de Economia de -94% (width="752") -->
+              <rect x="200" y="66" width="48" height="36" rx="5" fill="var(--color-ok)" stroke="var(--color-ok)" stroke-width="1.8"/>
+              <text x="224" y="89" text-anchor="middle" font-size="10.5" font-weight="500" fill="var(--color-paper)">6%</text>
 
-              <rect x="924" y="16" width="420" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-ok)" stroke-width="1.8"/>
-              <text x="1134" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">3. TRAVA DE SOBERANIA LOCAL (Brave Search)</text>
-              <text x="1134" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Web ≠ .agents/skills/ ➔ Proibido adotar web sem perguntar</text>
+              <rect x="254" y="66" width="746" height="36" rx="5" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.6" stroke-dasharray="6 4"/>
+              <text x="627" y="88" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-ok">✓ -94% DE RUÍDO ELIMINADO (47.000 tokens poupados · 100% das Interfaces, Tipos e Contratos Preservados)</text>
+
+              <!-- Conector de Orçamento Cognitivo Liberado -->
+              <line x1="1000" y1="84" x2="1052" y2="60" stroke="var(--color-cool)" stroke-width="2.2"/>
+              <polygon points="1054,59 1044,58 1048,67" fill="var(--color-cool)"/>
+
+              <!-- Painel Direito: Alocação do Orçamento Cognitivo no Córtex MCP -->
+              <rect x="1056" y="14" width="528" height="90" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="2"/>
+              <text x="1320" y="38" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">JANELA DE ATENÇÃO DEDICADA AO CÓRTEX PRE-FRONTAL</text>
+              <text x="1320" y="59" text-anchor="middle" font-size="11" class="svg-amber">• sequential-thinking: 5 Fases (Sintoma ≠ Causa → 2 Hipóteses → AST → BDD)</text>
+              <text x="1320" y="78" text-anchor="middle" font-size="11" class="svg-ink2">• chrome-devtools-mcp (DOM/Rede ao vivo) + Confrontação Local Brave Search</text>
+              <text x="1320" y="95" text-anchor="middle" font-size="10" class="svg-ok">Resultado: Zero tentativa-e-erro cega e planejamento macro em &lt; 3k tokens</text>
             </svg>
           </div>
 
@@ -1636,40 +1735,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 21: SKILL ARCHIFY & AS 5 ABAS 3D -->
-        <section class="slide" role="tabpanel" id="slide-21" aria-labelledby="tab-21" data-title="Skill Archify: Compilador Anti-Drift & Central 3D de 5 Abas" hidden>
+        <!-- SLIDE 22: SKILL ARCHIFY & AS 5 ABAS 3D -->
+        <section class="slide" role="tabpanel" id="slide-22" aria-labelledby="tab-22" data-title="Skill Archify: Compilador Anti-Drift & Central 3D de 5 Abas" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill Archify e a Central 3D Viva de 5 Abas</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 21 de 25</span>
+                <span class="chip chip--person">Slide 22 de 26</span>
                 <span class="measured tone-cool">.agents/skills/archify/SKILL.md · Fidelidade Factual Verificada no Portão 09 do Precommit</span>
               </div>
             </div>
             <p>Nenhum nó, rota, fila, máquina de estados ou jornada E2E existe no diagrama se não existir no código-fonte. O script <span class="measured tone-cool">sync-architecture-graph.mjs</span> compila e valida a arquitetura viva.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 13: Compilador sync-architecture-graph.mjs + 5 Abas -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Diagrama do compilador de arquitetura Archify: lê os arquivos reais do código-fonte (rotas, prompts, estados e testes E2E), gera o grafo compacto monorepo-graph.json de 800 tokens e projeta o portal interativo 3D de 5 abas validado no precommit">
-              <rect x="16" y="16" width="330" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="181" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">FONTES REAIS NO DISCO</text>
-              <text x="181" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">Rotas API · Prompts *_common.md · *.mcp.ts</text>
-
-              <line x1="346" y1="47" x2="416" y2="47" stroke="var(--color-accent)" stroke-width="2"/>
-              <polygon points="416,47 408,42 408,52" fill="var(--color-accent)"/>
-
-              <rect x="418" y="16" width="430" height="62" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
-              <text x="633" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">sync-architecture-graph.mjs (--check no Portão 09)</text>
-              <text x="633" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Compila monorepo-graph.json (~800 tokens para sessões IA)</text>
-
-              <line x1="848" y1="47" x2="918" y2="47" stroke="var(--color-ok)" stroke-width="2"/>
-              <polygon points="918,47 910,42 910,52" fill="var(--color-ok)"/>
-
-              <rect x="920" y="16" width="424" height="62" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2"/>
-              <text x="1132" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">PORTAL 3D AUTOCONTIDO (5 ABAS VIVAS)</text>
-              <text x="1132" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Zero Drift: se o código mudar sem sync, o precommit bloqueia</text>
-            </svg>
           </div>
 
           <div class="panels panels--5">
@@ -1705,38 +1781,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 22: GOVERNANÇA DE TESTES & PARIDADE DUAL E2E -->
-        <section class="slide" role="tabpanel" id="slide-22" aria-labelledby="tab-22" data-title="Governança Semântica de Testes & Paridade Dual E2E 1:1" hidden>
+        <!-- SLIDE 23: GOVERNANÇA DE TESTES & PARIDADE DUAL E2E -->
+        <section class="slide" role="tabpanel" id="slide-23" aria-labelledby="tab-23" data-title="Governança Semântica de Testes & Paridade Dual E2E 1:1" hidden>
           <div class="slide-head">
             <div>
               <h2>Governança de Testes e Paridade Dual E2E 1:1</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 22 de 25</span>
+                <span class="chip chip--person">Slide 23 de 26</span>
                 <span class="measured tone-cool">Regras 1.14 e 1.15 · check-test-naming-governance.mjs &amp; run-mcp-e2e-scenario.mjs</span>
               </div>
             </div>
             <p>Testes são organizados estritamente por domínio funcional (nunca por número de ticket) e cada jornada E2E possui paridade 1:1 entre execução headless em CI e execução interativa por agente.</p>
-          </div>
-
-          <div class="svg-ribbon">
-            <!-- SVG 14: Espelhamento Dual E2E 1:1 -->
-            <svg class="svg-canvas" viewBox="0 0 1360 94" role="img" aria-label="Diagrama de Paridade Estrutural Dual E2E 1 para 1: Seletores canônicos data-testid na UI alimentam em espelho tanto o Lado A (Playwright .spec.ts para CI Headless) quanto o Lado B (Adaptador Declarativo .mcp.ts para Chrome DevTools MCP e Aba 5 do Archify)">
-              <rect x="16" y="16" width="340" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
-              <text x="186" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-cool">LADO A: PLAYWRIGHT CI (*.spec.ts)</text>
-              <text x="186" y="61" text-anchor="middle" font-size="10.5" class="svg-muted">Execução Headless Rápida em Pipeline</text>
-
-              <line x1="356" y1="47" x2="466" y2="47" stroke="var(--color-accent)" stroke-width="2.2"/>
-
-              <rect x="468" y="16" width="424" height="62" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
-              <text x="680" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">CONTRATO ÚNICO: [data-testid="..."] (Paridade 1:1)</text>
-              <text x="680" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Mesmos passos: seed → navigate → fill → click → assert</text>
-
-              <line x1="892" y1="47" x2="1002" y2="47" stroke="var(--color-ok)" stroke-width="2.2"/>
-
-              <rect x="1004" y="16" width="340" height="62" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2"/>
-              <text x="1174" y="41" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">LADO B: DEVTOOLS MCP (*.mcp.ts)</text>
-              <text x="1174" y="61" text-anchor="middle" font-size="10.5" class="svg-ink2">Agente ao Vivo + Aba 05 do Archify 3D</text>
-            </svg>
           </div>
 
           <div class="panels panels--2">
@@ -1768,13 +1823,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 23: CONSTITUIÇÃO DUPLA (AGENTS.MD UNIFICADO + TRÍADE DOCS/) -->
-        <section class="slide" role="tabpanel" id="slide-23" aria-labelledby="tab-23" data-title="Constituição Dupla: AGENTS.md Unificado e a Tríade docs/" hidden>
+        <!-- SLIDE 24: CONSTITUIÇÃO DUPLA (AGENTS.MD UNIFICADO + TRÍADE DOCS/) -->
+        <section class="slide" role="tabpanel" id="slide-24" aria-labelledby="tab-24" data-title="Constituição Dupla: AGENTS.md Unificado e a Tríade docs/" hidden>
           <div class="slide-head">
             <div>
               <h2>Constituição Dupla: AGENTS.md Unificado e a Tríade docs/</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 23 de 25</span>
+                <span class="chip chip--person">Slide 24 de 26</span>
                 <span class="measured tone-cool">Regra 1.4 · Zero Fragmentação de Rules e Documentação Viva Pré-Código</span>
               </div>
             </div>
@@ -1838,17 +1893,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 24: PORTABILIDADE MULTI-PROJETO VIA AEGIS HARNESS -->
-        <section class="slide" role="tabpanel" id="slide-24" aria-labelledby="tab-24" data-title="Portabilidade Políglota: O Bootstrapper aegis-harness" hidden>
+        <!-- SLIDE 25: PORTABILIDADE MULTI-PROJETO VIA AEGIS HARNESS -->
+        <section class="slide" role="tabpanel" id="slide-25" aria-labelledby="tab-25" data-title="Portabilidade Políglota: O Bootstrapper aegis-harness" hidden>
           <div class="slide-head">
             <div>
               <h2>Portabilidade Multi-Projeto: O Bootstrapper aegis-harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 24 de 25</span>
+                <span class="chip chip--person">Slide 25 de 26</span>
                 <span class="measured tone-cool">bin/init-harness.mjs · Auto-Detecção Políglota + Upstream GitHub com Fallback Local</span>
               </div>
             </div>
-            <p>Toda esta engenharia foi empacotada na skill global <span class="measured tone-cool">aegis-harness</span>: um único comando instala e configura os agentes, as 54 skills e os scripts em qualquer projeto novo ou legado.</p>
+            <p>Toda esta engenharia foi empacotada na skill global <span class="measured tone-cool">aegis-harness</span>: um único comando instala e configura os agentes, as 55 skills e os scripts em qualquer projeto novo ou legado.</p>
           </div>
 
           <div class="cmd-line">node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/projeto</div>
@@ -1868,13 +1923,13 @@
 
             <div class="cell cell--deep">
               <div class="cell__top">
-                <h3>2. Catálogo de 54 Skills Sempre Vivo</h3>
-                <span class="chip chip--instrument">Upstream + Fallback</span>
+                <h3>2. Catálogo de 55 Skills Sempre Vivo</h3>
+                <span class="chip chip--instrument">51 Upstream + 4 Soberanas</span>
               </div>
               <ul class="list-compact">
-                <li><div class="list-compact__row"><strong class="tone-cool">Busca Online Prioritária (Upstream-First)</strong><span class="measured">sources.manifest.json</span></div><span>Clona a versão mais recente de <span class="measured">addyosmani/agent-skills</span> (25), <span class="measured">web-quality-skills</span> (6), <span class="measured">tt-a1i/archify</span> (1) e <span class="measured">google/mantis</span> (19).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Busca Online Prioritária (51 Upstream)</strong><span class="measured">sources.manifest.json</span></div><span>Clona a versão mais recente de <span class="measured">addyosmani/agent-skills</span> (25), <span class="measured">web-quality-skills</span> (6), <span class="measured">tt-a1i/archify</span> (1) e <span class="measured">google/mantis</span> (19) = 51 upstream.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-ok">Fallback Local Instantâneo (Offline/Proxy)</strong><span class="measured">skills/fallback-cache/</span></div><span>Se não houver rede corporativa ou acesso ao GitHub, instala imediatamente a partir do snapshot local embutido no pacote.</span></li>
-                <li><div class="list-compact__row"><strong class="tone-amber">Skills Soberanas Incluídas</strong><span class="measured">Núcleo Aegis</span></div><span>Injeta <span class="measured tone-amber">egm-goldfish-review</span>, <span class="measured tone-cool">clean-code-audit</span> (22 regras) e <span class="measured tone-cool">mcp-ecosystem-guide</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">As 4 Skills Soberanas Incluídas (51 + 4 = 55)</strong><span class="measured">Núcleo Aegis</span></div><span>Injeta <span class="measured tone-amber">egm-goldfish-review</span>, <span class="measured tone-cool">dag-slice-orchestrator</span>, <span class="measured tone-cool">clean-code-audit</span> (22 regras) e <span class="measured tone-cool">mcp-ecosystem-guide</span>.</span></li>
               </ul>
             </div>
 
@@ -1892,13 +1947,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 25: FECHAMENTO EXECUTIVO & BANCADA INTERATIVA DE COMANDOS -->
-        <section class="slide" role="tabpanel" id="slide-25" aria-labelledby="tab-25" data-title="Fechamento: O Ciclo Completo de Engenharia" hidden>
+        <!-- SLIDE 26: FECHAMENTO EXECUTIVO & BANCADA INTERATIVA DE COMANDOS -->
+        <section class="slide" role="tabpanel" id="slide-26" aria-labelledby="tab-26" data-title="Fechamento: O Ciclo Completo de Engenharia" hidden>
           <div class="slide-head">
             <div>
               <h2>Resumo Operacional: Do Requisito ao Commit Auditado</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 25 de 25</span>
+                <span class="chip chip--person">Slide 26 de 26</span>
                 <span class="measured tone-cool">Bancada Interativa dos Comandos Oficiais do Harness</span>
               </div>
             </div>
@@ -1912,7 +1967,7 @@
                 <span class="chip chip--person">Fase Plan</span>
               </div>
               <h3>Define &amp; Plan</h3>
-              <p><span class="measured tone-cool">blast-radius</span> + <span class="measured tone-cool">plan-collision</span> + <span class="measured tone-amber">Goldfish Cold Spec Review</span> + BDD Gherkin 1:1.</p>
+              <p><span class="measured tone-cool">blast-radius</span> + <span class="measured tone-cool">plan-collision</span> + <span class="measured tone-amber">1º Goldfish</span> + Grafo DAG (<span class="measured tone-cool">dag-slice-orchestrator</span>).</p>
               <button class="btn" type="button" data-cmd-pick="0">Ver comando</button>
             </div>
             <div class="cell">
@@ -1920,8 +1975,8 @@
                 <div class="reading-xl tone-cool">02</div>
                 <span class="chip chip--instrument">Fase Build/Verify</span>
               </div>
-              <h3>Inner Loop TDD</h3>
-              <p><span class="measured tone-cool">sequential-thinking</span> + Ciclo <span class="measured tone-bad">Red</span> → <span class="measured tone-ok">Green</span> → <span class="measured tone-cool">Refactor</span> rodando apenas as suítes do domínio.</p>
+              <h3>Ondas DAG &amp; Inner TDD</h3>
+              <p>Despacho <span class="measured tone-cool">slice-executor</span> por ondas disjuntas + Ciclo <span class="measured tone-bad">Red</span> → <span class="measured tone-ok">Green</span> → <span class="measured tone-cool">Refactor</span> no domínio.</p>
               <button class="btn" type="button" data-cmd-pick="1">Ver comando</button>
             </div>
             <div class="cell">
@@ -1962,11 +2017,11 @@
     <!-- FOOTER BAR -->
     <footer class="keynote-footer">
       <div class="container keynote-footer__inner">
-        <div id="footerSlideInfo" class="measured tone-cool">Slide 01 / 25 · Visão Executiva: Os 4 Pilares do Engineering Harness</div>
+        <div id="footerSlideInfo" class="measured tone-cool">Slide 01 / 26 · Visão Executiva: Os 4 Pilares do Engineering Harness</div>
         <div class="progress-bar" aria-hidden="true">
           <div class="progress-bar__fill" id="progressBarFill"></div>
         </div>
-        <div>Navegação horizontal: setas <span class="measured tone-amber">←</span> <span class="measured tone-amber">→</span> ou clique em <span class="measured tone-cool">01..25</span> no topo</div>
+        <div>Navegação horizontal: setas <span class="measured tone-amber">←</span> <span class="measured tone-amber">→</span> ou clique em <span class="measured tone-cool">01..26</span> no topo</div>
       </div>
     </footer>
   </div>

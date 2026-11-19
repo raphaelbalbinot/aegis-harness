@@ -1,7 +1,7 @@
 /* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (deal 3/3, seed engineering-harness-mesa-editorial-80eb·383c2ac7·2026-11-19·r1)
- * nav: top bar · signature: 25-slide zero-scroll widescreen engineering keynote deck (Teams-ready) with 15 technical SVG diagrams in Console hairline surfaces · states: default, hover, focus, active, graphite, paper · console: graphite
+ * nav: top bar · signature: 26-slide zero-scroll widescreen engineering keynote deck (Teams-ready) with 11 technical SVG diagrams in Console hairline surfaces · states: default, hover, focus, active, graphite, paper · console: graphite
  * axes: dark/grotesk-sans/chromatic-amber · posture: restrained · contrast: pass · copy: verbatim · v3.0.0 */
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · weakest: H, split dense catalogues across 25 dedicated widescreen slides with responsive height guards so every slide fits 100dvh at both 100% and 125% Windows DPI without vertical scroll */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · weakest: H, split dense catalogues across 26 dedicated widescreen slides with responsive height guards so every slide fits 100dvh at both 100% and 125% Windows DPI without vertical scroll */
 @import url("./tokens.css");
 @import url("./base.css");
 
@@ -68,7 +68,7 @@ html[data-mode="paper"] {
   white-space: nowrap;
 }
 
-/* Horizontal Slide Strip (01 .. 25) - Calibrated for 25 buttons on 1080p/125% DPI */
+/* Horizontal Slide Strip (01 .. 26) - Calibrated for 26 buttons on 1080p/125% DPI */
 .slide-strip {
   display: flex;
   align-items: center;
@@ -410,6 +410,10 @@ html[data-mode="paper"] {
   overflow: hidden;
 }
 
+.svg-ribbon--graph {
+  max-height: clamp(106px, 13.8vh, 134px);
+}
+
 .svg-canvas {
   width: 100%;
   height: auto;
@@ -636,7 +640,7 @@ html[data-mode="paper"] {
   height: 100%;
   background: var(--color-cool);
   transform-origin: left center;
-  transform: scaleX(0.04);
+  transform: scaleX(0.0385);
   transition: transform var(--dur-short) var(--ease-out);
 }
 
@@ -673,6 +677,9 @@ html[data-mode="paper"] {
   .svg-ribbon {
     max-height: 82px;
     padding: 4px 10px;
+  }
+  .svg-ribbon--graph {
+    max-height: 98px;
   }
 }
 
