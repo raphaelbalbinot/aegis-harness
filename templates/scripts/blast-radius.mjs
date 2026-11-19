@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..');
 
 const HIGH_RISK_CONSUMER_THRESHOLD = 5;
 const MIN_SEARCH_TOKEN_LENGTH = 6;
@@ -13,12 +13,14 @@ const MAX_SAMPLE_FILES = 10;
 const AGGREGATOR_BARREL_PATH = 'backend/src/index.ts';
 const PROMPT_LOADER_PATH = 'backend/src/prompts/loader.ts';
 
+const PERSISTENCE_LAYER_TOKENS = ['firebase/', 'firestore', 'storage', 'idb', 'db/'];
+
 const LAYER_RULES = [
-  { test: (/** @type {string} */ n) => n.includes('export/') || n.includes('kdp'), id: 'PUBLICATION', label: 'Compilação KDP Ready' },
-  { test: (/** @type {string} */ n) => n.includes('app/api/') || n.includes('routes/'), id: 'CORE', label: 'Core Next.js Handlers' },
-  { test: (/** @type {string} */ n) => n.includes('components/') || n.includes('app/'), id: 'CLIENTS', label: 'Borda & Estúdio Editorial' },
-  { test: (/** @type {string} */ n) => n.includes('ai/') || n.includes('prompts/') || n.includes('services/'), id: 'SERVICES', label: 'Motores de IA & Prompts' },
-  { test: (/** @type {string} */ n) => n.includes('firebase/') || n.includes('firestore') || n.includes('storage') || n.includes('idb'), id: 'PERSISTENCE', label: 'Persistência & Resiliência' },
+  { test: (/** @type {string} */ n) => n.includes('export/') || n.includes('publish/'), id: 'PUBLICATION', label: 'Exportação & Publicação de Artefatos' },
+  { test: (/** @type {string} */ n) => n.includes('app/api/') || n.includes('routes/'), id: 'CORE', label: 'Core Handlers & Rotas de API' },
+  { test: (/** @type {string} */ n) => n.includes('components/') || n.includes('app/'), id: 'CLIENTS', label: 'Borda & Componentes de Interface' },
+  { test: (/** @type {string} */ n) => n.includes('ai/') || n.includes('prompts/') || n.includes('services/'), id: 'SERVICES', label: 'Motores de Domínio, Serviços & IA' },
+  { test: (/** @type {string} */ n) => PERSISTENCE_LAYER_TOKENS.some((tok) => n.includes(tok)), id: 'PERSISTENCE', label: 'Persistência & Resiliência de Estado' },
 ];
 
 const GOVERNANCE_AXIS_RULES = [
@@ -45,9 +47,13 @@ const GOVERNANCE_AXIS_RULES = [
 ];
 
 const SCAN_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.md'];
-const RESOLVE_EXTENSIONS = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.md', '/index.ts', '/index.tsx', '/index.js'];
+const RESOLVE_EXTENSIONS = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.md', '/index.ts', '/index.tsx', '/index.js', '/index.mjs'];
 const TARGET_SEARCH_PREFIXES = [
   '',
+  'src/',
+  'lib/',
+  'bin/',
+  'templates/',
   'frontend/',
   'frontend/src/',
   'frontend/e2e/',
@@ -58,7 +64,19 @@ const TARGET_SEARCH_PREFIXES = [
   'landing/src/',
   'scripts/',
 ];
-const IGNORED_DIRS = new Set(['node_modules', '.next', '.git', 'dist', 'coverage', '.gemini']);
+const IGNORED_DIRS = new Set([
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  'coverage',
+  '.next',
+  'scratch',
+  '.agents',
+  '.claude',
+  '.turbo',
+  '.gemini',
+]);
 const IMPORT_EXPORT_REGEX = /(?:import\s+(?:[\s\S]*?from\s+)?|export\s+(?:[\s\S]*?from\s+)|import\s*\(\s*)['"]([^'"]+)['"]/g;
 const NAMED_IMPORT_REGEX = /import\s+(?:type\s+)?\{([\s\S]*?)\}\s*from\s*['"]([^'"]+)['"]/g;
 const REEXPORT_FROM_REGEX = /export\s+(?:type\s+)?(\*|\{[\s\S]*?\})\s*from\s*['"]([^'"]+)['"]/g;
@@ -113,20 +131,45 @@ function resolveWithExtensions(candidate) {
   return null;
 }
 
-/** @param {string} importStr @param {string} sourceFilePath */
-function resolveImportPath(importStr, sourceFilePath) {
-  if (!importStr || importStr.startsWith('node:')) return null;
-  if (importStr === '@heldora/backend') {
-    return resolveWithExtensions(path.join(rootDir, 'backend', 'src', 'index'));
-  }
-  if (importStr.startsWith('@heldora/backend/')) {
-    const subPath = importStr.slice('@heldora/backend/'.length);
-    return resolveWithExtensions(path.join(rootDir, 'backend', 'src', subPath));
+/**
+ * Resolve aliases de workspace (`@scope/pkg/...` ou `@/...`) de forma agnóstica ao projeto.
+ * @param {string} importStr
+ * @param {string} sourceFilePath
+ * @param {string} activeRootDir
+ */
+function resolveWorkspaceAlias(importStr, sourceFilePath, activeRootDir) {
+  const scopedMatch = importStr.match(/^@[^/]+\/([^/]+)(?:\/(.+))?$/);
+  if (scopedMatch) {
+    const pkgDir = scopedMatch[1];
+    const subPath = scopedMatch[2] ?? 'index';
+    return (
+      resolveWithExtensions(path.join(activeRootDir, pkgDir, 'src', subPath)) ??
+      resolveWithExtensions(path.join(activeRootDir, 'packages', pkgDir, 'src', subPath))
+    );
   }
   if (importStr.startsWith('@/')) {
+    const sub = importStr.slice(2);
     const isLanding = sourceFilePath.replace(/\\/g, '/').includes('/landing/');
-    const workspaceRoot = isLanding ? path.join(rootDir, 'landing', 'src') : path.join(rootDir, 'frontend', 'src');
-    return resolveWithExtensions(path.join(workspaceRoot, importStr.slice(2)));
+    const candidates = isLanding
+      ? [path.join(activeRootDir, 'landing', 'src', sub), path.join(activeRootDir, 'src', sub)]
+      : [path.join(activeRootDir, 'src', sub), path.join(activeRootDir, 'frontend', 'src', sub)];
+    for (const candidate of candidates) {
+      const found = resolveWithExtensions(candidate);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {string} importStr
+ * @param {string} sourceFilePath
+ * @param {string} [activeRootDir]
+ */
+function resolveImportPath(importStr, sourceFilePath, activeRootDir = ROOT) {
+  if (!importStr || importStr.startsWith('node:')) return null;
+  if (importStr.startsWith('@')) {
+    return resolveWorkspaceAlias(importStr, sourceFilePath, activeRootDir);
   }
   if (importStr.startsWith('.')) {
     return resolveWithExtensions(path.resolve(path.dirname(sourceFilePath), importStr));
@@ -209,17 +252,17 @@ function recordNamedImportSpecifiers(recordSpec) {
 
 /**
  * Indexa imports nomeados e re-exports de um nó no grafo.
- * @param {string} norm
  * @param {Record<string, any>} node
  * @param {Map<string, any>} fileMap
+ * @param {string} [activeRootDir]
  */
-function indexNodeNamedSymbolsAndReExports(norm, node, fileMap) {
+function indexNodeNamedSymbolsAndReExports(node, fileMap, activeRootDir = ROOT) {
   NAMED_IMPORT_REGEX.lastIndex = 0;
   let namedMatch;
   while ((namedMatch = NAMED_IMPORT_REGEX.exec(node.content)) !== null) {
-    const resolved = resolveImportPath(namedMatch[2], node.absolute);
+    const resolved = resolveImportPath(namedMatch[2], node.absolute, activeRootDir);
     if (!resolved) continue;
-    const resolvedNorm = path.relative(rootDir, resolved).replace(/\\/g, '/');
+    const resolvedNorm = path.relative(activeRootDir, resolved).replace(/\\/g, '/');
     if (!fileMap.has(resolvedNorm)) continue;
     const importLine = computeLineNumberAtOffset(node.content, namedMatch.index);
     recordNamedImportSpecifiers({ node, resolvedNorm, rawSpecifiers: namedMatch[1], importLine });
@@ -228,36 +271,35 @@ function indexNodeNamedSymbolsAndReExports(norm, node, fileMap) {
   REEXPORT_FROM_REGEX.lastIndex = 0;
   let reExportMatch;
   while ((reExportMatch = REEXPORT_FROM_REGEX.exec(node.content)) !== null) {
-    const resolved = resolveImportPath(reExportMatch[2], node.absolute);
+    const resolved = resolveImportPath(reExportMatch[2], node.absolute, activeRootDir);
     if (!resolved) continue;
-    const resolvedNorm = path.relative(rootDir, resolved).replace(/\\/g, '/');
+    const resolvedNorm = path.relative(activeRootDir, resolved).replace(/\\/g, '/');
     if (fileMap.has(resolvedNorm)) {
       node.reExportTargets.add(resolvedNorm);
     }
   }
-  void norm;
 }
 
 /**
  * Indexa imports de um único nó no mapa de arquivos do repositório.
- * @param {string} norm
  * @param {Record<string, any>} node
  * @param {Map<string, any>} fileMap
+ * @param {string} [activeRootDir]
  */
-function indexNodeImports(norm, node, fileMap) {
-  if (norm.endsWith('.md')) return;
+function indexNodeImports(node, fileMap, activeRootDir = ROOT) {
+  if (node.path.endsWith('.md')) return;
   IMPORT_EXPORT_REGEX.lastIndex = 0;
   let match;
   while ((match = IMPORT_EXPORT_REGEX.exec(node.content)) !== null) {
-    const resolved = resolveImportPath(match[1], node.absolute);
+    const resolved = resolveImportPath(match[1], node.absolute, activeRootDir);
     if (!resolved) continue;
-    const resolvedNorm = path.relative(rootDir, resolved).replace(/\\/g, '/');
+    const resolvedNorm = path.relative(activeRootDir, resolved).replace(/\\/g, '/');
     if (fileMap.has(resolvedNorm)) {
       node.imports.add(resolvedNorm);
-      fileMap.get(resolvedNorm).importedBy.add(norm);
+      fileMap.get(resolvedNorm).importedBy.add(node.path);
     }
   }
-  indexNodeNamedSymbolsAndReExports(norm, node, fileMap);
+  indexNodeNamedSymbolsAndReExports(node, fileMap, activeRootDir);
 }
 
 /**
@@ -485,9 +527,12 @@ function indexSourceInspectingTests(fileMap) {
   }
 }
 
-/** @param {string} file */
-function createGraphNode(file) {
-  const norm = path.relative(rootDir, file).replace(/\\/g, '/');
+/**
+ * @param {string} file
+ * @param {string} [activeRootDir]
+ */
+function createGraphNode(file, activeRootDir = ROOT) {
+  const norm = path.relative(activeRootDir, file).replace(/\\/g, '/');
   let content = '';
   try {
     content = fs.readFileSync(file, 'utf8');
@@ -512,28 +557,21 @@ function createGraphNode(file) {
 }
 
 /**
- *Constrói e retorna o mapa completo do grafo de dependências cross-workspace do repositório.
+ * Constrói e retorna o mapa completo do grafo de dependências cross-workspace do repositório.
  * Exemplo: const fileMap = buildGraph();
+ * @param {string} [activeRootDir]
  */
-export function buildGraph() {
-  const sourceFiles = [
-    ...getAllSourceFiles(path.join(rootDir, 'frontend', 'src')),
-    ...getAllSourceFiles(path.join(rootDir, 'frontend', 'app')),
-    ...getAllSourceFiles(path.join(rootDir, 'frontend', 'e2e')),
-    ...getAllSourceFiles(path.join(rootDir, 'backend', 'src')),
-    ...getAllSourceFiles(path.join(rootDir, 'backend', 'prompts')),
-    ...getAllSourceFiles(path.join(rootDir, 'landing', 'src')),
-    ...getAllSourceFiles(path.join(rootDir, 'scripts')),
-  ];
+export function buildGraph(activeRootDir = ROOT) {
+  const sourceFiles = getAllSourceFiles(activeRootDir);
 
   const fileMap = new Map();
   for (const file of sourceFiles) {
-    const node = createGraphNode(file);
+    const node = createGraphNode(file, activeRootDir);
     fileMap.set(node.path, node);
   }
 
-  for (const [norm, node] of fileMap.entries()) {
-    indexNodeImports(norm, node, fileMap);
+  for (const node of fileMap.values()) {
+    indexNodeImports(node, fileMap, activeRootDir);
   }
   propagateBarrelReExports(fileMap);
   indexPromptSemanticEdges(fileMap);
@@ -679,26 +717,48 @@ function formatRecommendedPlaywrightCommand(impactedE2ESuites) {
 }
 
 /**
- * Monta o objeto final de relatório de Blast Radius para um único arquivo-alvo já resolvido.
- * @param {string} foundNorm
- * @param {Map<string, any>} fileMap
+ * Verifica se um relatório individual satisfaz os critérios de isolamento da Express Lane (`XS_EXPRESS`).
+ * @param {Record<string, any>} r
  */
-function buildTargetBlastReport(foundNorm, fileMap) {
-  const targetNode = fileMap.get(foundNorm);
+function isReportEligibleForExpress(r) {
+  const totalConsumers =
+    (r.metrics?.directConsumersCount ?? r.directConsumers?.length ?? 0) +
+    (r.metrics?.transitiveConsumersCount ?? r.transitiveConsumers?.length ?? 0);
+  return totalConsumers === 0 && r.riskLevel === 'LOW' && r.governanceAxis !== 'B_SECURITY_HARDENING';
+}
+
+/**
+ * Calcula deterministicamente o tier de cerimônia (`XS_EXPRESS` vs. `FULL_EGM_DAG`) de forma TDD-safe (GF-03, GF-05).
+ * @param {Array<Record<string, any>>} validReports
+ * @param {{ stopAndWarnTriggered?: boolean }} [scopeHeterogeneity]
+ * @returns {'XS_EXPRESS' | 'FULL_EGM_DAG'}
+ */
+export function computeCeremonyTier(validReports, scopeHeterogeneity) {
+  if (!validReports || validReports.length === 0) return 'FULL_EGM_DAG';
+  if (scopeHeterogeneity?.stopAndWarnTriggered) return 'FULL_EGM_DAG';
+
+  const nonTestReports = validReports.filter((r) => !r.isTest);
+  if (nonTestReports.length > 1) return 'FULL_EGM_DAG';
+
+  return validReports.every(isReportEligibleForExpress) ? 'XS_EXPRESS' : 'FULL_EGM_DAG';
+}
+
+/**
+ * Monta o objeto base de relatório de Blast Radius para um alvo resolvido.
+ * @param {{ foundNorm: string; targetNode: Record<string, any>; directConsumers: string[]; transitiveConsumers: Set<string>; impactedTestSuites: string[]; impactedE2ESuites: string[]; fileMap: Map<string, any> }} ctx
+ */
+function createTargetReportObject(ctx) {
+  const { foundNorm, targetNode, directConsumers, transitiveConsumers, impactedTestSuites, impactedE2ESuites, fileMap } = ctx;
   const layer = detectLayer(foundNorm);
   const axis = detectGovernanceAxis(foundNorm);
-  const { directConsumers, directVitest, directE2E } = splitDirectDependents(targetNode, fileMap);
-  const { transitiveConsumers, transitiveVitest, transitiveE2E } = collectTransitiveImpact(foundNorm, directConsumers, fileMap);
   const totalConsumers = directConsumers.length + transitiveConsumers.size;
-  const impactedTestSuites = Array.from(new Set([...directVitest, ...transitiveVitest]));
-  const impactedE2ESuites = expandDualE2EPairs([...directE2E, ...transitiveE2E], fileMap);
-
   return {
     /** @type {string | undefined} */
     error: undefined,
     /** @type {string[]} */
     availableFilesSample: [],
     target: foundNorm,
+    isTest: Boolean(targetNode.isTest),
     layer: layer.id,
     layerLabel: layer.label,
     governanceAxis: axis.id,
@@ -719,7 +779,33 @@ function buildTargetBlastReport(foundNorm, fileMap) {
       impactedTestsCount: impactedTestSuites.length,
       impactedE2ECount: impactedE2ESuites.length,
     },
+    /** @type {'XS_EXPRESS' | 'FULL_EGM_DAG'} */
+    ceremonyTier: 'FULL_EGM_DAG',
   };
+}
+
+/**
+ * Monta o objeto final de relatório de Blast Radius para um único arquivo-alvo já resolvido.
+ * @param {string} foundNorm
+ * @param {Map<string, any>} fileMap
+ */
+function buildTargetBlastReport(foundNorm, fileMap) {
+  const targetNode = fileMap.get(foundNorm);
+  const { directConsumers, directVitest, directE2E } = splitDirectDependents(targetNode, fileMap);
+  const { transitiveConsumers, transitiveVitest, transitiveE2E } = collectTransitiveImpact(foundNorm, directConsumers, fileMap);
+  const impactedTestSuites = Array.from(new Set([...directVitest, ...transitiveVitest]));
+  const impactedE2ESuites = expandDualE2EPairs([...directE2E, ...transitiveE2E], fileMap);
+  const report = createTargetReportObject({
+    foundNorm,
+    targetNode,
+    directConsumers,
+    transitiveConsumers,
+    impactedTestSuites,
+    impactedE2ESuites,
+    fileMap,
+  });
+  report.ceremonyTier = computeCeremonyTier([report], { stopAndWarnTriggered: false });
+  return report;
 }
 
 /**
@@ -737,6 +823,7 @@ export function calculateBlastRadius(rawTargetPath, existingFileMap) {
     return {
       error: `Arquivo não encontrado no grafo de código: ${rawTargetPath}`,
       availableFilesSample: Array.from(fileMap.keys()).slice(0, MAX_SAMPLE_FILES),
+      ceremonyTier: 'FULL_EGM_DAG',
     };
   }
   return buildTargetBlastReport(foundNorm, fileMap);
@@ -750,16 +837,17 @@ function evaluateScopeHeterogeneity(validReports) {
   const axesTouched = Array.from(new Set(validReports.map((r) => r.governanceAxis).filter(Boolean)));
   const touchesInfraWithOther = axesTouched.includes('A_INFRA_SERVERLESS') && axesTouched.length > 1;
   const stopAndWarnTriggered = touchesInfraWithOther || axesTouched.length > 2;
+  const axesJoined = axesTouched.length > 0 ? axesTouched.join(', ') : 'N/A';
   const reason = stopAndWarnTriggered
     ? `Gatilho Stop-and-Warn (Regra 1.11) ativado: escopo cruza os eixos [${axesTouched.join(', ')}].`
-    : `Escopo coeso dentro dos limites da Regra 1.11 (${axesTouched.join(', ') || 'N/A'}).`;
+    : `Escopo coeso dentro dos limites da Regra 1.11 (${axesJoined}).`;
   return { axesTouched, stopAndWarnTriggered, reason };
 }
 
 /**
  * Consolida a análise de Blast Radius para múltiplos arquivos-alvo reutilizando uma única construção do grafo,
  * avaliando heterogeneidade de escopo nos 5 Eixos (Regra 1.11) e deduplicando comandos Vitest e E2E.
- * Exemplo: const dossier = calculateMultiTargetBlastRadius(['frontend/src/lib/export/kdp-paperback.ts', 'frontend/src/lib/export/docx-helpers.ts']);
+ * Exemplo: const dossier = calculateMultiTargetBlastRadius(['src/lib/export/doc-builder.ts', 'src/lib/export/docx-helpers.ts']);
  *
  * @param {string[]} targetPaths
  * @param {Map<string, any>} [existingFileMap]
@@ -768,12 +856,18 @@ export function calculateMultiTargetBlastRadius(targetPaths, existingFileMap) {
   const fileMap = existingFileMap ?? buildGraph();
   const targets = targetPaths.map((targetPath) => calculateBlastRadius(targetPath, fileMap));
   const validReports = targets.filter((t) => !t.error);
+  const scopeHeterogeneity = evaluateScopeHeterogeneity(validReports);
+  const hasInvalidTarget = targets.some((t) => Boolean(t.error));
+  const ceremonyTier = hasInvalidTarget
+    ? 'FULL_EGM_DAG'
+    : computeCeremonyTier(validReports, scopeHeterogeneity);
   const allVitestSuites = Array.from(new Set(validReports.flatMap((r) => r.impactedTestSuites ?? [])));
   const allE2ESuites = Array.from(new Set(validReports.flatMap((r) => r.impactedE2ESuites ?? [])));
 
   return {
     targets,
-    scopeHeterogeneity: evaluateScopeHeterogeneity(validReports),
+    ceremonyTier,
+    scopeHeterogeneity,
     consolidatedTestSuites: allVitestSuites,
     consolidatedE2ESuites: allE2ESuites,
     recommendedTestCommand: formatRecommendedVitestCommand(allVitestSuites),
@@ -817,15 +911,22 @@ function renderTargetDossierSectionMarkdown(report) {
  * @param {ReturnType<typeof calculateMultiTargetBlastRadius>} multiReport
  */
 export function formatGoldfishDossierMarkdown(multiReport) {
-  const { scopeHeterogeneity, targets, recommendedTestCommand, recommendedE2ECommand } = multiReport;
+  const { scopeHeterogeneity, ceremonyTier, targets, recommendedTestCommand, recommendedE2ECommand } = multiReport;
   const stopAndWarnBadge = scopeHeterogeneity.stopAndWarnTriggered ? '🚨 **SIM (STOP-AND-WARN ATIVADO)**' : '✅ **NÃO (Escopo Coeso)**';
   const targetSections = targets.map((t) => renderTargetDossierSectionMarkdown(t)).join('\n\n');
+
+  const axesDisplay = scopeHeterogeneity.axesTouched.length > 0
+    ? scopeHeterogeneity.axesTouched.map((a) => `\`${a}\``).join(', ')
+    : '_Nenhum_';
+  const vitestCmdDisplay = recommendedTestCommand !== '' ? recommendedTestCommand : 'Nenhuma suíte Vitest impactada';
+  const e2eCmdDisplay = recommendedE2ECommand !== '' ? recommendedE2ECommand : 'Nenhuma suíte E2E impactada';
 
   return [
     `# 🐠 Dossiê Pré-Compilado para Cold Spec Review (EGM Goldfish)`,
     ``,
     `## 🧭 Diagnóstico Preventivo de Heterogeneidade (Regra 1.11 — 5 Eixos)`,
-    `- **Eixos Tocados:** ${scopeHeterogeneity.axesTouched.map((a) => `\`${a}\``).join(', ') || '_Nenhum_'}`,
+    `- **Ceremony Tier:** \`${ceremonyTier}\``,
+    `- **Eixos Tocados:** ${axesDisplay}`,
     `- **Gatilho Stop-and-Warn:** ${stopAndWarnBadge}`,
     `- **Parecer:** ${scopeHeterogeneity.reason}`,
     ``,
@@ -834,8 +935,8 @@ export function formatGoldfishDossierMarkdown(multiReport) {
     targetSections,
     ``,
     `## 🧪 Comandos de Verificação Consolidados`,
-    `- **Vitest (TDD Unitário/Integração):** \`${recommendedTestCommand || 'Nenhuma suíte Vitest impactada'}\``,
-    `- **Playwright / Dual E2E (`.concat('`.spec.ts` + `.mcp.ts`):** `') + `${recommendedE2ECommand || 'Nenhuma suíte E2E impactada'}\``,
+    `- **Vitest (TDD Unitário/Integração):** \`${vitestCmdDisplay}\``,
+    `- **Playwright / Dual E2E (`.concat('`.spec.ts` + `.mcp.ts`):** `') + `${e2eCmdDisplay}\``,
   ].join('\n');
 }
 
@@ -870,6 +971,7 @@ function printHumanReadableBlastRadius(result) {
   printLine(`\x1b[1m🏛️  Camada Arquitetural:   \x1b[35m[${result.layer}] ${result.layerLabel}\x1b[0m`);
   printLine(`\x1b[1m🧭 Eixo Regra 1.11:       \x1b[34m[${result.governanceAxis}] ${result.governanceAxisLabel}\x1b[0m`);
   printLine(`\x1b[1m⚠️  Nível de Risco:        ${riskColor}${result.riskLevel}\x1b[0m`);
+  printLine(`\x1b[1m⚡ Ceremony Tier:         \x1b[36m${result.ceremonyTier}\x1b[0m`);
   printLine('\x1b[36m════════════════════════════════════════════════════════════════════\x1b[0m\n');
 
   printSectionItems({ heading: `\x1b[1m📥 O que este arquivo consome (${result.directDependencies.length}):\x1b[0m`, items: result.directDependencies, emptyMessage: '   (Nenhuma dependência interna local)', itemPrefix: '   └─ \x1b[90m' });

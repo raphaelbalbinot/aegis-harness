@@ -1,0 +1,317 @@
+#!/usr/bin/env node
+/**
+ * scripts/review.mjs
+ *
+ * Motor universal Multi-OS (Windows, Linux, macOS, Containers) do 2º Portão EGM Goldfish.
+ * Extrai especificações BDD Gherkin (via GitHub Issue `--issue` ou plano local `--plan`),
+ * diff git com contexto de função (`execFileSync`, CWE-78 safe) e pré-injeta telemetria
+ * determinística (`scan-clean-code.mjs`) em `scratch/review_prompt.md`.
+ */
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { execFileSync } from 'node:child_process';
+
+const BDD_LINE_REGEX =
+  /^\s*(?:#{1,6}\s+|\d+\.\s+|[-*]\s+)?(?:\*\*|__)?(?:Cen[aá]rio|Dado|Quando|Ent[aã]o|E\s)(?:\*\*|__|:|\b)/i;
+
+const DEFAULT_DIFF_EXCLUDES = [
+  ':/',
+  ':(exclude):/package-lock.json',
+  ':(exclude):/*/package-lock.json',
+  ':(exclude):/skills-lock.json',
+  ':(exclude):/docs/architecture/*',
+  ':(exclude):/node_modules/*',
+  ':(exclude):/workspace/*',
+  ':(exclude):/scratch/*',
+];
+
+/**
+ * Extrai cláusulas BDD Gherkin (Cenário, Dado, Quando, Então, E) de um texto Markdown.
+ * @param {string} rawText
+ * @param {string} emptyMessage
+ * @returns {string}
+ */
+export function extractBddClauses(rawText, emptyMessage) {
+  const bddLines = String(rawText ?? '')
+    .split(/\r?\n/)
+    .filter((line) => BDD_LINE_REGEX.test(line));
+  return bddLines.length > 0 ? bddLines.join('\n') : emptyMessage;
+}
+
+/**
+ * Carrega requisitos da GitHub Issue (`gh issue view`) ou do arquivo de plano local (`--plan`).
+ * @param {{ issueId?: string | number; planPath?: string; root: string }} params
+ */
+function readIssueOrPlanRequirements({ issueId, planPath, root }) {
+  let issueContent = '';
+  let planContent = '';
+  let bddChecklistContent = '';
+
+  if (issueId) {
+    try {
+      issueContent = execFileSync('gh', ['issue', 'view', String(issueId)], { cwd: root, encoding: 'utf8' });
+      bddChecklistContent = extractBddClauses(
+        issueContent,
+        'Nenhuma cláusula BDD formal detectada automaticamente; valide os Critérios de Aceite da Issue.',
+      );
+    } catch (err) {
+      process.stderr.write(`[WARN] Falha ao consultar issue #${issueId}: ${err instanceof Error ? err.message : String(err)}\n`);
+    }
+  }
+  if (planPath) {
+    const fullPlanPath = path.resolve(root, planPath);
+    if (fs.existsSync(fullPlanPath)) {
+      planContent = fs.readFileSync(fullPlanPath, 'utf8');
+      bddChecklistContent = extractBddClauses(planContent, 'Nenhuma cláusula BDD detectada no plano.');
+    } else {
+      process.stderr.write(`[WARN] Plano não encontrado: ${planPath}\n`);
+    }
+  }
+  return { issueContent, planContent, bddChecklistContent };
+}
+
+/**
+ * Lista até 30 issues abertas no repositório para blindagem contra alucinação de escopo.
+ * @param {string} root
+ * @returns {string}
+ */
+function fetchOpenIssuesList(root) {
+  try {
+    const issuesRaw = execFileSync('gh', ['issue', 'list', '--state', 'open', '--limit', '30'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return issuesRaw.trim() !== '' ? issuesRaw.trim() : 'Nenhuma outra issue aberta listada.';
+  } catch {
+    return 'Nenhuma outra issue aberta listada.';
+  }
+}
+
+/**
+ * Executa `git add -N` silencioso para incluir arquivos novos no diff sem alterar o stage real.
+ * @param {string} root
+ * @param {string[]} fileArray
+ */
+function markIntentToAdd(root, fileArray) {
+  const targetArgs =
+    fileArray.length > 0
+      ? fileArray
+      : [':/', ':(exclude):/node_modules/*', ':(exclude):/workspace/*', ':(exclude):/scratch/*'];
+  try {
+    execFileSync('git', ['add', '-N', '--', ...targetArgs], { cwd: root, encoding: 'utf8', stdio: 'ignore' });
+  } catch {
+    // Repositório sem git inicializado ou caminho fora do índice: ignorado com segurança
+  }
+}
+
+/**
+ * Executa um subcomando `git` silenciosamente retornando `stdout` ou string vazia.
+ * @param {string} root
+ * @param {string[]} gitArgs
+ * @returns {string}
+ */
+function runSilentGit(root, gitArgs) {
+  try {
+    return execFileSync('git', gitArgs, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Coleta `git status --short` e `git diff HEAD --function-context` de forma segura (CWE-78 safe).
+ * @param {string} root
+ * @param {string[]} fileArray
+ */
+function collectGitStatusAndDiff(root, fileArray) {
+  markIntentToAdd(root, fileArray);
+  const statusTargets =
+    fileArray.length > 0
+      ? fileArray
+      : [':/', ':(exclude):/node_modules/*', ':(exclude):/workspace/*', ':(exclude):/scratch/*'];
+  const diffTargets = fileArray.length > 0 ? fileArray : DEFAULT_DIFF_EXCLUDES;
+
+  const statusContent = runSilentGit(root, ['status', '--short', '--', ...statusTargets]).trim();
+  const headDiff = runSilentGit(root, ['diff', 'HEAD', '--function-context', '--', ...diffTargets]).trim();
+  const workingDiff = headDiff !== '' ? headDiff : runSilentGit(root, ['diff', '--function-context', '--', ...diffTargets]).trim();
+  return {
+    statusContent,
+    diffContent: workingDiff !== '' ? workingDiff : 'Nenhum diff encontrado.',
+  };
+}
+
+/**
+ * Localiza o script `scan-clean-code.mjs` no projeto ou nos templates do harness.
+ * @param {string} root
+ * @returns {string | undefined}
+ */
+function findCleanCodeScannerPath(root) {
+  const candidates = [
+    path.join(root, 'scripts', 'scan-clean-code.mjs'),
+    path.join(root, 'templates', 'scripts', 'scan-clean-code.mjs'),
+    path.join(root, 'skills', 'sovereign', 'clean-code-audit', 'scripts', 'scan-clean-code.mjs'),
+    path.join(root, '.agents', 'skills', 'clean-code-audit', 'scripts', 'scan-clean-code.mjs'),
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate));
+}
+
+/**
+ * Executa o scanner determinístico das 22 regras sobre todos os arquivos de código do escopo.
+ * @param {string} root
+ * @param {string[]} fileArray
+ * @returns {string}
+ */
+function runPreInjectedCleanCodeScan(root, fileArray) {
+  const scannerPath = findCleanCodeScannerPath(root);
+  if (!scannerPath) return 'Não executado';
+
+  const codeFiles = fileArray.filter((f) => /\.(m?js|cjs|tsx?|py|rb)$/i.test(f));
+  const targetsToRun = codeFiles.length > 0 ? codeFiles : ['--changed'];
+  const combinedReports = [];
+
+  for (const targetArg of targetsToRun) {
+    try {
+      const out = execFileSync(process.execPath, [scannerPath, '--json', targetArg], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      combinedReports.push(JSON.parse(out));
+    } catch (err) {
+      const stdout = err && typeof err === 'object' && 'stdout' in err ? String(err.stdout ?? '') : '';
+      if (stdout.trim().startsWith('{')) combinedReports.push(JSON.parse(stdout));
+    }
+  }
+  if (combinedReports.length === 0) return 'Não executado';
+  return JSON.stringify(combinedReports.length === 1 ? combinedReports[0] : combinedReports, null, 2);
+}
+
+/**
+ * Monta o texto Markdown completo do dossiê para o 2º Portão EGM Goldfish.
+ * @param {Record<string, string>} sections
+ * @returns {string}
+ */
+function buildReviewPromptText(sections) {
+  return [
+    'Papel: Revisor Técnico Sênior (Aegis Engineering Harness (2º Portão EGM Goldfish)).',
+    'Contexto:',
+    sections.issueOrPlanHeader,
+    sections.issueOrPlanContent,
+    '',
+    '- Checklist Extraído de Cláusulas BDD Gherkin (Rastreabilidade 1:1 Obrigatória):',
+    sections.bddChecklistContent,
+    '',
+    '- Roadmap / Outras Issues da Sequência (Fora do Escopo Desta Revisão):',
+    sections.openIssuesContent,
+    '',
+    '- Arquivos Alterados / Removidos (git status --short):',
+    '```text',
+    sections.statusContent,
+    '```',
+    '',
+    '- Diff da Implementação Atual com Contexto Completo de Função:',
+    '```diff',
+    sections.diffContent,
+    '```',
+    '',
+    '## 🔬 TELEMETRIA DETERMINÍSTICA PRÉ-INJETADA (AST / CRAP / 22 Regras)',
+    '```json',
+    sections.telemetryContent,
+    '```',
+    '',
+    'Objetivo e Matriz de Avaliação nos 4 Eixos Inegociáveis:',
+    '1. [Eixo 1 - Rastreabilidade BDD 1:1 e Anti-Mock Oco]: Cada cláusula "Então" possui asserção real nos testes?',
+    '2. [Eixo 2 - Zero Spec Drift e Regra 1.12]: A implementação segue 100% os contratos sem código zumbi?',
+    '3. [Eixo 3 - Segurança Serverless, Subprocessos e Tipagem]: Zero CWE-78, zero fire-and-forget e uso de "??" sobre "||".',
+    '4. [Eixo 4 - Simulação de Execução Mental]: Existem bugs lógicos, race conditions ou quebras de borda?',
+    '',
+    'Diretriz: Seja conciso. Categorize apontamentos reais com arquivo/linha. Se íntegro, responda apenas "APROVADO".',
+  ].join('\n');
+}
+
+/**
+ * Persiste os arquivos determinísticos de revisão em `scratch/` (GF-06).
+ * @param {{ root: string; prompt: string; issueId?: string | number; planPath?: string }} params
+ */
+function writeReviewScratchFiles({ root, prompt, issueId, planPath }) {
+  const scratchDir = path.join(root, 'scratch');
+  if (!fs.existsSync(scratchDir)) {
+    fs.mkdirSync(scratchDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(scratchDir, 'review_prompt.md'), prompt, 'utf8');
+  if (issueId) {
+    fs.writeFileSync(path.join(scratchDir, `review_prompt_issue_${issueId}.md`), prompt, 'utf8');
+  }
+  if (planPath) {
+    fs.writeFileSync(path.join(scratchDir, 'review_prompt_plan.md'), prompt, 'utf8');
+  }
+}
+
+/**
+ * Gera o dossiê cirúrgico para o 2º Portão EGM Goldfish (GF-02, GF-06).
+ * Exemplo: generateReviewDossier({ planPath: 'implementation_plan.md', files: 'src/a.mjs' });
+ *
+ * @param {{ issueId?: string | number; planPath?: string; files?: string; rootDir?: string }} options
+ * @returns {string} Conteúdo Markdown do dossiê gerado
+ */
+export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
+  const root = rootDir ?? process.cwd();
+  const fileArray = files
+    ? files.split(',').map((f) => f.trim()).filter(Boolean)
+    : [];
+  const { issueContent, planContent, bddChecklistContent } = readIssueOrPlanRequirements({
+    issueId,
+    planPath,
+    root,
+  });
+  const openIssuesContent = fetchOpenIssuesList(root);
+  const { statusContent, diffContent } = collectGitStatusAndDiff(root, fileArray);
+  const telemetryContent = runPreInjectedCleanCodeScan(root, fileArray);
+
+  const prompt = buildReviewPromptText({
+    issueOrPlanHeader: issueId
+      ? `- Requisitos Exclusivos da Issue #${issueId}:`
+      : '- Requisitos Extraídos do Plano de Implementação:',
+    issueOrPlanContent: issueId ? issueContent : planContent,
+    bddChecklistContent,
+    openIssuesContent,
+    statusContent,
+    diffContent,
+    telemetryContent,
+  });
+
+  writeReviewScratchFiles({ root, prompt, issueId, planPath });
+  return prompt;
+}
+
+/**
+ * Faz o parsing dos argumentos de linha de comando do `review.mjs`.
+ * @param {string[]} argv
+ */
+function parseCliArgs(argv) {
+  let issueId;
+  let planPath;
+  let files;
+  let rootDir;
+  for (let i = 0; i < argv.length; i++) {
+    const flag = argv[i];
+    if (flag === '--issue' || flag === '-IssueNumber') issueId = argv[++i];
+    else if (flag === '--plan' || flag === '-PlanPath') planPath = argv[++i];
+    else if (flag === '--files' || flag === '-Files') files = argv[++i];
+    else if (flag === '--root') rootDir = argv[++i];
+  }
+  return { issueId, planPath, files, rootDir };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  try {
+    generateReviewDossier(parseCliArgs(process.argv.slice(2)));
+    process.stdout.write('[OK] Dossiê de revisão gerado com sucesso.\n');
+  } catch (err) {
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+    process.exit(1);
+  }
+}

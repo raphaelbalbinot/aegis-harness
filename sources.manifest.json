@@ -96,6 +96,7 @@
       "fallbackDir": "skills/sovereign",
       "skills": [
         "clean-code-audit",
+        "dag-slice-orchestrator",
         "egm-goldfish-review",
         "mcp-ecosystem-guide"
       ]
