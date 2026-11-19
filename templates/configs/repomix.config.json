@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/yamadashy/repomix/main/repomix.schema.json",
+  "output": {
+    "filePath": "workspace/context/repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": true,
+    "compress": true,
+    "removeComments": true,
+    "removeEmptyLines": true,
+    "showLineNumbers": false,
+    "topFilesLength": 10
+  },
+  "include": [
+    "src/**/*",
+    "app/**/*",
+    "frontend/src/**/*",
+    "backend/src/**/*",
+    "docs/PRD.md",
+    "docs/ARCHITECTURE.md"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "customPatterns": [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/.venv/**",
+      "**/tests/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "docs/architecture/*.html",
+      "workspace/**",
+      "scripts/**"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}

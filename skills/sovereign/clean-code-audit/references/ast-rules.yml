@@ -1,0 +1,51 @@
+id: r8-hardcoded-firestore-di
+language: TypeScript
+rule:
+  pattern: new Firestore($$$)
+message: "R8 (Dependency Injection): Instanciação direta de Firestore detectada. Injete a dependência via parâmetro/construtor para testabilidade."
+severity: warning
+---
+id: r8-hardcoded-storage-di
+language: TypeScript
+rule:
+  pattern: new Storage($$$)
+message: "R8 (Dependency Injection): Instanciação direta de Storage detectada. Injete a dependência via parâmetro/construtor para testabilidade."
+severity: warning
+---
+id: r10-throw-static-error-ts
+language: TypeScript
+rule:
+  pattern: throw new Error($MSG)
+constraints:
+  MSG:
+    regex: '^["''][^$]+["'']$'
+message: "R10 (Erro com contexto): Exceção lançada com string estática sem interpolação do valor recebido vs. esperado."
+severity: warning
+---
+id: r12-unstructured-console-log
+language: TypeScript
+rule:
+  pattern: console.log($ARG)
+message: "R12 (Logging estruturado): Uso de console.log não estruturado. Prefira logger JSON com campos nomeados."
+severity: warning
+---
+id: r17-serverless-set-timeout
+language: TypeScript
+rule:
+  pattern: setTimeout($$$)
+message: "R17 (Assincronismo Seguro & Anti-Freeze Cloud Run): Evite setTimeout no servidor; aguarde operações via await antes da resposta HTTP."
+severity: warning
+---
+id: r20-json-parse-unsafe-cast
+language: TypeScript
+rule:
+  pattern: JSON.parse($$$) as $TYPE
+message: "R20 (Parse, Don't Validate): Evite cast direto em JSON.parse; valide na fronteira com schema (ex.: Zod)."
+severity: warning
+---
+id: r8-tautological-expect-true
+language: TypeScript
+rule:
+  pattern: expect(true).toBe(true)
+message: "R8 (Anti-Teste Teatral): Asserção tautológica detectada. Teste o comportamento observável do domínio."
+severity: warning

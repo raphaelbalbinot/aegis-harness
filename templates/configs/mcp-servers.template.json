@@ -1,0 +1,20 @@
+{
+  "_comment": "Template de configuração MCP do Aegis Harness para Antigravity (~/.gemini/antigravity/mcp_config.json ou .gemini/settings.json). Nota: se você não tiver chave do Brave Search, o agente usa a ferramenta nativa search_web do Antigravity com a mesma Trava de Confrontação Local.",
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "chrome-devtools-mcp": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    }
+  }
+}

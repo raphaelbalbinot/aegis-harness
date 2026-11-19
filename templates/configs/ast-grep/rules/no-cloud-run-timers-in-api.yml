@@ -1,0 +1,15 @@
+id: no-cloud-run-timers-in-api
+message: "Proibido o uso de setTimeout ou setInterval em rotas de servidor/API Serverless (Regra 1.5.1 Anti-Freeze). Aguarde promessas com await ou delegue para filas duráveis."
+severity: error
+language: TypeScript
+files:
+  - "**/api/**/*.ts"
+  - "**/routes/**/*.ts"
+  - "**/controllers/**/*.ts"
+ignores:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+rule:
+  any:
+    - pattern: setTimeout($$$ARGS)
+    - pattern: setInterval($$$ARGS)

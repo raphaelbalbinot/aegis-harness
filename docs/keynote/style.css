@@ -1,0 +1,576 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Console (deal 3/3, seed engineering-harness-mesa-editorial-80eb·383c2ac7·2026-11-14·r0)
+ * nav: top bar · signature: 18-slide zero-scroll engineering keynote deck in Console hairline surfaces · states: default, hover, focus, active, graphite, paper · console: graphite
+ * axes: dark/grotesk-sans/chromatic-amber · posture: restrained · contrast: pass · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · weakest: H, split dense catalogues across 18 dedicated viewport slides so every slide fits 100dvh without vertical scroll */
+@import url("./tokens.css");
+@import url("./base.css");
+
+/* Paper light mode dial for bright projectors */
+html[data-mode="paper"] {
+  color-scheme: light;
+  --color-paper: oklch(98% 0.006 85);
+  --color-paper-2: oklch(95% 0.008 85);
+  --color-paper-3: oklch(91.5% 0.01 85);
+  --color-ink: oklch(19% 0.01 60);
+  --color-ink-2: oklch(30% 0.01 60);
+  --color-muted: oklch(44% 0.012 60);
+  --color-rule: oklch(84% 0.012 80);
+  --color-rule-2: oklch(72% 0.014 80);
+  --color-accent: oklch(54% 0.14 70);
+  --color-accent-ink: oklch(98% 0.006 85);
+  --color-accent-soft: oklch(92% 0.04 75);
+  --color-focus: oklch(54% 0.14 70);
+  --color-cool: oklch(52% 0.14 250);
+  --color-cool-soft: oklch(92% 0.035 250);
+  --color-ok: oklch(48% 0.14 150);
+  --color-ok-soft: oklch(92% 0.035 150);
+  --color-bad: oklch(52% 0.16 25);
+  --color-bad-soft: oklch(92% 0.04 25);
+}
+
+/* Keynote Viewport Shell: Fixed 100dvh on desktop */
+.keynote-shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: 56px minmax(0, 1fr) 44px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Top Navigation Bar */
+.keynote-topbar {
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+}
+
+.keynote-topbar__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.keynote-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-md);
+  color: var(--color-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Horizontal Slide Strip (01 .. 18) */
+.slide-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  overflow-x: auto;
+  padding-block: var(--space-2xs);
+}
+
+.strip-btn {
+  min-height: 32px;
+  min-width: 34px;
+  padding: 0 var(--space-xs);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: 4px;
+  background: var(--color-paper-2);
+  color: var(--color-muted);
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums slashed-zero;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.strip-btn:hover {
+  color: var(--color-ink);
+  border-color: var(--color-rule-2);
+}
+
+.strip-btn:active {
+  transform: translateY(1px);
+}
+
+.strip-btn[aria-selected="true"] {
+  background: transparent;
+  border-color: var(--color-cool);
+  color: var(--color-cool);
+}
+
+.keynote-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+/* Controls (Console pair, all 8 states) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  min-height: 34px;
+  padding: 0 var(--space-sm);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+}
+
+.btn:hover {
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn[aria-busy="true"] {
+  cursor: progress;
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.btn--primary:hover {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .strip-btn {
+    transition: background-color var(--dur-short) linear;
+  }
+}
+
+/* Main Stage: Vertically centred, zero scroll on desktop */
+.keynote-stage {
+  display: flex;
+  align-items: center;
+  overflow-y: auto;
+  padding-block: var(--space-md);
+}
+
+.keynote-stage > .container {
+  width: 100%;
+}
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.slide[hidden] {
+  display: none !important;
+}
+
+/* Slide Header */
+.slide-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-lg);
+  align-items: end;
+  padding-bottom: var(--space-sm);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+
+.slide-head h1,
+.slide-head h2 {
+  font-size: var(--text-2xl);
+  line-height: 1.06;
+  max-width: 36ch;
+}
+
+.slide-head__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-2xs);
+}
+
+.slide-head p {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  line-height: 1.45;
+  max-width: 64ch;
+}
+
+/* Typography & Semantic Tokens */
+.measured {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.reading-xl {
+  font-family: var(--font-outlier);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.tone-amber {
+  color: var(--color-accent);
+}
+
+.tone-cool {
+  color: var(--color-cool);
+}
+
+.tone-ok {
+  color: var(--color-ok);
+}
+
+.tone-bad {
+  color: var(--color-bad);
+}
+
+/* State Chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-3xs) var(--space-xs);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.chip--person {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.chip--instrument {
+  background: var(--color-cool-soft);
+  color: var(--color-cool);
+}
+
+.chip--ok {
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+}
+
+.chip--bad {
+  background: var(--color-bad-soft);
+  color: var(--color-bad);
+}
+
+/* Console Hairline Panels */
+.panels {
+  display: grid;
+  gap: var(--rule-hair);
+  background: var(--color-rule);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.panels > * {
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  padding: var(--space-md);
+}
+
+.panels--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panels--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.panels--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.panels--5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.panels--6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.cell--deep {
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+}
+
+.cell__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.cell h2,
+.cell h3 {
+  font-size: var(--text-md);
+  font-weight: 500;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+.cell p {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.42;
+}
+
+/* Compact Spec Lists */
+.list-compact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.list-compact li {
+  padding-top: var(--space-2xs);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  line-height: 1.38;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.list-compact li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.list-compact__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+/* Layer Stack (Slide 2) */
+.layer-band {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  gap: var(--space-md);
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.layer-band__cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.layer-box {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: 6px;
+  font-size: var(--text-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.layer-box span {
+  color: var(--color-muted);
+}
+
+/* Tables */
+.table-box {
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.console-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.console-table th,
+.console-table td {
+  padding: var(--space-xs) var(--space-md);
+  text-align: left;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  vertical-align: top;
+  font-size: var(--text-xs);
+  line-height: 1.38;
+}
+
+.console-table th {
+  background: var(--color-paper-3);
+  color: var(--color-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.console-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.console-table td:first-child {
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.console-table td {
+  color: var(--color-ink-2);
+}
+
+.row--minus td {
+  background: var(--color-bad-soft);
+  color: var(--color-ink);
+}
+
+.row--plus td {
+  background: var(--color-ok-soft);
+  color: var(--color-ink);
+}
+
+/* Command Box */
+.cmd-line {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: 6px;
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums slashed-zero;
+  overflow-x: auto;
+}
+
+/* Audit Trail Spine */
+.spine-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-md);
+  border-left: var(--rule-hair) solid var(--color-rule-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.spine-list li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.spine-list strong {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
+/* Footer Progress Bar */
+.keynote-footer {
+  border-top: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
+.keynote-footer__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.progress-bar {
+  width: 260px;
+  height: 4px;
+  background: var(--color-rule);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: var(--color-cool);
+  transform-origin: left center;
+  transform: scaleX(0.055);
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
+@media (max-width: 68rem) {
+  .keynote-shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .slide-head,
+  .panels--2,
+  .panels--3,
+  .panels--4,
+  .panels--5,
+  .panels--6,
+  .layer-band,
+  .layer-band__cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

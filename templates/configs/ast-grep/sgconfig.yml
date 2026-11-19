@@ -1,0 +1,3 @@
+# Configuração universal do ast-grep (Aegis Harness)
+ruleDirs:
+  - rules

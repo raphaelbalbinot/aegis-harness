@@ -1,0 +1,36 @@
+name: "Aegis Harness — Mini-Auditoria Determinística & Governança"
+
+on:
+  push:
+    branches:
+      - main
+      - feat/*
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  audit-verify:
+    name: "Auditoria Determinística (Aegis Harness)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: "Checkout do Repositório"
+        uses: actions/checkout@v4
+
+      - name: "Configurar Node.js 22"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: "Instalar Dependências (se houver package.json)"
+        run: |
+          if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi
+
+      - name: "Executar Esteira Determinística Aegis (audit-verify)"
+        run: |
+          if [ -f scripts/audit-verify.py ]; then python3 scripts/audit-verify.py; else node scripts/audit-verify.mjs; fi

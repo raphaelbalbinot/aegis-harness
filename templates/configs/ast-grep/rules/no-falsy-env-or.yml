@@ -1,0 +1,7 @@
+id: no-falsy-env-or
+message: "Use nullish coalescing (??) em vez de OR lógico (||) ao ler variáveis de ambiente (process.env.*)."
+severity: error
+language: TypeScript
+rule:
+  pattern: process.env.$VAR || $FALLBACK
+fix: process.env.$VAR ?? $FALLBACK

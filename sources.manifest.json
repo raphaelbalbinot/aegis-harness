@@ -1,0 +1,104 @@
+{
+  "name": "aegis-harness",
+  "version": "1.0.0",
+  "description": "Adversarial Engineering Governance & Intelligent Skills — Polyglot AI Engineering Harness",
+  "upstreams": [
+    {
+      "id": "addyosmani-agent-skills",
+      "repo": "https://github.com/addyosmani/agent-skills.git",
+      "branch": "main",
+      "remoteSubdir": "skills",
+      "fallbackDir": "skills/fallback-cache/addyosmani-agent-skills",
+      "skills": [
+        "api-and-interface-design",
+        "browser-testing-with-devtools",
+        "ci-cd-and-automation",
+        "code-review-and-quality",
+        "code-simplification",
+        "constraint-driven-development",
+        "context-engineering",
+        "debugging-and-error-recovery",
+        "deprecation-and-migration",
+        "documentation-and-adrs",
+        "doubt-driven-development",
+        "frontend-ui-engineering",
+        "git-workflow-and-versioning",
+        "idea-refine",
+        "incremental-implementation",
+        "interview-me",
+        "observability-and-instrumentation",
+        "performance-optimization",
+        "planning-and-task-breakdown",
+        "security-and-hardening",
+        "shipping-and-launch",
+        "source-driven-development",
+        "spec-driven-development",
+        "test-driven-development",
+        "using-agent-skills"
+      ]
+    },
+    {
+      "id": "addyosmani-web-quality",
+      "repo": "https://github.com/addyosmani/web-quality-skills.git",
+      "branch": "main",
+      "remoteSubdir": "skills",
+      "fallbackDir": "skills/fallback-cache/addyosmani-web-quality",
+      "skills": [
+        "accessibility",
+        "best-practices",
+        "core-web-vitals",
+        "performance",
+        "seo",
+        "web-quality-audit"
+      ]
+    },
+    {
+      "id": "archify",
+      "repo": "https://github.com/tt-a1i/archify.git",
+      "branch": "main",
+      "remoteSubdir": "skills",
+      "fallbackDir": "skills/fallback-cache/archify",
+      "skills": [
+        "archify"
+      ]
+    },
+    {
+      "id": "google-mantis",
+      "repo": "https://github.com/google/mantis.git",
+      "branch": "main",
+      "remoteSubdir": "skills",
+      "fallbackDir": "skills/fallback-cache/mantis-security",
+      "skills": [
+        "mantis-advise",
+        "mantis-architecture",
+        "mantis-calibrate",
+        "mantis-chain",
+        "mantis-critic",
+        "mantis-dedupe",
+        "mantis-history",
+        "mantis-meta-agent",
+        "mantis-patch",
+        "mantis-pipeline-adapter",
+        "mantis-plan",
+        "mantis-reflect",
+        "mantis-report",
+        "mantis-reproduce",
+        "mantis-researcher",
+        "mantis-review",
+        "mantis-structural-index",
+        "mantis-summarize",
+        "mantis-threat-model"
+      ]
+    },
+    {
+      "id": "aegis-sovereign",
+      "repo": null,
+      "fallbackDir": "skills/sovereign",
+      "skills": [
+        "clean-code-audit",
+        "egm-goldfish-review",
+        "mcp-ecosystem-guide"
+      ]
+    }
+  ]
+}

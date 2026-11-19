@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-mode="graphite">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Harness Keynote: Arquitetura Determinística e Adversarial para IA</title>
+  <meta name="description" content="Keynote interativo de 21 slides sobre a arquitetura de Engineering Harness para desenvolvimento assistido por IA: AGENTS.md Unificado, Tríade Constitucional docs/, Agent Skills, EGM Goldfish, review.ps1, 22 regras de Clean Code, 12 portões determinísticos, Blast Radius, MCPs, Archify 3D e Aegis Harness.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="keynote-shell">
+    <!-- TOP BAR: Horizontal Slide Strip (01 .. 21) & Controls -->
+    <header class="keynote-topbar">
+      <div class="container keynote-topbar__inner">
+        <div class="keynote-brand">
+          <a class="wordmark" href="#slide-01" aria-label="AI Engineering Harness">Engineering Harness</a>
+          <span class="chip chip--instrument" id="slideCounterBadge">01 / 21</span>
+        </div>
+
+        <div class="slide-strip" role="tablist" aria-label="Seletor de slides">
+          <button class="strip-btn" role="tab" aria-selected="true" aria-controls="slide-01" id="tab-01" type="button" title="01. Visão Executiva">01</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-02" id="tab-02" tabindex="-1" type="button" title="02. Arquitetura 5 Camadas">02</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-03" id="tab-03" tabindex="-1" type="button" title="03. AGENTS.md Unificado (Regras 1.1 a 1.10)">03</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-04" id="tab-04" tabindex="-1" type="button" title="04. AGENTS.md (Regras 1.11 a 1.20 + Core)">04</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-05" id="tab-05" tabindex="-1" type="button" title="05. Agent Skills: Roteador 5 Fases">05</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-06" id="tab-06" tabindex="-1" type="button" title="06. Agent Skills: Skills de Domínio & Web">06</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-07" id="tab-07" tabindex="-1" type="button" title="07. Agent Skills: Campanha Mantis & Firestore">07</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-08" id="tab-08" tabindex="-1" type="button" title="08. EGM Goldfish Portão 1: Cold Spec Review">08</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-09" id="tab-09" tabindex="-1" type="button" title="09. EGM Goldfish Portão 2: Revisão de Implementação">09</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-10" id="tab-10" tabindex="-1" type="button" title="10. Automação PowerShell: review.ps1 & audit-repo.ps1">10</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-11" id="tab-11" tabindex="-1" type="button" title="11. Clean Code (Parte 1: R1 a R7)">11</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-12" id="tab-12" tabindex="-1" type="button" title="12. Clean Code (Parte 2: R8 a R15)">12</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-13" id="tab-13" tabindex="-1" type="button" title="13. Clean Code (Parte 3: R16 a R22 & CLI)">13</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-14" id="tab-14" tabindex="-1" type="button" title="14. audit-verify.mjs (Portões 01 a 06)">14</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-15" id="tab-15" tabindex="-1" type="button" title="15. audit-verify.mjs (Portões 07 a 12)">15</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-16" id="tab-16" tabindex="-1" type="button" title="16. Pré-Voo: blast-radius.mjs & plan-collision.mjs">16</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-17" id="tab-17" tabindex="-1" type="button" title="17. Fase Final (Parte 1: Ecossistema MCP & Repomix)">17</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-18" id="tab-18" tabindex="-1" type="button" title="18. Fase Final (Parte 2: Archify 3D em 5 Abas)">18</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-19" id="tab-19" tabindex="-1" type="button" title="19. Fase Final (Parte 3: Testes & Paridade Dual E2E)">19</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-20" id="tab-20" tabindex="-1" type="button" title="20. Constituição Dupla (AGENTS.md + Tríade docs/) & Aegis Harness">20</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-21" id="tab-21" tabindex="-1" type="button" title="21. Fechamento & Simulador de Comandos">21</button>
+        </div>
+
+        <div class="keynote-actions">
+          <button class="btn" type="button" id="prevBtn" aria-label="Slide anterior">Anterior</button>
+          <button class="btn btn--primary" type="button" id="nextBtn" aria-label="Próximo slide">Próximo</button>
+          <button class="btn" type="button" id="modeBtn" aria-label="Alternar tema Graphite e Paper">Modo claro</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN STAGE -->
+    <main class="keynote-stage">
+      <div class="container">
+
+        <!-- SLIDE 01: VISÃO EXECUTIVA -->
+        <section class="slide" role="tabpanel" id="slide-01" aria-labelledby="tab-01" data-title="Visão Executiva & ROI de Engenharia">
+          <div class="slide-head">
+            <div>
+              <h1>Engineering Harness para Desenvolvimento Assistido por IA</h1>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 01 de 21</span>
+                <span class="measured tone-cool">Arquitetura Reutilizável Multi-Projeto · Governança Determinística e Adversarial</span>
+              </div>
+            </div>
+            <p>Modelos de linguagem sem trilhos produzem velocidade ilusória no Dia 1 e dívida técnica exponencial no Dia 30. Este harness é o nosso padrão multi-projeto para transformar agentes em uma esteira sênior auditável.</p>
+          </div>
+
+          <div class="panels panels--4">
+            <div class="cell">
+              <div class="reading-xl">12/12</div>
+              <h2>Esteira Determinística</h2>
+              <p><span class="measured tone-cool">npm run audit:verify</span> valida lockfile, AST, código morto, tipos nos 3 workspaces, grafo 3D, Vitest e Clean Code antes da entrega.</p>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">22/22</div>
+              <h2>Clean Code Tolerância Zero</h2>
+              <p>Scanner estático e semântico com <span class="measured tone-cool">crap &lt; 10</span>, SRP, Anti-Freeze Cloud Run, Stateless e estados ilegais irrepresentáveis.</p>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">2x</div>
+              <h2>Auditoria EGM Goldfish</h2>
+              <p>Subagentes isolados com zero contexto da conversa auditam o plano (<span class="measured tone-amber">Cold Spec Review</span>) e o diff final (<span class="measured tone-amber">review.ps1</span>).</p>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">1:1</div>
+              <h2>Rastreabilidade BDD e TDD</h2>
+              <p>Cada cláusula <span class="measured tone-cool">Então</span> da Issue no GitHub vira asserção real no ciclo Red, Green, Refactor com paridade Dual E2E.</p>
+            </div>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>O Problema: IA sem Harness (Vibe Coding)</h3>
+                <span class="chip chip--bad">Risco Exponencial</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-bad">Alucinação de Escopo e Código Morto</strong><span class="measured">knip / ast-grep ausentes</span></div><span>Arquivos órfãos abandonados, aliases fantasmas de prompts e refatorações não solicitadas.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Compatibilidade Zumbi (Dual-Schema)</strong><span class="measured">novo ?? antigo</span></div><span>Gambiarras retroativas espalhadas no código para evitar atualizar suítes de testes antigas.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Viés de Autoconfirmação (Self-Review Bias)</strong><span class="measured">testes teatrais</span></div><span>O mesmo agente que introduz o bug escreve um mock oco que aprova o próprio erro.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Colisão em Sessões Paralelas</strong><span class="measured">git add . indiscriminado</span></div><span>Duas conversas editando os mesmos módulos e misturando commits de issues diferentes.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>Nossa Solução: Engineering Harness Determinístico</h3>
+                <span class="chip chip--ok">Engenharia Auditável</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Fidelidade Física 1:1 e Zero Drift</strong><span class="measured">ast-grep + Archify 3D</span></div><span>Contratos verificados na árvore sintática, prompts reais no disco e 5 abas 3D sincronizadas.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Isolamento Paralelo Multi-Agente</strong><span class="measured">.git/active-plans.json</span></div><span>Reserva prévia via <span class="measured tone-cool">plan-collision.mjs</span>, planos isolados por conversa e staging cirúrgico por arquivo.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Separação Cognitiva Elephant vs. Goldfish</strong><span class="measured">2 portões adversariais</span></div><span>Quem acumula contexto planeja e codifica; quem tem zero contexto audita friamente os fatos.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Two-Cycle Workflow (Inner + Outer Loop)</strong><span class="measured">Regra 1.16</span></div><span>Inner Loop rápido por domínio via <span class="measured tone-cool">blast-radius</span> e Outer Loop rigoroso no <span class="measured tone-cool">npm run precommit</span>.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 02: ARQUITETURA EM 5 CAMADAS -->
+        <section class="slide" role="tabpanel" id="slide-02" aria-labelledby="tab-02" data-title="Arquitetura Geral em 5 Camadas Concêntricas" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>As 5 Camadas Concêntricas do Nosso Harness</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 02 de 21</span>
+                <span class="measured tone-cool">Topologia Sistêmica da Intenção ao Commit</span>
+              </div>
+            </div>
+            <p>O harness opera em 5 camadas encadeadas: leis constitucionais, playbooks procedurais por fase, cognição MCP local, revisão adversarial sem contexto e portões matemáticos.</p>
+          </div>
+
+          <div class="panels">
+            <div class="layer-band">
+              <div>
+                <h3>1. Constituição: AGENTS.md</h3>
+                <p>Vinte leis inegociáveis e 7 Core Behaviors.</p>
+              </div>
+              <div class="layer-band__cols">
+                <div class="layer-box"><strong class="measured tone-amber">Regras 1.1 a 1.6</strong><span>Zero commit proativo, staging cirúrgico, plano BDD 1:1 com Trade-offs, tríade docs/, Cloud Run e TDD.</span></div>
+                <div class="layer-box"><strong class="measured tone-amber">Regras 1.7 a 1.13</strong><span>Blast Radius, Sequential Thinking, Caching TTL curto, prompts reais, 5 Eixos e zero dual-schema.</span></div>
+                <div class="layer-box"><strong class="measured tone-amber">Regras 1.14 a 1.20 + Core</strong><span>6 domínios de teste, paridade Dual E2E, Two-Cycle, duplo Goldfish, modern-web-guidance e ?? sobre ||.</span></div>
+              </div>
+            </div>
+
+            <div class="layer-band">
+              <div>
+                <h3>2. Procedimentos: Agent Skills</h3>
+                <p>Roteador de 5 fases e skills de domínio.</p>
+              </div>
+              <div class="layer-band__cols">
+                <div class="layer-box"><strong class="measured tone-cool">using-agent-skills (5 Fases)</strong><span>Define (interview-me), Plan (doubt-driven), Build (incremental), Verify (TDD) e Review &amp; Ship.</span></div>
+                <div class="layer-box"><strong class="measured tone-cool">Domain Knowledge as a Skill</strong><span>Isola regras complexas de negócio em skills dedicadas (ex. no caso Heldora: exportadores KDP e catalogação).</span></div>
+                <div class="layer-box"><strong class="measured tone-cool">Qualidade &amp; Segurança</strong><span>clean-code-audit (22 regras), archify (5 abas 3D), suíte mantis-* (14 skills) e Firestore Rules.</span></div>
+              </div>
+            </div>
+
+            <div class="layer-band">
+              <div>
+                <h3>3. Cognição: Ecossistema MCP</h3>
+                <p>Processos locais stdio (0ms) e contexto enxuto.</p>
+              </div>
+              <div class="layer-band__cols">
+                <div class="layer-box"><strong class="measured tone-cool">sequential-thinking</strong><span>Córtex pré-frontal obrigatório com protocolo de 5 fases de isolamento de causa raiz.</span></div>
+                <div class="layer-box"><strong class="measured tone-cool">chrome-devtools-mcp &amp; Firestore</strong><span>Inspeção real de DOM, Console, Network, Light/Dark mode e validação de coleções.</span></div>
+                <div class="layer-box"><strong class="measured tone-cool">brave-search &amp; repomix</strong><span>Pesquisa externa com Trava de Confrontação Local e esqueleto Tree-sitter em &lt; 3.000 tokens.</span></div>
+              </div>
+            </div>
+
+            <div class="layer-band">
+              <div>
+                <h3>4. Crítica: Modelo EGM Goldfish</h3>
+                <p>Duplo portão adversarial sem histórico da sessão.</p>
+              </div>
+              <div class="layer-band__cols">
+                <div class="layer-box"><strong class="measured tone-amber">Portão 1: Cold Spec Review</strong><span>Audita o implementation_plan.md a frio gerando relatório GF-01 a GF-N para decisão humana.</span></div>
+                <div class="layer-box"><strong class="measured tone-amber">Portão 2: scripts/review.ps1</strong><span>Extrai BDD da Issue, blinda contra escopo alheio e audita o diff completo nos 4 Eixos até Aprovado.</span></div>
+                <div class="layer-box"><strong class="measured tone-amber">scripts/audit-repo.ps1</strong><span>Health check arquitetural do monorepo inteiro que converte achados em novas Issues atômicas.</span></div>
+              </div>
+            </div>
+
+            <div class="layer-band">
+              <div>
+                <h3>5. Barreira: audit-verify.mjs</h3>
+                <p>Doze portões determinísticos no precommit.</p>
+              </div>
+              <div class="layer-band__cols">
+                <div class="layer-box"><strong class="measured tone-ok">Prevenção Pré-voo</strong><span>blast-radius.mjs (impacto reverso e testes) e plan-collision.mjs (zero conflito paralelo).</span></div>
+                <div class="layer-box"><strong class="measured tone-ok">Análise Estática &amp; Grafo</strong><span>check-lockfile-sync, npm audit, ast-grep, dependency-cruiser, knip, tsc (3x) e arch:check.</span></div>
+                <div class="layer-box"><strong class="measured tone-ok">Testes &amp; Código Limpo</strong><span>Vitest, check-test-naming-governance.mjs e scan-clean-code.mjs --enforce-zero-rules.</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 03: AGENTS.MD (PARTE 1: REGRAS 1.1 A 1.10) -->
+        <section class="slide" role="tabpanel" id="slide-03" aria-labelledby="tab-03" data-title="AGENTS.md (Parte 1: Regras 1.1 a 1.10)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>AGENTS.md (Parte 1): Leis Constitucionais 1.1 a 1.10</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 03 de 21</span>
+                <span class="measured tone-cool">Controle de Versão, Planejamento BDD, Cloud Run e TDD</span>
+              </div>
+            </div>
+            <p>Carregado no prompt de sistema de todas as conversas, o arquivo AGENTS.md estabelece travas operacionais que nenhum agente pode contornar.</p>
+          </div>
+
+          <div class="table-box">
+            <table class="console-table" aria-label="Regras 1.1 a 1.10 do AGENTS.md">
+              <thead>
+                <tr>
+                  <th>Regra</th>
+                  <th>Lei Constitucional</th>
+                  <th>Mecanismo de Proteção e Regra Prática</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.1</td>
+                  <td>Proibição de Commit Proativo</td>
+                  <td>O agente nunca executa <span class="measured tone-bad">git commit</span>, <span class="measured tone-bad">git push</span> ou criação de tags sem comando expresso e inequívoco do usuário.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.1.1</td>
+                  <td>Staging Cirúrgico &amp; Rastreabilidade</td>
+                  <td>Proibido <span class="measured tone-bad">git add .</span> ou <span class="measured tone-bad">git add -A</span>. Exige <span class="measured tone-cool">git add &lt;arq1&gt; &lt;arq2&gt;</span> restrito ao plano da Issue, sufixo <span class="measured tone-cool">(closes #ID)</span> e <span class="measured tone-cool">plan-collision.mjs release</span>.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.2</td>
+                  <td>Proibição de Código Prematuro</td>
+                  <td>Enquanto o usuário debate requisitos, o agente atua apenas em Define e Plan; a escrita de código exige autorização expressa.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.3</td>
+                  <td>Implementation Plan, Trade-offs &amp; BDD 1:1</td>
+                  <td>Plano isolado em <span class="measured tone-cool">brain/&lt;conversation-id&gt;/implementation_plan.md</span>, exigindo <strong class="tone-ok">Boost Trade-off Matrix (Opção A vs. B)</strong>, cenários BDD Gherkin 1:1 com a Issue e Cold Spec Review com Pre-Mortem e Navalha de Occam.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.4</td>
+                  <td>Tríade de Documentação Pré-Código</td>
+                  <td>Novas decisões ou fluxos exigem atualizar <span class="measured tone-cool">docs/PRD.md</span>, <span class="measured tone-cool">docs/ARCHITECTURE.md</span> e <span class="measured tone-cool">docs/DIRETRIZES_EDITORIAIS.md</span> antes de codificar (exceto correção pura de bug).</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.5</td>
+                  <td>Travas Serverless Google Cloud Run</td>
+                  <td><strong class="tone-ok">1.5.1 Anti-Freeze:</strong> zero promessa sem await pós-resposta HTTP. <strong class="tone-ok">1.5.2 Stateless:</strong> zero estado mutável em memória global. <strong class="tone-ok">1.5.3 a 1.5.5:</strong> buffers em RAM, <span class="measured tone-cool">0.0.0.0:8080</span> e <span class="measured tone-cool">sigterm</span>.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.6</td>
+                  <td>TDD Mandatório por Fatia Vertical</td>
+                  <td>Ciclo estrito <span class="measured tone-bad">Red</span> (teste falhando) → <span class="measured tone-ok">Green</span> (código mínimo) → <span class="measured tone-cool">Refactor</span> antes de marcar qualquer item no checklist da conversa.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.7 / 1.8</td>
+                  <td>Blast Radius, Audit &amp; Sequential Thinking</td>
+                  <td>Análise pré-voo com <span class="measured tone-cool">blast-radius.mjs</span>, mini-auditoria pós-voo com <span class="measured tone-cool">audit:verify</span> e raciocínio estruturado via MCP <span class="measured tone-cool">sequential-thinking</span> em tarefas críticas.</td>
+                </tr>
+                <tr>
+                  <td class="measured tone-amber">Regra 1.9 / 1.10</td>
+                  <td>Context Caching &amp; Nomes Físicos de Prompts</td>
+                  <td>Cache explícito gerenciado exclusivamente no backend com TTL dinâmico curto (+10 a +20 min) e desalocação no <span class="measured tone-cool">finally</span>. Correspondência física 1:1 com arquivos reais em <span class="measured tone-cool">backend/prompts/*_common.md</span>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SLIDE 04: AGENTS.MD (PARTE 2: REGRAS 1.11 A 1.20 + 7 CORE BEHAVIORS) -->
+        <section class="slide" role="tabpanel" id="slide-04" aria-labelledby="tab-04" data-title="AGENTS.md (Parte 2: Regras 1.11 a 1.20 & Core Behaviors)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>AGENTS.md (Parte 2): Leis 1.11 a 1.20 e os 7 Core Behaviors</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 04 de 21</span>
+                <span class="measured tone-cool">Anti-Scope Creep, Zero Dual-Schema, Telemetria, Web Moderna e Postura Sênior</span>
+              </div>
+            </div>
+            <p>Impede escopos monolíticos com parada obrigatória nos 5 Eixos, elimina código legado zumbi, blinda padrões modernos da Web e governa a postura operacional.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>Leis Constitucionais 1.11 a 1.20</h3>
+                <span class="chip chip--instrument">Governança de Domínio</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Regra 1.11: 5 Eixos &amp; Gatilho Stop-and-Warn</strong><span class="measured">Anti-Scope Creep</span></div><span>Classifica em <strong class="tone-cool">A (Infra Serverless)</strong>, <strong class="tone-cool">B (Segurança/CWE)</strong>, <strong class="tone-cool">C (IA/Domínio)</strong>, <strong class="tone-cool">D (UI/Editor)</strong> e <strong class="tone-cool">E (Persistência)</strong>. Se cruzar &gt; 2 eixos ou misturar Infra com UI, para e propõe novas Issues.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Regra 1.12 e 1.13: Zero Dual-Schema &amp; FinOps de IA</strong><span class="measured">Single Source of Truth</span></div><span>Proibido coexistir formato antigo e novo (<span class="measured tone-bad">novo ?? antigo</span>). Telemetria universal multi-nível por modelo segregando <span class="measured">production</span> vs. <span class="measured">dev_and_test</span> (ex.: Sistema, Usuário e Projeto).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Regras 1.14 e 1.15: Testes &amp; Paridade Dual E2E</strong><span class="measured">Domínios + MCP</span></div><span>Proibido nomear testes com número de issue; exigida paridade 1:1 entre Playwright (<span class="measured">.spec.ts</span>) e DevTools MCP (<span class="measured">.mcp.ts</span>) + sincronia no Archify.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Regras 1.16 a 1.19: Two-Cycle, Goldfish 2 &amp; Léxico DDD</strong><span class="measured">Fluxo &amp; Linguagem Ubíqua</span></div><span>Two-Cycle Workflow (Inner TDD vs. Outer Precommit), recomendação proativa do <span class="measured tone-cool">/compact</span>, 2º Portão Goldfish obrigatório e trava de linguagem ubíqua do produto (ex.: banir termos legados).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Regra 1.20: Modern Web Guidance &amp; Legacy-Scan Zero</strong><span class="measured">Plataforma Web</span></div><span>Consulta obrigatória a <span class="measured tone-cool">modern-web-guidance</span> em UI/Web e <span class="measured tone-ok">legacy-scan = 0</span> em <span class="measured">frontend</span> e <span class="measured">landing</span> (usando <span class="measured">structuredClone</span>, <span class="measured">toSorted()</span>, <span class="measured">!isComposing</span> e <span class="measured">scrollbar-color</span>).</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>Os 7 Core Operating Behaviors Inegociáveis</h3>
+                <span class="chip chip--person">Seção 3 do AGENTS.md</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">1. Explicitar Suposições (Surface Assumptions)</strong><span class="measured">Zero inferência muda</span></div><span>Declarar premissas de requisitos, arquitetura e escopo antes de agir e aguardar validação.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">2. Gerenciar Dúvidas Ativamente (Manage Confusion)</strong><span class="measured">Parar ao ver conflito</span></div><span>Ao encontrar divergência entre especificação e código, parar imediatamente e perguntar ao usuário.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">3. Discordância Técnica Justificada (Push Back)</strong><span class="measured">Zero bajulação</span></div><span>Não ser uma máquina de dizer sim: apontar riscos concretos de latência, custo ou segurança e propor alternativa.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">4. Simplicidade Radical &amp; 5. Disciplina de Escopo</strong><span class="measured">100 linhas &gt; 1.000</span></div><span>Rejeitar abstrações prematuras e tocar exclusivamente nos arquivos solicitados pela tarefa.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">6. Verificar com Fatos &amp; 7. Uso Estrito de ?? sobre ||</strong><span class="measured">ast-grep enforced</span></div><span>Proibido usar <span class="measured tone-bad">||</span> falsy para fallbacks ou <span class="measured">process.env</span> (que engole <span class="measured">0</span>, <span class="measured">""</span> e <span class="measured">false</span>); obrigatório usar coalescência nula <span class="measured tone-ok">??</span>.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 05: AGENT SKILLS (PARTE 1: CICLO USING-AGENT-SKILLS EM 5 FASES) -->
+        <section class="slide" role="tabpanel" id="slide-05" aria-labelledby="tab-05" data-title="Agent Skills (Parte 1: Roteador de 5 Fases)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Suíte Agent Skills (Parte 1): Roteador de 5 Fases</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 05 de 21</span>
+                <span class="measured tone-cool">.agents/skills/using-agent-skills/SKILL.md · 18 Skills de Fluxo</span>
+              </div>
+            </div>
+            <p>Em todas as chamadas, a meta-skill <span class="measured tone-cool">using-agent-skills</span> identifica a fase do trabalho e ativa os playbooks procedurais de engenharia sênior.</p>
+          </div>
+
+          <div class="panels panels--5">
+            <div class="cell">
+              <div class="cell__top"><h3>1. Fase Define</h3><span class="chip chip--instrument">Alinhamento</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">interview-me</strong><span>Entrevista uma pergunta por vez com hipótese anexada até 95% de confiança (/grill-me).</span></li>
+                <li><strong class="measured tone-cool">idea-refine</strong><span>Pensamento divergente e convergente para estressar premissas antes do plano.</span></li>
+                <li><strong class="measured tone-cool">spec-driven-development</strong><span>Elabora PRD, objetivos, escopo e mapa de capacidades testáveis antes do código.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>2. Fase Plan</h3><span class="chip chip--instrument">Fatiamento</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">planning-and-task-breakdown</strong><span>Decompõe a especificação em tarefas S/M ordenadas e independentes.</span></li>
+                <li><strong class="measured tone-cool">constraint-driven-development</strong><span>Fixa barras de qualidade, limites de latência e invariantes arquiteturais.</span></li>
+                <li><strong class="measured tone-cool">doubt-driven &amp; egm-goldfish-review</strong><span>Submete decisões não-triviais à revisão adversarial em contexto limpo (1º Portão Goldfish).</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>3. Fase Build</h3><span class="chip chip--instrument">Execução</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">incremental-implementation</strong><span>Entrega alterações em fatias verticais finas com <span class="measured tone-cool">doubt-driven-development</span> em decisões críticas.</span></li>
+                <li><strong class="measured tone-cool">modern-web-guidance + UI</strong><span>Combina <span class="measured tone-cool">modern-web-guidance</span>, <span class="measured tone-cool">frontend-ui-engineering</span>, <span class="measured tone-cool">accessibility</span> e <span class="measured tone-cool">core-web-vitals</span>.</span></li>
+                <li><strong class="measured tone-cool">api-and-interface-design</strong><span>Contratos REST/TypeScript estáveis + <span class="measured tone-cool">source-driven-development</span> (docs oficiais).</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>4. Fase Verify</h3><span class="chip chip--instrument">Validação</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">test-driven-development</strong><span>Ciclo Red, Green, Refactor provando que o comportamento funciona antes de avançar.</span></li>
+                <li><strong class="measured tone-cool">browser-testing-with-devtools</strong><span>Inspeção em navegador real via Chrome DevTools MCP (DOM, Console, Network).</span></li>
+                <li><strong class="measured tone-cool">debugging-and-error-recovery</strong><span>Investigação sistemática de causa raiz quando testes ou builds falham.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>5. Review &amp; Ship</h3><span class="chip chip--instrument">Entrega</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">code-review-and-quality</strong><span>Revisão em 5 eixos + auditoria web (<span class="measured tone-cool">modern-web-guidance</span>, <span class="measured tone-cool">web-quality-audit</span>, <span class="measured tone-cool">best-practices</span>, <span class="measured tone-cool">seo</span>).</span></li>
+                <li><strong class="measured tone-cool">security &amp; simplification</strong><span>Eliminação de complexidade (<span class="measured tone-cool">code-simplification</span>), <span class="measured tone-cool">security-and-hardening</span> e latência (&lt; 16ms).</span></li>
+                <li><strong class="measured tone-cool">git-workflow-and-versioning</strong><span>Commits atômicos, <span class="measured tone-cool">documentation-and-adrs</span>, <span class="measured tone-cool">deprecation</span> e <span class="measured tone-cool">shipping-and-launch</span>.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 06: AGENT SKILLS (PARTE 2: ENCAPSULAMENTO DE DOMÍNIO & QUALIDADE WEB) -->
+        <section class="slide" role="tabpanel" id="slide-06" aria-labelledby="tab-06" data-title="Agent Skills (Parte 2: Conhecimento de Domínio em Skills & Web)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Suíte Agent Skills (Parte 2): Conhecimento de Domínio em Skills e Web</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 06 de 21</span>
+                <span class="measured tone-cool">Padrão Domain-as-a-Skill (Exemplo Heldora) + Governança Modern Web</span>
+              </div>
+            </div>
+            <p>Em vez de inflar o prompt global ou confiar na memória do modelo para normas complexas de negócio, o harness isola o conhecimento específico de cada produto em Skills soberanas sob demanda.</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>1. O Padrão Domain-as-a-Skill</h3>
+                <span class="chip chip--person">Arquitetura de Contexto</span>
+              </div>
+              <p>Como empacotar regras de negócio densas em qualquer projeto (financeiro, jurídico, fiscal ou editorial):</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Zero Poluição do Prompt Base</strong><span class="measured">Lazy loading</span></div><span>Tabelas normativas, fórmulas matemáticas e especificações regulatórias só entram em contexto quando a tarefa toca naquele subsistema.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Fonte de Verdade Auditável</strong><span class="measured">Anti-alucinação</span></div><span>Substitui o conhecimento genérico da internet por contratos exatos versionados dentro de <span class="measured">.agents/skills/&lt;dominio&gt;/SKILL.md</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Portabilidade do Harness</strong><span class="measured">Plug &amp; Play</span></div><span>Ao levar o harness para outro projeto, o núcleo de governança permanece idêntico e apenas o cartucho de skills de domínio é trocado.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>2. Exemplo Real (Caso Heldora)</h3>
+                <span class="chip chip--person">3 Skills de Domínio</span>
+              </div>
+              <p>Exemplo prático de centralização de normas técnicas complexas da Amazon KDP em skills dedicadas:</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">kdp-docx-exporter (DOCX v9.x)</strong><span class="measured">Tabelas físicas</span></div><span>Encapsula fórmulas de sangria (bleed), margens progressivas por contagem de páginas, lombada e sumário navegável.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">kdp-epub-exporter (EPUB 3.3)</strong><span class="measured">JSZip em RAM</span></div><span>Blinda a geração de pacotes digitais 100% em memória (Serverless Ready) segundo as Kindle Publishing Guidelines.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">kdp-copyright-and-cip-cataloging</strong><span class="measured">Normas Isbd, Aacr2 e Rda</span></div><span>Centraliza regras bibliográficas internacionais de Folha de Créditos e Ficha Catalográfica em 26 variantes de idioma.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>3. Modern Web Guidance, CWV &amp; A11y</h3>
+                <span class="chip chip--instrument">Regra 1.20 &amp; Lab/Campo</span>
+              </div>
+              <p>Governança obrigatória da plataforma Web para o Estúdio (<span class="measured">frontend</span>) e Vitrine (<span class="measured">landing</span>):</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">modern-web-guidance (search &amp; legacy-scan)</strong><span class="measured">Zero achados legados</span></div><span>Bloqueia padrões obsoletos como <span class="measured">JSON.parse(JSON.stringify)</span>, <span class="measured">[…arr].sort()</span> sem <span class="measured">toSorted()</span> e <span class="measured">Enter</span> sem <span class="measured">!isComposing</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">accessibility &amp; core-web-vitals</strong><span class="measured">Padrão Wcag 2.2 e Cwv</span></div><span>Semântica HTML, ARIA, teclado, contraste cromático e resposta de interação abaixo de 16ms.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">seo, best-practices &amp; web-quality-audit</strong><span class="measured">Auditoria completa</span></div><span>Metadados estruturados, segurança moderna de navegador e calibração de regras de contexto.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 07: AGENT SKILLS (PARTE 3: SUITE MANTIS 14 SKILLS & FIRESTORE RULES) -->
+        <section class="slide" role="tabpanel" id="slide-07" aria-labelledby="tab-07" data-title="Agent Skills (Parte 3: Campanha Mantis & Firestore)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Suíte Agent Skills (Parte 3): Campanha Mantis e Firestore Rules</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 07 de 21</span>
+                <span class="measured tone-cool">14 Skills de Segurança Defensiva + Subagente Especialista Obrigatório</span>
+              </div>
+            </div>
+            <p>Uma linha de montagem completa de engenharia de segurança para mapear superfícies de ataque, eliminar falsos positivos, reproduzir falhas e aplicar patches transacionais.</p>
+          </div>
+
+          <div class="panels panels--4">
+            <div class="cell">
+              <div class="cell__top"><h3>1. Base de Conhecimento</h3><span class="chip chip--instrument">Estágio A &amp; B</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">mantis-summarize</strong><span>Gera resumos de segurança por diretório (mantis-summary.md).</span></li>
+                <li><strong class="measured tone-cool">mantis-structural-index</strong><span>Índice semântico endereçado por conteúdo do código-fonte.</span></li>
+                <li><strong class="measured tone-cool">mantis-history</strong><span>Extrai linhagem de vulnerabilidades e fixes do histórico Git.</span></li>
+                <li><strong class="measured tone-cool">mantis-architecture</strong><span>Sintetiza architecture.md e entidades na Knowledge Base.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>2. Ameaças &amp; Pesquisa</h3><span class="chip chip--instrument">Plano &amp; Auditoria</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">mantis-threat-model</strong><span>Mapeia fronteiras de confiança, superfícies e perfis de atacante.</span></li>
+                <li><strong class="measured tone-cool">mantis-plan</strong><span>Formula o plano defensivo direcionado em workspace/plan.json.</span></li>
+                <li><strong class="measured tone-cool">mantis-researcher</strong><span>Audita arquivos de produção via análise estática e deep-dive.</span></li>
+                <li><strong class="measured tone-cool">mantis-dedupe &amp; review</strong><span>Consolida achados brutos e filtra falsos positivos contra o código.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>3. Validação &amp; Patch</h3><span class="chip chip--instrument">Prova &amp; Fix</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-cool">mantis-critic &amp; reproduce</strong><span>Confirma viabilidade em build de produção e executa scripts reprodutores.</span></li>
+                <li><strong class="measured tone-cool">mantis-chain &amp; calibrate</strong><span>Constrói cadeias de exploração e calcula o score final de risco.</span></li>
+                <li><strong class="measured tone-cool">mantis-patch</strong><span>Aplica correções mínimas com isolamento transacional e verifica testes.</span></li>
+                <li><strong class="measured tone-cool">mantis-report, reflect, advise</strong><span>Gera pacote executivo, extrai aprendizados e orienta antes de edições.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>4. Governança Firebase</h3><span class="chip chip--person">Delegação Mandatória</span></div>
+              <ul class="list-compact">
+                <li><strong class="measured tone-amber">Subagente firestore-rules-author</strong><span>Qualquer criação ou edição em <span class="measured">firestore.rules</span> deve ser delegada obrigatoriamente a este subagente especialista.</span></li>
+                <li><strong class="measured tone-amber">firestore-rules-creation</strong><span>Padrões de isolamento multilocatário (<span class="measured">users/{uid}/projects/{id}</span>) e checagem estrita de tipos e tamanhos.</span></li>
+                <li><strong class="measured tone-amber">firebase-security-rules-auditor</strong><span>Auditoria red-team contra escalação de privilégio, bypass de papel e inconsistência create vs. update.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 08: PADRÃO EGM (PARTE 1: 1º PORTÃO COLD SPEC REVIEW) -->
+        <section class="slide" role="tabpanel" id="slide-08" aria-labelledby="tab-08" data-title="EGM Goldfish (Parte 1: 1º Portão Cold Spec Review)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Padrão EGM (Parte 1): O 1º Portão Cold Spec Review</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 08 de 21</span>
+                <span class="measured tone-cool">Regra 1.3.7 · Auditoria Adversarial na Fase Plan</span>
+              </div>
+            </div>
+            <p>Para eliminar o viés de autoconfirmação da sessão principal (<strong class="tone-amber">Elephant</strong>), todo plano multi-arquivo ou de risco médio/alto passa por um auditor a frio (<strong class="tone-cool">Goldfish</strong>) antes da aprovação humana.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>Por que separar Elephant de Goldfish na Fase Plan?</h3>
+                <span class="chip chip--instrument">Isolamento Cognitivo</span>
+              </div>
+              <ol class="spine-list">
+                <li>
+                  <strong class="tone-amber">1. O Papel do Elephant (Sessão Principal com Contexto)</strong>
+                  <span>Roda <span class="measured tone-cool">blast-radius.mjs</span> e <span class="measured tone-cool">plan-collision.mjs</span>, contrasta 2 caminhos viáveis na <strong class="tone-amber">Boost Trade-off Matrix (Opção A vs. B)</strong> e redige o <span class="measured tone-cool">implementation_plan.md</span> com BDD Gherkin.</span>
+                </li>
+                <li>
+                  <strong class="tone-cool">2. Invocação do Goldfish Cold Spec Auditor (Zero Contexto)</strong>
+                  <span>Invocado via <span class="measured tone-cool">invoke_subagent (TypeName: research, Model: inherit)</span>. Recebe apenas o caminho do plano, o output do blast-radius e os arquivos-alvo reais, sem o histórico do chat.</span>
+                </li>
+                <li>
+                  <strong class="tone-cool">3. Inspeção Ampla + Dupla Pergunta Boost (Pre-Mortem &amp; Occam)</strong>
+                  <span>Além de auditar contratos, Clean Code, BDD/TDD, CWEs e Cloud Run, responde obrigatoriamente ao <strong class="tone-cool">Pre-Mortem de Produção sob carga</strong> e à <strong class="tone-cool">Navalha de Occam</strong> (menos código, estado e acoplamento).</span>
+                </li>
+                <li>
+                  <strong class="tone-ok">4. Trava Anti-Inferência Silenciosa &amp; Default Approve</strong>
+                  <span>O Elephant nunca altera o escopo sozinho: apresenta a tabela <span class="measured tone-amber">GF-01..N</span> ao usuário. Ao aprovar o plano (Proceed) sem ressalvas, todas as sugestões recomendadas são aprovadas por padrão e sincronizadas na Issue.</span>
+                </li>
+              </ol>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>Estrutura do Relatório Cold Spec Review no Plano</h3>
+                <span class="chip chip--person">Transparência para Decisão</span>
+              </div>
+              <div class="table-box">
+                <table class="console-table" aria-label="Exemplo de tabela GF-01 a GF-03">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Categoria</th>
+                      <th>Achado do Goldfish</th>
+                      <th>Análise do Elephant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="measured tone-cool">GF-01</td>
+                      <td>Cloud Run</td>
+                      <td>Falta aguardar promessa de log antes do retorno HTTP.</td>
+                      <td><span class="chip chip--ok">Recomendado</span> Evita CPU freeze pós-resposta.</td>
+                    </tr>
+                    <tr>
+                      <td class="measured tone-cool">GF-02</td>
+                      <td>Testes / BDD</td>
+                      <td>Falta cenário Gherkin para timeout de rede no lote.</td>
+                      <td><span class="chip chip--ok">Recomendado</span> Adiciona asserção de retry.</td>
+                    </tr>
+                    <tr>
+                      <td class="measured tone-cool">GF-03</td>
+                      <td>Regra de Negócio</td>
+                      <td>Questiona ausência de cobrança de palavras no Upsell.</td>
+                      <td><span class="chip chip--bad">Conflita com pedido</span> Usuário definiu isenção para Upsells.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>O usuário bate o olho na tabela, vê o que é melhoria técnica pura (<span class="measured tone-ok">Recomendado</span>) e o que toca em decisão de negócio, mantendo controle total antes de autorizar o Build.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 09: PADRÃO EGM (PARTE 2: 2º PORTÃO GOLDFISH DE IMPLEMENTAÇÃO) -->
+        <section class="slide" role="tabpanel" id="slide-09" aria-labelledby="tab-09" data-title="EGM Goldfish (Parte 2: 2º Portão de Implementação)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Padrão EGM (Parte 2): O 2º Portão Goldfish de Implementação</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 09 de 21</span>
+                <span class="measured tone-cool">Regra 1.18 · Loop Autônomo Pré-Entrega Compatível com /goal</span>
+              </div>
+            </div>
+            <p>É terminantemente proibido dar por encerrada qualquer implementação sem rodar <span class="measured tone-cool">clean-code-audit --changed</span>, extrair o dossiê com <span class="measured tone-cool">review.ps1</span> e obter <span class="measured tone-ok">Aprovado</span> do subagente Goldfish.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>Resolução Inteligente no Loop (Sem Travar /goal)</h3>
+                <span class="chip chip--ok">Accept &amp; Fix vs. Contest</span>
+              </div>
+              <ul class="list-compact">
+                <li>
+                  <div class="list-compact__row"><strong class="tone-cool">Passo 1: Auditoria Clean Code Incremental</strong><span class="measured">--changed obrigatório</span></div>
+                  <span>Antes de invocar o review.ps1, o Elephant executa <span class="measured tone-cool">npm run audit:clean-code -- --changed</span>, corrige desvios locais e revalida os testes.</span>
+                </li>
+                <li>
+                  <div class="list-compact__row"><strong class="tone-ok">Passo 2A: Accept &amp; Fix via TDD (Defeito Técnico Real)</strong><span class="measured">Correção autônoma</span></div>
+                  <span>Se o Goldfish apontar falha de teste BDD, tipagem, Clean Code, Serverless ou bug de borda, o Elephant escreve o teste falhando (Red), corrige o código (Green), roda <span class="measured tone-cool">review.ps1</span> de novo e re-submete ao Goldfish.</span>
+                </li>
+                <li>
+                  <div class="list-compact__row"><strong class="tone-amber">Passo 2B: Contest with Evidence (Proteção do Usuário)</strong><span class="measured">Zero reversão muda</span></div>
+                  <span>Se o Goldfish (sem contexto) cobrar algo que conflita com um pedido explícito do usuário, o Elephant nunca desfaz o pedido humano: contesta na re-submissão apresentando a evidência aprovada.</span>
+                </li>
+                <li>
+                  <div class="list-compact__row"><strong class="tone-ok">Passo 3: Condição Inegociável de Fechamento</strong><span class="measured">Veredito Aprovado</span></div>
+                  <span>O item só é marcado como concluído quando o parecer do revisor for estritamente <span class="measured tone-ok">Aprovado</span>, exibindo o relatório categorizado final ao usuário.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>Exemplo Real de Interação no 2º Portão (review.ps1)</h3>
+                <span class="chip chip--instrument">Diff Inspecionado</span>
+              </div>
+              <div class="table-box">
+                <table class="console-table" aria-label="Diff antes e depois da revisão Goldfish">
+                  <thead>
+                    <tr>
+                      <th>Sinal</th>
+                      <th>Código no Diff da Issue</th>
+                      <th>Parecer do Goldfish (Eixo 3)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="row--minus">
+                      <td class="measured tone-bad">-</td>
+                      <td class="measured">const max = env.LIMIT || 100; saveAudit(entry);</td>
+                      <td>Reprovado: uso de || falsy e promessa fire-and-forget sem await.</td>
+                    </tr>
+                    <tr class="row--plus">
+                      <td class="measured tone-ok">+</td>
+                      <td class="measured">const max = Number(env.LIMIT ?? 100); await saveAudit(entry);</td>
+                      <td>Aprovado após TDD: coalescência nula ?? e await explícito.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="cmd-line">powershell -File .\scripts\review.ps1 -Issue 52 -Files ‘backend/src/ai/batch.ts,backend/src/tests/batch.test.ts’</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 10: AUTOMAÇÃO POWERSHELL (REVIEW.PS1 & AUDIT-REPO.PS1) -->
+        <section class="slide" role="tabpanel" id="slide-10" aria-labelledby="tab-10" data-title="Automação PowerShell: review.ps1 & audit-repo.ps1" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Radiografia do review.ps1 e do audit-repo.ps1</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 10 de 21</span>
+                <span class="measured tone-cool">Dossiês Determinísticos com Blindagem Anti-Alucinação de Escopo</span>
+              </div>
+            </div>
+            <p>Dois scripts PowerShell que automatizam a montagem do contexto factual de auditoria: um cirúrgico por Issue e outro estrutural para o repositório inteiro.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>1. scripts/review.ps1 (Auditoria Cirúrgica da Issue)</h3>
+                <span class="chip chip--instrument">scratch/review_prompt_issue_ID.md</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">Extração BDD 1:1 (gh issue view)</strong><span class="measured">Regex Gherkin</span></div><span>Puxa a Issue oficial e extrai automaticamente todas as cláusulas <span class="measured tone-cool">Cenário / Dado / Quando / Então / E</span> para conferência obrigatória.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Blindagem de Escopo (gh issue list --state open)</strong><span class="measured">Até 30 issues abertas</span></div><span>Injeta o backlog aberto e proíbe cobrar migrações ou refatorações que pertencem a outras issues da sequência.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Isolamento -Files &amp; --function-context</strong><span class="measured">git diff HEAD -W</span></div><span>Extrai o diff apenas dos arquivos da Issue com o corpo completo das funções, excluindo lockfiles e pastas auxiliares.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Matriz Inegociável de 4 Eixos</strong><span class="measured">Avaliação estrita</span></div><span><strong class="tone-ok">Eixo 1:</strong> BDD 1:1 e Anti-Mock Oco; <strong class="tone-ok">Eixo 2:</strong> Zero Spec Drift e Regra 1.12; <strong class="tone-ok">Eixo 3:</strong> Segurança Serverless e Tipagem; <strong class="tone-ok">Eixo 4:</strong> Simulação de Execução Mental.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>2. scripts/audit-repo.ps1 (Health Check Global)</h3>
+                <span class="chip chip--person">scratch/audit_prompt.md</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">Insumos Globais Empacotados</strong><span class="measured">Raio-X do Monorepo</span></div><span>Combina árvore completa (<span class="measured">git ls-files</span>), índice de <span class="measured">docs/ARCHITECTURE.md</span>, issues abertas e manifestos <span class="measured">package.json</span> (raiz, frontend, backend).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Execução Integrada de 4 Verificadores</strong><span class="measured">Relatórios reais</span></div><span>Roda e anexa a saída de <span class="measured tone-cool">dependency-cruiser</span>, <span class="measured tone-cool">tsc</span> (frontend/backend), <span class="measured tone-cool">ast-grep</span> e <span class="measured tone-cool">knip</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Os 4 Eixos Arquiteturais Globais</strong><span class="measured">Model: pro</span></div><span>Inspeciona (1) Fronteiras Client/Server e Drift Arquitetural, (2) Código Morto e Dependências Fantasmas, (3) Segurança Cloud Run e (4) Dual-Schema.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Regra de Rastreabilidade (Proibido Editar no Escuro)</strong><span class="measured">gh issue create</span></div><span>Desvios achados pelo <span class="measured tone-cool">audit-repo.ps1</span> nunca são alterados sem rastreabilidade: geram propostas de novas Issues atômicas nos 5 Eixos.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 11: CLEAN CODE (PARTE 1: MATRIZ DE RISCO & REGRAS R1 A R7) -->
+        <section class="slide" role="tabpanel" id="slide-11" aria-labelledby="tab-11" data-title="Clean Code (Parte 1: Faixas de Risco & Regras R1 a R7)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Skill clean-code-audit (Parte 1): Faixas de Risco e Regras R1 a R7</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 11 de 21</span>
+                <span class="measured tone-cool">.agents/skills/clean-code-audit/SKILL.md · Coesão, SRP, Semântica e Tipos</span>
+              </div>
+            </div>
+            <p>Auditoria híbrida (estática + semântica) que classifica cada desvio pelo risco de regressão e aplica convergência em passagem única (Estrutural → Local → Quick Win).</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>Faixas de Facilidade e Risco</h3><span class="chip chip--instrument">Ordem One-Pass</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Quick Win (Risco Zero)</strong><span class="measured">Regras R4, R10 a R14 e R22</span></div><span>Edição cirúrgica que não altera fluxo de controle nem contratos públicos (constantes, logs JSON, cause no catch).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Refatoração Local (Risco Baixo)</strong><span class="measured">Regras R1, R9, R16 a R18 e R20</span></div><span>Altera apenas a implementação interna preservando a assinatura pública e os exports intactos (guard clauses, subfunção privada, await).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Estrutural (Alto Blast Radius)</strong><span class="measured">Regras R2, R5 a R8, R15, R19 e R21</span></div><span>Altera assinaturas exportadas, fronteiras de módulo, DI ou estado global; exige mapear dependentes com <span class="measured tone-cool">blast-radius</span>.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>Regras R1 a R4: Coesão e Nomes</h3><span class="chip chip--ok">Foco em Leitura</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R1: Funções e Arquivos Pequenos</strong><span class="measured">4 a 25 linhas</span></div><span>Lógica imperativa efetiva entre 4 e 25 linhas (descontando assinatura, árvores JSX declarativas e interior de templates multilinhas).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R2: Single Responsibility (SRP)</strong><span class="measured">máx 14 exports</span></div><span>Proibido misturar I/O de servidor com UI/JSX, importar SDKs de I/O em módulos de contratos puros ou exceder 15 funções exportadas.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R3: Nomes Significativos e Únicos</strong><span class="measured">Zero desinformação</span></div><span>Nomes revelam intenção real; proibidos identificadores genéricos (<span class="measured tone-bad">data, info, temp, val, obj</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R4: Comentários com Proveniência</strong><span class="measured">Intenção + #Issue</span></div><span>Docstring com exemplo em APIs públicas e explicação do porquê (constraint, bug ou workaround) em lógicas não-óbvias.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>Regras R5 a R7: Tipos, DRY e Pastas</h3><span class="chip chip--ok">Modelagem Sólida</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R5: Disciplina de Tipos &amp; Estados Ilegais</strong><span class="measured">Discriminated Union</span></div><span>Zero <span class="measured tone-bad">any</span> e proibido modelar estados combinando 3+ flags booleanas mutuamente exclusivas (<span class="measured tone-bad">isLoading, isSuccess, isError</span>); usar união discriminada (<span class="measured tone-ok">status</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R6: DRY (Don’t Repeat Yourself)</strong><span class="measured">Janela de 6 linhas</span></div><span>Zero duplicação de blocos de lógica ou regras de negócio (sem cruzar arquivos de teste com produção).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R7: Estrutura de Diretório Previsível</strong><span class="measured">Zero pastas vagas</span></div><span>Seguir convenções fortes da arquitetura sem diretórios genéricos (<span class="measured tone-bad">misc/, helpers2/, temp/</span>).</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 12: CLEAN CODE (PARTE 2: REGRAS R8 A R15) -->
+        <section class="slide" role="tabpanel" id="slide-12" aria-labelledby="tab-12" data-title="Clean Code (Parte 2: Regras R8 a R15)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Skill clean-code-audit (Parte 2): Regras R8 a R15</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 12 de 21</span>
+                <span class="measured tone-cool">Injeção de Dependência, Índice CRAP &lt; 10, Erros Estruturados e Assinaturas</span>
+              </div>
+            </div>
+            <p>Combate testes teatrais, limita o aninhamento ciclomático com guard clauses e padroniza a observabilidade e os contratos de funções.</p>
+          </div>
+
+          <div class="panels panels--4">
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>R8 e R9: Testes e CRAP</h3><span class="chip chip--person">Qualidade Comportamental</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">R8: Dependency Injection &amp; Testes Reais</strong><span class="measured">Anti-teste teatral</span></div><span>Clientes de I/O (<span class="measured">Firestore, Storage</span>) injetados e nunca instanciados hardcoded; testes com nomes semânticos de domínio e asserções reais (proibido <span class="measured tone-bad">expect(true).toBe(true)</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">R9: Aninhamento Raso &amp; CRAP &lt; 10</strong><span class="measured">Aninhamento &lt; 3</span></div><span>Uso de guard clauses (<span class="measured">early return</span>; o bloco <span class="measured">try</span> externo não incrementa nível) e índice matemático <span class="measured tone-ok">CRAP(m) = comp² × (1 - cov)³ + comp &lt; 10</span>.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>R10 e R11: Erros e Sintaxe</h3><span class="chip chip--ok">Quick Wins</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R10: Erro com Contexto Diagnóstico</strong><span class="measured">received / expected</span></div><span>Toda exceção lançada deve informar o valor recebido e o contrato esperado para diagnóstico imediato em produção.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R11: Zero Comentário que Narra o Óbvio</strong><span class="measured">Higiene visual</span></div><span>Proibidos comentários redundantes que apenas traduzem a linha seguinte de código sem acrescentar contexto de negócio.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>R12 e R13: Logs e Exceções</h3><span class="chip chip--ok">Rastreabilidade</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R12: Logging Estruturado JSON</strong><span class="measured">Cloud Logging Ready</span></div><span>Logs emitidos em formato estruturado com chaves nomeadas (<span class="measured tone-cool">event, context, error</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R13: Proibição de Silent Catch</strong><span class="measured">{ cause: err }</span></div><span>Banidos blocos <span class="measured tone-bad">catch {}</span> vazios ou relançamento de erro que apague a pilha original sem encadear <span class="measured tone-ok">cause</span>.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>R14 e R15: Literais e Params</h3><span class="chip chip--instrument">Contratos Limpos</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R14: Zero Números ou Strings Mágicas</strong><span class="measured">Unidade explícita</span></div><span>Literais numéricos em condicionais e fórmulas são extraídos para constantes nomeadas com unidade (ex.: milissegundos, bytes, palavras).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R15: Limite de Parâmetros (&le; 3)</strong><span class="measured">Zero boolean flags</span></div><span>Funções com 4 ou mais argumentos posicionais devem receber um único objeto tipado de opções.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 13: CLEAN CODE (PARTE 3: REGRAS R16 A R22 & PROTOCOLO ANTI-CASCATA) -->
+        <section class="slide" role="tabpanel" id="slide-13" aria-labelledby="tab-13" data-title="Clean Code (Parte 3: Regras R16 a R22 & Scanner CLI)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Skill clean-code-audit (Parte 3): Regras R16 a R22 e Scanner CLI</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 13 de 21</span>
+                <span class="measured tone-cool">Imutabilidade, Cloud Run Anti-Freeze/Stateless, Fronteiras Zod e Zero Ciclos</span>
+              </div>
+            </div>
+            <p>Garante segurança de execução em nuvem Serverless, validação estrita na entrada de dados e zero efeito cascata durante refatorações.</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell">
+              <div class="cell__top"><h3>R16, R17, R18 e R19</h3><span class="chip chip--ok">Imutabilidade &amp; Cloud Run</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R16: Imutabilidade de Parâmetros</strong><span class="measured">No mutation</span></div><span>Proibido mutar diretamente propriedades de objetos ou arrays recebidos por parâmetro.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">R17: Assincronismo &amp; Anti-Freeze</strong><span class="measured">Cloud Run Safe</span></div><span>Toda Promise aguardada com <span class="measured tone-ok">await</span> antes da resposta HTTP e zero <span class="measured tone-bad">setTimeout/setInterval</span> solto no servidor.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">R18: Fail-Fast &amp; Zero Dual-Schema</strong><span class="measured">Regra 1.12</span></div><span>Proibidos fallbacks de legado (<span class="measured tone-bad">a.word_count ?? a.wordCount</span>) ou <span class="measured tone-bad">process.env.X || default</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">R19: Servidor 100% Stateless</strong><span class="measured">Multi-instância</span></div><span>Proibido manter <span class="measured tone-bad">let state</span>, <span class="measured tone-bad">new Map()</span> ou caches mutáveis no escopo global de módulo.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><h3>R20, R21 e R22</h3><span class="chip chip--instrument">Fronteiras &amp; Grafo</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">R20: Parse, Don’t Validate</strong><span class="measured">Fronteira segura</span></div><span>Proibido usar <span class="measured tone-bad">JSON.parse(x) as Tipo</span> ou <span class="measured tone-bad">req.json() as Tipo</span> sem validação de schema em runtime (Zod / TypeGuard).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R21: Zero Dependências Circulares</strong><span class="measured">Grafo acíclico</span></div><span>Proibidos ciclos diretos ou indiretos (<span class="measured tone-bad">A ↔ B</span>) de importação entre módulos.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">R22: Zero Ternários Aninhados</strong><span class="measured">Clareza booleana</span></div><span>Banido <span class="measured tone-bad">a ? b : c ? d : e</span> e condicionais com 4+ operadores lógicos inline sem constante nomeada.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>Protocolo Anti-Cascata &amp; CLI</h3><span class="chip chip--person">Convergência 1-Pass</span></div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Convergência R1/R9 sem violar R2/R15</strong><span class="measured">Subfunções privadas</span></div><span>Decompõe funções longas em helpers privados no mesmo módulo sem inflar exports públicos.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Preservação de JSX/Tailwind Coeso</strong><span class="measured">Zero micro-fragmento</span></div><span>Nunca quebra marcação declarativa JSX sem estado próprio apenas para reduzir linhas.</span></li>
+              </ul>
+              <div class="cmd-line">npm run audit:clean-code -- --changed</div>
+              <div class="cmd-line">node .agents/skills/clean-code-audit/scripts/scan-clean-code.mjs --enforce-zero-rules</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 14: AUDIT-VERIFY.MJS (PARTE 1: PORTÕES 01 A 06) -->
+        <section class="slide" role="tabpanel" id="slide-14" aria-labelledby="tab-14" data-title="audit-verify.mjs (Parte 1: Portões Determinísticos 01 a 06)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>audit-verify.mjs (Parte 1): Portões Determinísticos 01 a 06</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 14 de 21</span>
+                <span class="measured tone-cool">scripts/audit-verify.mjs · Supply Chain, AST, Fronteiras, Código Morto e Frontend</span>
+              </div>
+            </div>
+            <p>A primeira metade da esteira <span class="measured tone-cool">npm run precommit</span> blinda a integridade das dependências, a árvore sintática, o grafo de camadas e a tipagem do Frontend.</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 01</span><span class="chip chip--ok">Lockfile Sync</span></div>
+              <h3>Integridade do package-lock.json</h3>
+              <div class="cmd-line">node scripts/check-lockfile-sync.mjs</div>
+              <p>Garante sincronia estrita entre <span class="measured">package-lock.json</span> e os manifestos dos workspaces (<span class="measured">frontend, backend, landing</span>), evitando falhas de <span class="measured">npm ci</span> no GitHub Actions e Cloud Build.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 02</span><span class="chip chip--ok">Supply Chain</span></div>
+              <h3>Auditoria de Vulnerabilidades</h3>
+              <div class="cmd-line">npm audit --omit=dev --audit-level=high</div>
+              <p>Inspeciona a árvore de pacotes de produção e bloqueia imediatamente qualquer dependência com CVE de severidade alta ou crítica.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 03</span><span class="chip chip--ok">Tree-sitter AST</span></div>
+              <h3>Guardrails Sintáticos (ast-grep)</h3>
+              <div class="cmd-line">npm run ast:scan</div>
+              <p>Varre a árvore sintática barrando padrões proibidos pela governança: uso de <span class="measured tone-bad">process.env.X || default</span>, fallbacks de dual-schema e anti-patterns de segurança.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 04</span><span class="chip chip--instrument">Fronteiras</span></div>
+              <h3>Blindagem Client/Server (depcruise)</h3>
+              <div class="cmd-line">npm run arch:lint</div>
+              <p>Executa <span class="measured">dependency-cruiser</span> contra <span class="measured">.dependency-cruiser.js</span>, impedindo vazamento de módulos exclusivos de servidor para o navegador e dependências circulares.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 05</span><span class="chip chip--instrument">Zero Órfãos</span></div>
+              <h3>Auditoria de Código Morto (Knip)</h3>
+              <div class="cmd-line">npm run audit:dead-code</div>
+              <p>Detecta e reprova arquivos órfãos gerados por alucinação, funções ou tipos exportados que ninguém consome e dependências listadas sem uso real.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 06</span><span class="chip chip--instrument">Contratos UI</span></div>
+              <h3>Typecheck Estrito Frontend</h3>
+              <div class="cmd-line">npm run typecheck --prefix frontend</div>
+              <p>Valida todos os contratos TypeScript da aplicação Next.js App Router, componentes React, editor TipTap, hooks e rotas de API.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 15: AUDIT-VERIFY.MJS (PARTE 2: PORTÕES 07 A 12) -->
+        <section class="slide" role="tabpanel" id="slide-15" aria-labelledby="tab-15" data-title="audit-verify.mjs (Parte 2: Portões Determinísticos 07 a 12)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>audit-verify.mjs (Parte 2): Portões Determinísticos 07 a 12</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 15 de 21</span>
+                <span class="measured tone-cool">scripts/audit-verify.mjs · Backend, Landing, Archify 3D, Vitest e Clean Code 22/22</span>
+              </div>
+            </div>
+            <p>A segunda metade valida os contratos de IA e da Landing Page, a paridade do grafo arquitetural 3D, a regressão funcional completa e as 22 regras em tolerância zero.</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 07</span><span class="chip chip--instrument">Contratos IA</span></div>
+              <h3>Typecheck Estrito Backend</h3>
+              <div class="cmd-line">npm run typecheck --prefix backend</div>
+              <p>Valida os contratos TypeScript dos orquestradores Gemini, gerenciadores de Context Caching, carregadores de prompts físicos e workers Serverless.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 08</span><span class="chip chip--instrument">Contratos Web</span></div>
+              <h3>Typecheck Estrito Landing Page</h3>
+              <div class="cmd-line">npm run typecheck --prefix landing</div>
+              <p>Garante zero erro estático na aplicação comercial, simuladores de planos de palavras, páginas multilíngua e metadados estruturados.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Portão 09</span><span class="chip chip--instrument">Anti-Drift 3D</span></div>
+              <h3>Fitness Function do Grafo Archify</h3>
+              <div class="cmd-line">node scripts/sync-architecture-graph.mjs --check</div>
+              <p>Compara rotas de API, prompts físicos e cenários E2E reais no disco contra <span class="measured">monorepo-graph.json</span> e as 5 abas de <span class="measured">mesa-editorial-architecture-3d.html</span>.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 10</span><span class="chip chip--ok">Regressão</span></div>
+              <h3>Suíte Automatizada Vitest</h3>
+              <div class="cmd-line">npm test</div>
+              <p>Executa todas as suítes unitárias e de integração do Backend e do Frontend construídas via TDD a partir dos cenários BDD Gherkin.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 11</span><span class="chip chip--ok">Regra 1.14</span></div>
+              <h3>Governança de Nomenclatura de Testes</h3>
+              <div class="cmd-line">node scripts/check-test-naming-governance.mjs</div>
+              <p>Bloqueia qualquer arquivo de teste com nome de issue, PR ou cluster (<span class="measured tone-bad">issue-47.test.ts</span>) e exige residência nos 6 diretórios semânticos.</p>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top"><span class="measured tone-cool">Portão 12</span><span class="chip chip--ok">22 / 22 Regras</span></div>
+              <h3>Clean Code em Tolerância Zero</h3>
+              <div class="cmd-line">scan-clean-code.mjs --enforce-zero-rules</div>
+              <p>Exige zero violações em todas as 22 regras de Clean Code, Serverless Anti-Freeze, Stateless e <span class="measured tone-ok">crap &lt; 10</span> em todo o repositório.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 16: PREVENÇÃO PRÉ-VOO (BLAST RADIUS & PLAN COLLISION) -->
+        <section class="slide" role="tabpanel" id="slide-16" aria-labelledby="tab-16" data-title="Inteligência Pré-Voo: blast-radius.mjs & plan-collision.mjs" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Inteligência Pré-Voo: Blast Radius e Radar de Colisão</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 16 de 21</span>
+                <span class="measured tone-cool">Regras 1.3.2 e 1.7.1 · Proteção Antes da Primeira Linha de Código</span>
+              </div>
+            </div>
+            <p>Dois motores determinísticos executados durante o planejamento: um calcula todos os consumidores reversos do módulo; o outro impede colisões entre sessões paralelas.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>1. scripts/blast-radius.mjs (Impacto Reverso)</h3>
+                <span class="chip chip--instrument">Regra 1.7.1</span>
+              </div>
+              <div class="cmd-line">node scripts/blast-radius.mjs frontend/src/types/project.ts --json</div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">Resolução Completa do Grafo de Imports</strong><span class="measured">Diretos + Barrels</span></div><span>Rastreia importações nomeadas, re-exports (<span class="measured">backend/src/index.ts</span>) e referências ao carregador de prompts (<span class="measured">loader.ts</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Detecção Automática de Camada e Eixo</strong><span class="measured">5 Camadas / 5 Eixos</span></div><span>Classifica o alvo nas camadas (<span class="measured">Clients, Core, Services, Persistence, Publication</span>) e nos Eixos <span class="measured">A a E</span> da Regra 1.11.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Limiar de Risco High (&ge; 5 consumidores)</strong><span class="measured">Aciona Regra 1.8</span></div><span>Se 5 ou mais arquivos dependerem do módulo, dispara obrigatoriamente o <span class="measured tone-cool">sequential-thinking</span> e o <span class="measured tone-amber">Goldfish Cold Spec Auditor</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Seleção Cirúrgica de Testes para o Inner Loop</strong><span class="measured">Feedback em segundos</span></div><span>Devolve exatamente quais suítes Vitest cobrem os dependentes afetados para validação rápida durante o TDD.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>2. scripts/plan-collision.mjs (Execução Paralela Segura)</h3>
+                <span class="chip chip--ok">Regra 1.3.2</span>
+              </div>
+              <div class="cmd-line">node scripts/plan-collision.mjs register --issue 52 --files frontend/src/a.ts,frontend/src/b.ts</div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">Registro em .git/active-plans.json</strong><span class="measured">Fora do working tree</span></div><span>Salva as reservas dentro da pasta <span class="measured">.git/</span>: nunca polui o <span class="measured">git status</span> nem cria conflitos de merge entre branches.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Banner de Colisão no Implementation Plan</strong><span class="measured">Verificação cruzada</span></div><span>Retorna <span class="measured tone-ok">Zero Colisão Paralela</span> ou <span class="measured tone-amber">Alerta de Colisão Paralela</span> listando qual outra Issue ativa reservou o mesmo arquivo.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Isolamento de Artefatos por Conversa</strong><span class="measured">brain/&lt;conversation-id&gt;</span></div><span>Planos e checklists vivem no diretório da conversa, abolindo arquivos globais compartilhados como <span class="measured">tasks/todo.md</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Liberação Pós-Commit Cirúrgico</strong><span class="measured">release --issue 52</span></div><span>Após o commit autorizado arquivo por arquivo, o comando <span class="measured tone-cool">release</span> libera imediatamente as travas da Issue.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 17: FASE FINAL (PARTE 1: ECOSSISTEMA MCP, SEQUENTIAL-THINKING & REPOMIX) -->
+        <section class="slide" role="tabpanel" id="slide-17" aria-labelledby="tab-17" data-title="Fase Final (Parte 1: Ecossistema MCP & Repomix)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Fase Final (Parte 1): Ecossistema MCP, Sequential Thinking e Repomix</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 17 de 21</span>
+                <span class="measured tone-cool">.agents/skills/mcp-ecosystem-guide/SKILL.md · Tolerância Zero a Tentativa e Erro</span>
+              </div>
+            </div>
+            <p>Princípio Anti-Guessing: o agente pensa antes de tocar no código via <span class="measured tone-cool">sequential-thinking</span>, inspeciona o navegador real via <span class="measured tone-cool">chrome-devtools-mcp</span> e confronta buscas externas com as skills locais.</p>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>1. sequential-thinking (Córtex Pré-Frontal)</h3>
+                <span class="chip chip--person">Protocolo de 5 Fases</span>
+              </div>
+              <p>Obrigatório em algoritmos de Diff, Cloud Run Serverless, CWEs e Blast Radius High:</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Fase 1: Sintoma vs. Causa</strong><span class="measured">Isolamento</span></div><span>Define o erro exato, o comportamento esperado e o que não é a causa.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Fase 2: Hipóteses Concorrentes</strong><span class="measured">Mínimo 2 ramos</span></div><span>Formula causas distintas (contrato/tipagem vs. race condition vs. cache).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Fase 3: Coleta Factual de Evidências</strong><span class="measured">isRevision: true</span></div><span>Inspeciona via <span class="measured">ast-grep</span> e <span class="measured">blast-radius</span> sem editar código; revisa se refutado.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Fases 4 e 5: Impacto &amp; Convergência BDD</strong><span class="measured">Dado / Quando / Então</span></div><span>Mapeia regressões e escreve a cláusula BDD antes do teste Vitest.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>2. Runtime Visual &amp; Persistência MCP</h3>
+                <span class="chip chip--instrument">Zero-Latency stdio</span>
+              </div>
+              <p>Servidores locais executando via processos filhos (<span class="measured">stdio</span>) com 0ms de latência de rede:</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">chrome-devtools-mcp</strong><span class="measured">Navegador Real</span></div><span>Inspeção ao vivo de DOM, Shadow DOM, CSS, logs de console (<span class="measured">list_console_messages</span>), rede (<span class="measured">list_network_requests</span>) e temas Light/Dark.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">StitchMCP</strong><span class="measured">Design Systems</span></div><span>Prototipação rápida de telas, variantes visuais e aplicação de tokens de design.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">google-cloud-firestore &amp; firebase-mcp</strong><span class="measured">NoSQL Real</span></div><span>Consulta direta a coleções, documentos, índices e regras de segurança para verificação tripla de QA.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>3. Brave Search com Trava &amp; Repomix</h3>
+                <span class="chip chip--ok">Soberania Local</span>
+              </div>
+              <p>Proteção contra desatualização externa e explosão da janela de contexto:</p>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Trava Obrigatória de Confrontação</strong><span class="measured">brave-search MCP</span></div><span>Todo resultado da web é confrontado com <span class="measured">.agents/skills/</span>. Se houver divergência, é proibido adotar a web: o agente para e pergunta ao usuário.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">google-developer-knowledge &amp; gemini-docs</strong><span class="measured">Docs Oficiais</span></div><span>Consulta direta às especificações oficiais do Google Cloud, Vertex AI e SDKs Gemini.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Condensador Repomix (--compress)</strong><span class="measured">&lt; 3.000 tokens</span></div><span><span class="measured tone-cool">npm run context:summary</span> extrai o esqueleto de assinaturas e tipos via Tree-sitter para planejamento macro.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 18: FASE FINAL (PARTE 2: SKILL ARCHIFY & AS 5 ABAS 3D) -->
+        <section class="slide" role="tabpanel" id="slide-18" aria-labelledby="tab-18" data-title="Fase Final (Parte 2: Skill Archify & Central 3D de 5 Abas)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Fase Final (Parte 2): Skill Archify e a Central 3D de 5 Abas</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 18 de 21</span>
+                <span class="measured tone-cool">.agents/skills/archify/SKILL.md · Fidelidade Factual Verificada no Precommit</span>
+              </div>
+            </div>
+            <p>Nenhum nó, rota, fila, máquina de estados ou jornada E2E existe no diagrama se não existir no código-fonte. O script <span class="measured tone-cool">sync-architecture-graph.mjs</span> compila e valida a arquitetura viva.</p>
+          </div>
+
+          <div class="panels panels--5">
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Aba 01</span><span class="chip chip--instrument">topology-3d</span></div>
+              <h3>Topologia Orbital 3D</h3>
+              <p>Esfera 3D interativa das camadas do sistema (<span class="measured">Clients, Core, Services, Persistence, Output</span>) com busca em tempo real e partículas direcionais de Blast Radius no hover.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Aba 02</span><span class="chip chip--instrument">pipelines-sequence</span></div>
+              <h3>Pipelines &amp; Sequência IA</h3>
+              <p>Diagramas temporais de orquestração: envelopes de entrada, cofre de prompts físicos, cascata de modelos LLM, Context Caching e filas assíncronas Cloud Tasks.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Aba 03</span><span class="chip chip--instrument">telemetry-billing</span></div>
+              <h3>Telemetria &amp; FinOps</h3>
+              <p>Rastreamento de consumo e custos reais por modelo (<span class="measured">models[modelId]</span>) com segregação entre tráfego de produção, retentativas e contas de teste.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Aba 04</span><span class="chip chip--instrument">state-machines</span></div>
+              <h3>Máquinas de Estado</h3>
+              <p>Diagramas formais de transição de ciclo de vida das entidades de domínio e jobs assíncronos, expondo rotas de erro, retentativa e recuperação.</p>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top"><span class="measured tone-cool">Aba 05</span><span class="chip chip--instrument">e2e-flows</span></div>
+              <h3>Jornadas E2E Reais</h3>
+              <p>Visualizador passo a passo extraído automaticamente dos arquivos <span class="measured">e2e/mcp/*.mcp.ts</span> (<span class="measured">seed, navigate, click, fill, assert</span> e seletores <span class="measured">data-testid</span>).</p>
+            </div>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>Gatilhos Obrigatórios de Sincronização (Regra 1.15)</h3><span class="chip chip--person">npm run arch:sync</span></div>
+              <p>Qualquer alteração em (1) suíte E2E, (2) rota de API ou fila assíncrona, (3) prompt físico, (4) regra de telemetria/faturamento, (5) máquina de estados ou (6) módulo de saída exige rodar <span class="measured tone-cool">npm run arch:sync</span>.</p>
+            </div>
+            <div class="cell cell--deep">
+              <div class="cell__top"><h3>Economia de Tokens &amp; Trava Anti-Drift</h3><span class="chip chip--ok">monorepo-graph.json</span></div>
+              <p>Novas sessões leem <span class="measured tone-cool">docs/architecture/monorepo-graph.json</span> (~800 tokens) para absorver toda a topologia sem abrir dezenas de arquivos, enquanto <span class="measured tone-ok">npm run arch:check</span> bloqueia o precommit se houver drift.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 19: FASE FINAL (PARTE 3: GOVERNANÇA DE TESTES & PARIDADE DUAL E2E) -->
+        <section class="slide" role="tabpanel" id="slide-19" aria-labelledby="tab-19" data-title="Fase Final (Parte 3: Governança de Testes & Paridade Dual E2E)" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Fase Final (Parte 3): Governança de Testes e Paridade Dual E2E</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 19 de 21</span>
+                <span class="measured tone-cool">Regras 1.14 e 1.15 · check-test-naming-governance.mjs &amp; run-mcp-e2e-scenario.mjs</span>
+              </div>
+            </div>
+            <p>Testes são organizados estritamente por domínio funcional (nunca por número de issue) e cada jornada E2E possui paridade 1:1 entre execução headless em CI e execução interativa por agente.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>1. Governança Semântica de Testes (Regra 1.14)</h3>
+                <span class="chip chip--ok">Portão 11 do Precommit</span>
+              </div>
+              <div class="cmd-line">node scripts/check-test-naming-governance.mjs</div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Os Diretórios Canônicos por Domínio</strong><span class="measured">frontend/src/tests/</span></div><span>Todo teste unitário ou de integração deve residir em pastas semânticas do produto (ex. no caso Heldora: <span class="measured tone-cool">ai/, editor/, kdp/, telemetry/, storage/, governance/</span>), sendo proibido deixar arquivos soltos na raiz.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Padrões Banidos por Regex</strong><span class="measured">Bloqueio imediato</span></div><span>Reprova nomes contendo <span class="measured tone-bad">issue-XX, pr-XX, task-XX, fase-XX, fatia-XX, stage-a, cluster, *-clean-code.test.ts, *-srp.test.ts</span> ou <span class="measured tone-bad">*-guard-clauses</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Reaproveitamento Evolutivo</strong><span class="measured">Zero fragmentação</span></div><span>Novas issues evoluem a suíte semântica existente do módulo em vez de multiplicar arquivos efêmeros por ticket.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>2. Paridade Estrutural Dual E2E 1:1 (Regra 1.15)</h3>
+                <span class="chip chip--person">Playwright + DevTools MCP</span>
+              </div>
+              <div class="cmd-line">npm run test:e2e &amp;&amp; npm run test:e2e:mcp</div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">Lado A: Playwright Headless CI</strong><span class="measured">frontend/e2e/*.spec.ts</span></div><span>Execução automatizada rápida em esteiras de integração contínua (<span class="measured">npm run test:e2e</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Lado B: Adaptador Declarativo MCP</strong><span class="measured">frontend/e2e/mcp/*.mcp.ts</span></div><span>Espelho 1:1 contendo <span class="measured">id, title, route, description</span> e array tipado de <span class="measured">steps</span> com exatamente os mesmos seletores <span class="measured tone-cool">data-testid</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Executor Determinístico &amp; Archify</strong><span class="measured">run-mcp-e2e-scenario.mjs</span></div><span>Permite que o agente valide fluxos visuais no navegador real e alimenta automaticamente a Aba 5 (<span class="measured">Jornadas E2E</span>) do visualizador 3D.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 20: CONSTITUIÇÃO DUPLA (AGENTS.MD UNIFICADO + TRÍADE DOCS/) & PORTABILIDADE AEGIS HARNESS -->
+        <section class="slide" role="tabpanel" id="slide-20" aria-labelledby="tab-20" data-title="Constituição Dupla (AGENTS.md + Tríade docs/) & Aegis Harness" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Constituição Dupla: AGENTS.md Unificado, Tríade docs/ e Aegis Harness</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 20 de 21</span>
+                <span class="measured tone-cool">Regra 1.4 · Zero Fragmentação de Rules e Bootstrapper Políglota</span>
+              </div>
+            </div>
+            <p>Todas as regras operacionais vivem unificadas na raiz em <span class="measured tone-cool">AGENTS.md</span> e blindam os 3 documentos constitucionais de <span class="measured tone-cool">docs/</span> antes de qualquer linha de código.</p>
+          </div>
+
+          <div class="panels panels--2">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>1. Os 4 Documentos Constitucionais do Projeto</h3>
+                <span class="chip chip--ok">Leitura Pré-Voo Obrigatória</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-amber">1. AGENTS.md Unificado (Raiz do Repositório)</strong><span class="measured">Zero .agents/rules/ soltas</span></div><span>Unifica as 20 Leis, os 7 Core Behaviors, perfis Cloud Run, segurança Shift-Left (<span class="measured">mantis-advise</span>), integridade física 1:1 de prompts e qualidade web (<span class="measured">modern-web-guidance</span> + critério seletivo da <span class="measured">/hallmark</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">2. docs/PRD.md (Constituição do Produto)</strong><span class="measured">templates/docs/PRD</span></div><span>Define propósito, personas, modelo de negócio, cotas operacionais, jornadas críticas E2E (<span class="measured">RF-01..N</span>), SLAs de latência e privacidade LGPD/GDPR.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">3. docs/ARCHITECTURE.md (Constituição Técnica)</strong><span class="measured">templates/docs/ARCH</span></div><span>Define decisões imutáveis de stack, fronteiras de módulos, separação de persistência (Banco Estruturado vs. Object Storage), telemetria tripla e topologia viva.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">4. docs/DIRETRIZES_DOMINIO.md (Criativas / Editoriais)</strong><span class="measured">templates/docs/DOMINIO</span></div><span>Codifica as invariantes especialistas do negócio (editorial KDP, acústica Solfeggio/RVC ou regras fiscais), rubricas de qualidade e glossário da Linguagem Ubíqua (DDD).</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>2. Portabilidade Multi-Projeto via aegis-harness</h3>
+                <span class="chip chip--person">Upstream GitHub + Fallback Local</span>
+              </div>
+              <div class="cmd-line">node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/projeto</div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Auto-Detecção Políglota de Stack</strong><span class="measured">TS, Python, Go, Rust, Java</span></div><span>Inspeciona manifestos (<span class="measured">package.json, pyproject.toml, go.mod, Cargo.toml</span>), descobre os domínios de teste e gera <span class="measured tone-cool">harness.config.json</span> + <span class="measured tone-cool">AGENTS.md</span> + modelos da Tríade <span class="measured tone-cool">docs/</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Catálogo de 54 Agent Skills Sempre Atualizado</strong><span class="measured">sources.manifest.json</span></div><span>Clona a versão mais recente de <span class="measured">addyosmani/agent-skills</span> (25), <span class="measured">web-quality-skills</span> (6), <span class="measured">tt-a1i/archify</span> (1) e <span class="measured">google/mantis</span> (19) com fallback offline imediato.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">3 Skills Soberanas + Scripts Nativos (Node &amp; Python)</strong><span class="measured">Duplo Portão EGM</span></div><span>Instala <span class="measured tone-amber">egm-goldfish-review</span>, <span class="measured tone-cool">clean-code-audit</span> e <span class="measured tone-cool">mcp-ecosystem-guide</span>, além dos motores <span class="measured">review.ps1, plan-collision, blast-radius</span> e <span class="measured">audit-verify</span>.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 21: FECHAMENTO EXECUTIVO & BANCADA INTERATIVA DE COMANDOS -->
+        <section class="slide" role="tabpanel" id="slide-21" aria-labelledby="tab-21" data-title="Fechamento: O Ciclo Completo de Engenharia" hidden>
+          <div class="slide-head">
+            <div>
+              <h2>Resumo Operacional: Do Requisito ao Commit Auditado</h2>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 21 de 21</span>
+                <span class="measured tone-cool">Bancada Interativa dos Comandos Oficiais do Harness</span>
+              </div>
+            </div>
+            <p>Clique nos estágios abaixo para inspecionar o comando exato, o script acionado e o critério de aprovação em cada etapa do nosso ciclo de engenharia.</p>
+          </div>
+
+          <div class="panels panels--4">
+            <div class="cell">
+              <div class="reading-xl">01</div>
+              <h3>Define &amp; Plan</h3>
+              <p><span class="measured tone-cool">blast-radius</span> + <span class="measured tone-cool">plan-collision</span> + <span class="measured tone-amber">Goldfish Cold Spec Review</span> + BDD Gherkin 1:1 com a Issue.</p>
+              <button class="btn" type="button" data-cmd-pick="0">Ver comando</button>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">02</div>
+              <h3>Inner Loop TDD</h3>
+              <p><span class="measured tone-cool">sequential-thinking</span> + Ciclo <span class="measured tone-bad">Red</span> → <span class="measured tone-ok">Green</span> → <span class="measured tone-cool">Refactor</span> rodando apenas as suítes do domínio.</p>
+              <button class="btn" type="button" data-cmd-pick="1">Ver comando</button>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">03</div>
+              <h3>Outer Loop &amp; 12 Portões</h3>
+              <p><span class="measured tone-cool">audit:clean-code --changed</span> seguido da esteira determinística completa <span class="measured tone-ok">npm run precommit</span>.</p>
+              <button class="btn" type="button" data-cmd-pick="2">Ver comando</button>
+            </div>
+            <div class="cell">
+              <div class="reading-xl">04</div>
+              <h3>2º Goldfish &amp; Release</h3>
+              <p>Dossiê <span class="measured tone-amber">review.ps1</span> auditado até <span class="measured tone-ok">Aprovado</span> + staging cirúrgico (sob ordem) + <span class="measured tone-cool">release</span>.</p>
+              <button class="btn" type="button" data-cmd-pick="3">Ver comando</button>
+            </div>
+          </div>
+
+          <div class="panels">
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3 id="benchTitle">Estágio 03 · Outer Loop Determinístico (12 Portões + Clean Code 22/22)</h3>
+                <span class="chip chip--ok" id="benchBadge">Saída obrigatória: exit code 0</span>
+              </div>
+              <div class="cmd-line" id="benchCommand">npm run audit:clean-code -- --changed &amp;&amp; npm run precommit</div>
+              <p id="benchDesc">Valida os arquivos modificados contra as 22 regras de Clean Code e executa em sequência os 12 portões determinísticos (lockfile, npm audit, ast-grep, dependency-cruiser, knip, tsc nos 3 workspaces, arch:check, vitest, nomenclatura de testes e tolerância zero).</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- FOOTER BAR -->
+    <footer class="keynote-footer">
+      <div class="container keynote-footer__inner">
+        <div id="footerSlideInfo" class="measured tone-cool">Slide 01 / 21 · Visão Executiva &amp; ROI de Engenharia</div>
+        <div class="progress-bar" aria-hidden="true">
+          <div class="progress-bar__fill" id="progressBarFill"></div>
+        </div>
+        <div>Navegação horizontal: setas <span class="measured tone-amber">←</span> <span class="measured tone-amber">→</span> ou clique em <span class="measured tone-cool">01..21</span> no topo</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const tabs = Array.from(document.querySelectorAll('.strip-btn'));
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const modeBtn = document.getElementById('modeBtn');
+      const counterBadge = document.getElementById('slideCounterBadge');
+      const footerInfo = document.getElementById('footerSlideInfo');
+      const progressFill = document.getElementById('progressBarFill');
+      let current = 0;
+
+      function showSlide(index, focusTab) {
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+        current = index;
+
+        tabs.forEach((t, i) => {
+          const active = i === current;
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+          t.tabIndex = active ? 0 : -1;
+          if (active && focusTab) t.focus();
+        });
+
+        slides.forEach((s, i) => {
+          s.hidden = i !== current;
+        });
+
+        const num = String(current + 1).padStart(2, '0');
+        const total = String(slides.length).padStart(2, '0');
+        const title = slides[current].getAttribute('data-title') || '';
+        counterBadge.textContent = num + ' / ' + total;
+        footerInfo.textContent = 'Slide ' + num + ' / ' + total + ' · ' + title;
+        progressFill.style.transform = 'scaleX(' + ((current + 1) / slides.length) + ')';
+
+        if (history.replaceState) {
+          history.replaceState(null, '', '#' + slides[current].id);
+        }
+      }
+
+      tabs.forEach((tab, idx) => {
+        tab.addEventListener('click', () => showSlide(idx, false));
+        tab.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            showSlide(idx + 1, true);
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            showSlide(idx - 1, true);
+          }
+        });
+      });
+
+      prevBtn.addEventListener('click', () => showSlide(current - 1, false));
+      nextBtn.addEventListener('click', () => showSlide(current + 1, false));
+
+      window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.getAttribute('role') === 'tab')) {
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+          e.preventDefault();
+          showSlide(current + 1, false);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          showSlide(current - 1, false);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          showSlide(0, false);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          showSlide(slides.length - 1, false);
+        }
+      });
+
+      modeBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const next = root.getAttribute('data-mode') === 'paper' ? 'graphite' : 'paper';
+        root.setAttribute('data-mode', next);
+        modeBtn.textContent = next === 'paper' ? 'Modo escuro' : 'Modo claro';
+      });
+
+      const benchPresets = [
+        {
+          title: 'Estágio 01 · Planejamento Pré-Voo (Blast Radius + Radar de Colisão)',
+          badge: 'Regra 1.3.2 e 1.7.1',
+          cmd: 'node scripts/blast-radius.mjs frontend/src/types/project.ts --json && node scripts/plan-collision.mjs register --issue 52 --files frontend/src/types/project.ts',
+          desc: 'Mapeia todos os dependentes reversos e suítes de teste impactadas e reserva o arquivo em .git/active-plans.json antes do Cold Spec Review pelo Goldfish.'
+        },
+        {
+          title: 'Estágio 02 · Inner Loop Cirúrgico TDD (Red → Green → Refactor)',
+          badge: 'Regra 1.6 e 1.16',
+          cmd: 'npm test --prefix frontend -- src/tests/governance/project-contract.test.ts',
+          desc: 'Executa exclusivamente a suíte semântica do domínio impactado para feedback rápido sem poluir a janela de contexto.'
+        },
+        {
+          title: 'Estágio 03 · Outer Loop Determinístico (12 Portões + Clean Code 22/22)',
+          badge: 'Saída obrigatória: exit code 0',
+          cmd: 'npm run audit:clean-code -- --changed && npm run precommit',
+          desc: 'Valida os arquivos modificados contra as 22 regras de Clean Code e executa em sequência os 12 portões determinísticos (lockfile, npm audit, ast-grep, dependency-cruiser, knip, tsc nos 3 workspaces, arch:check, vitest, nomenclatura de testes e tolerância zero).'
+        },
+        {
+          title: 'Estágio 04 · 2º Portão Goldfish (review.ps1) & Liberação Pós-Commit',
+          badge: 'Regra 1.1.1 e 1.18',
+          cmd: 'powershell -File .\\scripts\\review.ps1 -Issue 52 -Files ‘frontend/src/types/project.ts’ && node scripts/plan-collision.mjs release --issue 52',
+          desc: 'Extrai o dossiê BDD Gherkin e o diff com funções completas para aprovação pelo subagente Goldfish e libera o registro paralelo após o commit autorizado.'
+        }
+      ];
+
+      const benchTitle = document.getElementById('benchTitle');
+      const benchBadge = document.getElementById('benchBadge');
+      const benchCommand = document.getElementById('benchCommand');
+      const benchDesc = document.getElementById('benchDesc');
+
+      document.querySelectorAll('[data-cmd-pick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-cmd-pick')) || 0;
+          const item = benchPresets[idx];
+          if (!item) return;
+          benchTitle.textContent = item.title;
+          benchBadge.textContent = item.badge;
+          benchCommand.textContent = item.cmd;
+          benchDesc.textContent = item.desc;
+        });
+      });
+
+      const hash = window.location.hash.replace('#', '');
+      const startIdx = slides.findIndex((s) => s.id === hash);
+      showSlide(startIdx >= 0 ? startIdx : 0, false);
+    })();
+  </script>
+</body>
+</html>
+
+
+

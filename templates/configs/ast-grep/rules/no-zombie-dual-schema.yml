@@ -1,0 +1,13 @@
+id: no-zombie-dual-schema
+message: "Proibida compatibilidade zumbi / dual-schema (Regra 1.12): mantenha apenas o contrato canônico único e atualize os testes."
+severity: error
+language: TypeScript
+ignores:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+rule:
+  any:
+    - pattern: "$X.word_count ?? $X.wordCount"
+    - pattern: "$X.wordCount ?? $X.word_count"
+    - pattern: "$X.user_id ?? $X.userId"
+    - pattern: "$X.userId ?? $X.user_id"
