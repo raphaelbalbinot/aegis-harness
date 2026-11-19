@@ -159,7 +159,52 @@ function findCleanCodeScannerPath(root) {
 }
 
 /**
- * Executa o scanner determinístico das 22 regras sobre todos os arquivos de código do escopo.
+ * Verifica se o cache `scratch/clean_code_telemetry.json` está atualizado em relação aos arquivos-alvo (GF-02).
+ * @param {string} root
+ * @param {string} cachePath
+ * @param {string[]} codeFiles
+ * @returns {string | null}
+ */
+function readCachedCleanCodeTelemetry(root, cachePath, codeFiles) {
+  if (!fs.existsSync(cachePath) || codeFiles.length === 0) return null;
+  try {
+    const cacheMtime = fs.statSync(cachePath).mtimeMs;
+    const allOlderOrEqual = codeFiles.every((relFile) => {
+      const absFile = path.resolve(root, relFile);
+      return fs.existsSync(absFile) && fs.statSync(absFile).mtimeMs <= cacheMtime;
+    });
+    if (!allOlderOrEqual) return null;
+    const cached = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    if (cached && cached.targetKey === codeFiles.join(',')) return String(cached.reportJson ?? '');
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Executa um único arquivo/alvo no `scan-clean-code.mjs --json` retornando o objeto parseado.
+ * @param {string} root
+ * @param {string} scannerPath
+ * @param {string} targetArg
+ * @returns {Record<string, any> | null}
+ */
+function executeSingleScannerTarget(root, scannerPath, targetArg) {
+  try {
+    const out = execFileSync(process.execPath, [scannerPath, '--json', targetArg], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return JSON.parse(out);
+  } catch (err) {
+    const stdout = err && typeof err === 'object' && 'stdout' in err ? String(err.stdout ?? '') : '';
+    return stdout.trim().startsWith('{') ? JSON.parse(stdout) : null;
+  }
+}
+
+/**
+ * Executa o scanner determinístico das 22 regras com cache por `mtimeMs` em `scratch/clean_code_telemetry.json` (GF-02).
  * @param {string} root
  * @param {string[]} fileArray
  * @returns {string}
@@ -169,24 +214,21 @@ function runPreInjectedCleanCodeScan(root, fileArray) {
   if (!scannerPath) return 'Não executado';
 
   const codeFiles = fileArray.filter((f) => /\.(m?js|cjs|tsx?|py|rb)$/i.test(f));
-  const targetsToRun = codeFiles.length > 0 ? codeFiles : ['--changed'];
-  const combinedReports = [];
+  const scratchDir = path.join(root, 'scratch');
+  const cachePath = path.join(scratchDir, 'clean_code_telemetry.json');
+  const cachedJson = readCachedCleanCodeTelemetry(root, cachePath, codeFiles);
+  if (cachedJson) return cachedJson;
 
-  for (const targetArg of targetsToRun) {
-    try {
-      const out = execFileSync(process.execPath, [scannerPath, '--json', targetArg], {
-        cwd: root,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
-      combinedReports.push(JSON.parse(out));
-    } catch (err) {
-      const stdout = err && typeof err === 'object' && 'stdout' in err ? String(err.stdout ?? '') : '';
-      if (stdout.trim().startsWith('{')) combinedReports.push(JSON.parse(stdout));
-    }
-  }
+  const targetsToRun = codeFiles.length > 0 ? codeFiles : ['--changed'];
+  const combinedReports = targetsToRun
+    .map((targetArg) => executeSingleScannerTarget(root, scannerPath, targetArg))
+    .filter(Boolean);
   if (combinedReports.length === 0) return 'Não executado';
-  return JSON.stringify(combinedReports.length === 1 ? combinedReports[0] : combinedReports, null, 2);
+
+  const reportJson = JSON.stringify(combinedReports.length === 1 ? combinedReports[0] : combinedReports, null, 2);
+  fs.mkdirSync(scratchDir, { recursive: true });
+  fs.writeFileSync(cachePath, JSON.stringify({ targetKey: codeFiles.join(','), reportJson }, null, 2), 'utf8');
+  return reportJson;
 }
 
 /**

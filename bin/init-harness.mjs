@@ -24,19 +24,37 @@ function cliPrint(message) {
   process.stdout.write(`${message}\n`);
 }
 
+const VALID_AGENT_HOSTS = new Set(['antigravity', 'claude', 'codex', 'all']);
+
 function parseArgs(argv) {
   let target = process.cwd();
   let offline = false;
   let force = false;
   let updateCache = false;
+  let agent = 'auto';
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--target' && argv[i + 1]) target = path.resolve(argv[++i]);
+    else if (arg === '--agent' && argv[i + 1]) agent = String(argv[++i]).toLowerCase();
     else if (arg === '--offline') offline = true;
     else if (arg === '--force') force = true;
     else if (arg === '--update-cache') updateCache = true;
   }
-  return { target, offline, force, updateCache };
+  return { target, offline, force, updateCache, agent };
+}
+
+/**
+ * Resolve o host agêntico do projeto alvo ('antigravity' | 'claude' | 'codex' | 'all').
+ * Exemplo: detectAgentHost(targetDir, 'antigravity') === 'antigravity'
+ */
+export function detectAgentHost(targetDir, requestedAgent = 'auto', env = process.env) {
+  const normalized = String(requestedAgent || 'auto').toLowerCase();
+  if (VALID_AGENT_HOSTS.has(normalized)) return normalized;
+  const hasMarker = (rel) => fs.existsSync(path.join(targetDir, rel));
+  if (hasMarker('.claude') || hasMarker('CLAUDE.md') || Boolean(env.CLAUDE_CODE)) return 'claude';
+  if (hasMarker('.gemini') || hasMarker('.agents') || hasMarker('.agent')) return 'antigravity';
+  if (Boolean(env.CODEX_CLI)) return 'codex';
+  return 'all';
 }
 
 function copyFileIfAllowed(srcFile, destFile, force) {
@@ -228,11 +246,11 @@ export function installMultiAgentBridge(targetDir, stack, { force = false } = {}
   );
 }
 
-function writeHarnessAndConstitution(targetDir, stack, force) {
+function writeHarnessAndConstitution(targetDir, stack, { force = false, agentHost = 'all' } = {}) {
   const harnessConfigPath = path.join(targetDir, 'harness.config.json');
   if (!fs.existsSync(harnessConfigPath) || force) {
     const payload = {
-      harness: 'aegis-harness', version: '2.0.0', language: stack.language,
+      harness: 'aegis-harness', version: '2.0.0', agentHost, language: stack.language,
       stackSummary: stack.stackSummary, testDomains: stack.testDomains, gates: stack.gates
     };
     fs.writeFileSync(harnessConfigPath, JSON.stringify(payload, null, 2), 'utf-8');
@@ -246,6 +264,7 @@ function writeHarnessAndConstitution(targetDir, stack, force) {
 
 function main() {
   const opts = parseArgs(process.argv);
+  const agentHost = detectAgentHost(opts.target, opts.agent);
   const stack = detectProjectStack(opts.target);
   const manifest = JSON.parse(fs.readFileSync(path.join(HARNESS_ROOT, 'sources.manifest.json'), 'utf-8'));
   const targetSkillsDir = path.join(opts.target, '.agents', 'skills');
@@ -253,9 +272,11 @@ function main() {
   for (const upstream of manifest.upstreams) syncUpstreamSkills(upstream, targetSkillsDir, opts);
   copyTemplateScripts(opts.target, opts);
   installDocsAndConfigs(opts.target, stack, opts.force);
-  writeHarnessAndConstitution(opts.target, stack, opts.force);
-  installMultiAgentBridge(opts.target, stack, opts);
-  cliPrint(`🎉 [Aegis Harness v2.0] Instalação concluída em ${opts.target}!`);
+  writeHarnessAndConstitution(opts.target, stack, { force: opts.force, agentHost });
+  if (agentHost === 'claude' || agentHost === 'all') {
+    installMultiAgentBridge(opts.target, stack, opts);
+  }
+  cliPrint(`🎉 [Aegis Harness v2.0 | host=${agentHost}] Instalação concluída em ${opts.target}!`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) main();

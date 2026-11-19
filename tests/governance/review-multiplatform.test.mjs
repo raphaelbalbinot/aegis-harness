@@ -48,6 +48,32 @@ test('GF-02 / CWE-78 Immunity', () => {
     }
 });
 
+test('GF-02 / Clean Code Telemetry Cache by mtimeMs in review.mjs', () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-review-cache-'));
+    try {
+        const sampleFile = path.join(rootDir, 'sample.mjs');
+        fs.writeFileSync(sampleFile, 'export function add(a, b) { return a + b; }\n', 'utf8');
+        const scannerDir = path.join(rootDir, 'scripts');
+        fs.mkdirSync(scannerDir, { recursive: true });
+        fs.copyFileSync(
+            path.resolve(process.cwd(), 'skills/sovereign/clean-code-audit/scripts/scan-clean-code.mjs'),
+            path.join(scannerDir, 'scan-clean-code.mjs')
+        );
+
+        generateReviewDossier({ files: 'sample.mjs', rootDir });
+        const cacheFile = path.join(rootDir, 'scratch', 'clean_code_telemetry.json');
+        assert.equal(fs.existsSync(cacheFile), true, 'Deve gravar scratch/clean_code_telemetry.json');
+        const firstMtime = fs.statSync(cacheFile).mtimeMs;
+
+        // Segunda chamada sem alterar sample.mjs deve reutilizar o cache
+        generateReviewDossier({ files: 'sample.mjs', rootDir });
+        const secondMtime = fs.statSync(cacheFile).mtimeMs;
+        assert.equal(secondMtime, firstMtime, 'Deve reutilizar scratch/clean_code_telemetry.json quando código não mudou');
+    } finally {
+        fs.rmSync(rootDir, { recursive: true, force: true });
+    }
+});
+
 test('GF-07 / Repo Audit Agnostic', () => {
     const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-audit-repo-'));
     try {

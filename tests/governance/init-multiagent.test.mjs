@@ -69,6 +69,13 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       const sliceExecContent = fs.readFileSync(sliceExecutorPath, 'utf-8');
       assert.match(sliceExecContent, /name:\s*slice-executor/);
       assert.match(sliceExecContent, /tools:\s*Read,\s*Write,\s*Edit,\s*Grep,\s*Glob,\s*Bash/);
+      assert.match(sliceExecContent, /PROIBIDO ler.*AGENTS\.md/i);
+      assert.match(sliceExecContent, /PROIBIDO rodar.*blast-radius/i);
+
+      const dagSkillPath = path.join(tmpDir, '.agents', 'skills', 'dag-slice-orchestrator', 'SKILL.md');
+      const dagSkillContent = fs.readFileSync(dagSkillPath, 'utf-8');
+      assert.match(dagSkillContent, /EnableMCPTools:\s*false/, 'dag-slice-orchestrator deve definir EnableMCPTools: false (GF-05)');
+      assert.match(dagSkillContent, /Single-Execution Gate/i, 'dag-slice-orchestrator deve conter o protocolo Single-Execution Gate');
 
       // 4. Verifica AGENTS.md: ceremonyTier (XS_EXPRESS / FULL_EGM_DAG) e ausência de lock-in (Heldora / Firestore / Cloud Run)
       const agentsContent = fs.readFileSync(agentsPath, 'utf-8');
@@ -83,6 +90,56 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.doesNotMatch(agentsContent, /Cloud Run/i, 'AGENTS.md não deve conter lock-in a Cloud Run');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('Cenário 5: quando executado com --agent antigravity ou em projeto com pasta .gemini/.agents, NÃO deve criar CLAUDE.md nem .claude/agents/*', () => {
+    const tmpDirFlag = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-init-antigravity-flag-'));
+    const tmpDirAuto = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-init-antigravity-auto-'));
+    try {
+      fs.writeFileSync(
+        path.join(tmpDirFlag, 'package.json'),
+        JSON.stringify({ name: 'antigravity-flag-app', version: '1.0.0' }, null, 2),
+        'utf-8'
+      );
+
+      execFileSync(
+        process.execPath,
+        [INIT_SCRIPT, '--target', tmpDirFlag, '--agent', 'antigravity', '--offline'],
+        { encoding: 'utf-8', stdio: 'pipe' }
+      );
+
+      assert.equal(fs.existsSync(path.join(tmpDirFlag, 'AGENTS.md')), true, 'AGENTS.md deve ser criado');
+      assert.equal(
+        fs.existsSync(path.join(tmpDirFlag, '.agents', 'skills', 'dag-slice-orchestrator', 'SKILL.md')),
+        true,
+        'Skill dag-slice-orchestrator deve ser instalada'
+      );
+      const harnessCfgFlag = JSON.parse(fs.readFileSync(path.join(tmpDirFlag, 'harness.config.json'), 'utf-8'));
+      assert.equal(harnessCfgFlag.agentHost, 'antigravity');
+      assert.equal(fs.existsSync(path.join(tmpDirFlag, 'CLAUDE.md')), false, 'CLAUDE.md NÃO deve ser criado');
+      assert.equal(fs.existsSync(path.join(tmpDirFlag, '.claude')), false, '.claude/ NÃO deve ser criado');
+
+      // Auto-detecção por presença de pasta .gemini no projeto alvo
+      fs.mkdirSync(path.join(tmpDirAuto, '.gemini'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tmpDirAuto, 'package.json'),
+        JSON.stringify({ name: 'antigravity-auto-app', version: '1.0.0' }, null, 2),
+        'utf-8'
+      );
+
+      execFileSync(process.execPath, [INIT_SCRIPT, '--target', tmpDirAuto, '--offline'], {
+        encoding: 'utf-8',
+        stdio: 'pipe'
+      });
+
+      const harnessCfgAuto = JSON.parse(fs.readFileSync(path.join(tmpDirAuto, 'harness.config.json'), 'utf-8'));
+      assert.equal(harnessCfgAuto.agentHost, 'antigravity');
+      assert.equal(fs.existsSync(path.join(tmpDirAuto, 'CLAUDE.md')), false, 'CLAUDE.md NÃO deve ser criado em auto-detect antigravity');
+      assert.equal(fs.existsSync(path.join(tmpDirAuto, '.claude')), false, '.claude/ NÃO deve ser criado em auto-detect antigravity');
+    } finally {
+      fs.rmSync(tmpDirFlag, { recursive: true, force: true });
+      fs.rmSync(tmpDirAuto, { recursive: true, force: true });
     }
   });
 });

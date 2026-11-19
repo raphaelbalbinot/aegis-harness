@@ -93,6 +93,14 @@ def _classify_risk_level(normalized: str, total_dependents: int) -> str:
     return "LOW"
 
 
+def _compute_ceremony_tier(normalized: str, risk_level: str, direct_dependents: list[str]) -> str:
+    lower_path = normalized.lower()
+    is_security_sensitive = any(tok in lower_path for tok in ("auth", "security", "webhook", "oidc", "firestore.rules"))
+    if risk_level == "LOW" and len(direct_dependents) == 0 and not is_security_sensitive:
+        return "XS_EXPRESS"
+    return "FULL_EGM_DAG"
+
+
 def analyze_blast_radius(target_rel_path: str) -> dict[str, Any]:
     normalized = target_rel_path.strip().replace("\\", "/").lstrip("./")
     target_path = REPO_ROOT / normalized
@@ -105,6 +113,7 @@ def analyze_blast_radius(target_rel_path: str) -> dict[str, Any]:
     direct_dependents, impacted_tests = _find_direct_dependents_and_tests(normalized, target_module)
     _append_indirect_tests(direct_dependents, impacted_tests)
     risk_level = _classify_risk_level(normalized, len(direct_dependents) + len(impacted_tests))
+    ceremony_tier = _compute_ceremony_tier(normalized, risk_level, direct_dependents)
     axis = AXIS_MAPPING.get(normalized, "Eixo 5 — Infraestrutura Serverless, CI/CD & Governança")
 
     return {
@@ -112,6 +121,7 @@ def analyze_blast_radius(target_rel_path: str) -> dict[str, Any]:
         "target_module": target_module,
         "governance_axis": axis,
         "risk_level": risk_level,
+        "ceremony_tier": ceremony_tier,
         "direct_dependents": sorted(direct_dependents),
         "impacted_tests": sorted(impacted_tests),
     }

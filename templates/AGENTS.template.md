@@ -57,9 +57,9 @@ Antes de planejar, refatorar ou escrever qualquer código neste repositório, vo
 ### 1.6 Desenvolvimento Estritamente Orientado a Testes (TDD Mandatório em Cada Fatia)
 - **Comando:** Executar o ciclo estrito **🔴 RED** (teste falhando) → **🟢 GREEN** (código mínimo) → **🔵 REFACTOR** antes de marcar `[x]` no checklist da conversa (inclusive em tarefas `XS_EXPRESS`).
 
-### 1.7 Prevenção Ativa de Alucinação, Blast Radius e Mini-Auditoria Mandatória
-- **1.7.1 Pré-Voo (`Blast Radius`):** Executar `node scripts/blast-radius.mjs <arquivo> --json` antes de alterar contratos ou módulos.
-- **1.7.2 Pós-Voo (`Audit Verify`):** Executar `node scripts/audit-verify.mjs` ao finalizar cada tarefa (código de saída deve ser `0`).
+### 1.7 Prevenção Ativa de Alucinação, Blast Radius Único na Fase `PLAN` e Mini-Auditoria Consolidada no Portão Final
+- **1.7.1 Pré-Voo Único (`Blast Radius` — Exclusivo da Fase `PLAN`):** Executar `node scripts/blast-radius.mjs <arquivos> --json` (ou `python scripts/blast-radius.py <arquivo> --json`) **1 única vez na Fase `PLAN` pelo Orquestrador (`🐘 Elephant`)** antes de alterar contratos ou módulos. É **proibido** re-executar `blast-radius` durante a Fase `BUILD` ou dentro de subagentes `slice-executor`.
+- **1.7.2 Pós-Voo Consolidado (`Audit Verify` — Exclusivo do Outer Loop / Portão Final):** Executar `node scripts/audit-verify.mjs` (ou `python scripts/audit-verify.py`) **1 única vez ao finalizar todas as fatias da entrega no Portão Final (Trava 5)** (código de saída deve ser `0`). É **proibido** rodar `audit-verify` ao final de fatias intermediárias ou dentro de subagentes `slice-executor`.
 
 ### 1.8 Raciocínio Sequencial Profundo (`sequential-thinking` MCP) e Segurança Shift-Left (`mantis-advise`)
 - **Raciocínio Sequencial:** Acionar `sequential-thinking` antes de algoritmos complexos, concorrência serverless, remediações CWE ou módulos com `riskLevel: "HIGH"`.
@@ -86,12 +86,15 @@ Antes de planejar, refatorar ou escrever qualquer código neste repositório, vo
 ### 1.15 Governança Dual E2E e Sincronização de Arquitetura Viva (`Archify`)
 - **Regra:** Manter paridade entre suítes E2E automatizadas e fluxos MCP (`chrome-devtools-mcp`), sincronizando os diagramas arquiteturais (`archify`) com o código.
 
-### 1.16 Governança de Dois Ciclos (Inner TDD vs. Outer Precommit), Express Lane (`XS_EXPRESS`) e Orquestração DAG com Hard Sandbox (`dag-slice-orchestrator`)
-- **Fast-Track Determinístico (`ceremonyTier === "XS_EXPRESS"`):** Quando `node scripts/blast-radius.mjs <arquivos> --json` retornar `ceremonyTier: "XS_EXPRESS"`, o agente executa diretamente na sessão principal o **Inner Loop TDD** (Regra 1.6) + `node scripts/scan-clean-code.mjs --changed` + **Outer Loop** `node scripts/audit-verify.mjs`, dispensando subagentes `Goldfish` e `slice-executor`.
-- **Orquestração DAG por Ondas (`ceremonyTier === "FULL_EGM_DAG"`):** Quando houver múltiplas fatias no grafo DAG, o **🐘 Elephant** despacha subagentes `slice-executor` respeitando a **Matriz de 3 Tiers de Modelo** (`"flash"` / `haiku` / `codex-mini` para `XS/S`; `"inherit"` / `sonnet` / `codex-default` para `M`; `"pro"` / `opus` / `o3-pro` para `HIGH`/Segurança ou *Retry Escalation* após 2 falhas) e aplicando obrigatoriamente o **Hard Sandbox de Whitelist**:
-  1. Antes de despachar cada fatia: `node scripts/plan-collision.mjs snapshot-slice --slice <ID> --files "<whitelist>"`
-  2. Imediatamente após o retorno do subagente: `node scripts/plan-collision.mjs verify-slice --slice <ID> --revert-unauthorized`
-- **Outer Loop Completo:** Rodar `node scripts/audit-verify.mjs` ao concluir o conjunto de fatias da issue.
+### 1.16 Governança de Dois Ciclos (Inner TDD vs. Outer Precommit), Express Lane (`XS_EXPRESS`) e Orquestração DAG `Single-Execution Gate` (`dag-slice-orchestrator`)
+- **Fast-Track Determinístico (`ceremonyTier === "XS_EXPRESS"`):** Quando `node scripts/blast-radius.mjs <arquivos> --json` (na Fase `PLAN`) retornar `ceremonyTier: "XS_EXPRESS"`, o agente executa diretamente na sessão principal o **Inner Loop TDD** (Regra 1.6) + **Outer Loop** `node scripts/audit-verify.mjs`, dispensando subagentes `Goldfish` e `slice-executor`.
+- **Limiar de Ativação e Orquestração DAG por Ondas (`ceremonyTier === "FULL_EGM_DAG"` — `Single-Execution Gate Protocol`):**
+  - Se o plano for pequeno ou puramente sequencial (`<= 4` arquivos de produção sem paralelismo real na mesma onda), o próprio **🐘 Elephant** executa as fatias na sessão principal (aproveitando 100% do Prompt Cache) mantendo os Portões 1 e 2 do Goldfish.
+  - Quando houver paralelismo real na mesma onda (`>= 2` fatias independentes na mesma Onda ou `5+` arquivos de código), o **🐘 Elephant** define `slice-executor` com `EnableMCPTools: false` e `EnableSubagentTools: false`, despacha as fatias por onda respeitando a **Matriz de 3 Tiers de Modelo** (`"flash"` / `haiku` / `codex-mini` para `XS/S`; `"inherit"` / `sonnet` / `codex-default` para `M`; `"pro"` / `opus` / `o3-pro` para `HIGH`/Segurança ou *Retry Escalation* após 2 falhas) e aplica o **Hard Sandbox + `Single-Execution Gate`**:
+    1. Antes de despachar cada fatia: `node scripts/plan-collision.mjs snapshot-slice --slice <ID> --files "<whitelist>"` (ou `python scripts/plan-collision.py snapshot-slice ...`);
+    2. Dentro da fatia (`Micro-Gate`): o `slice-executor` **NÃO lê `AGENTS.md`** e **NÃO roda `blast-radius`, `audit-verify`, `scan-clean-code` ou `review.mjs`** — ele executa **exclusivamente 1 comando de teste unitário** do seu próprio arquivo;
+    3. Imediatamente após o retorno do subagente: o Orquestrador roda **apenas** `node scripts/plan-collision.mjs verify-slice --slice <ID> --revert-unauthorized` (`~50ms`, sem re-executar testes já aprovados na fatia).
+- **Outer Loop Consolidado Único (Trava 5):** Rodar `node scripts/audit-verify.mjs` (ou `python scripts/audit-verify.py`) **1 única vez** quando 100% das ondas do grafo DAG estiverem concluídas.
 
 ### 1.17 Recomendação Proativa do Slash Command `/compact`
 - **Regra:** Recomendar proativamente o uso de `/compact` ao concluir fatias extensas para preservar a janela de contexto.

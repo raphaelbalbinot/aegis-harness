@@ -5,7 +5,22 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT = path.resolve(__dirname, '..');
+
+/**
+ * Resolve deterministicamente a raiz do projeto mesmo quando o script reside em `templates/scripts/` (GF-04).
+ * Exemplo: resolveDefaultRootDir()
+ *
+ * @returns {string}
+ */
+export function resolveDefaultRootDir() {
+  const parentDir = path.resolve(__dirname, '..');
+  if (path.basename(parentDir) === 'templates') {
+    return path.resolve(parentDir, '..');
+  }
+  return parentDir;
+}
+
+const ROOT = resolveDefaultRootDir();
 
 const HIGH_RISK_CONSUMER_THRESHOLD = 5;
 const MIN_SEARCH_TOKEN_LENGTH = 6;

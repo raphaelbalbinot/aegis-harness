@@ -10,6 +10,7 @@ import {
   calculateBlastRadius,
   calculateMultiTargetBlastRadius,
   computeCeremonyTier,
+  resolveDefaultRootDir,
 } from '../../templates/scripts/blast-radius.mjs';
 
 /**
@@ -128,5 +129,12 @@ describe('blast-radius.mjs — Motor Políglota Universal & Fast-Track XS_EXPRES
     assert.equal(helperReport.ceremonyTier, 'FULL_EGM_DAG');
 
     assert.equal(computeCeremonyTier([], { stopAndWarnTriggered: false }), 'FULL_EGM_DAG');
+  });
+
+  it('7. resolveDefaultRootDir() resolve a raiz do repositório mesmo quando o script reside em templates/scripts/ (GF-04)', () => {
+    const resolvedRoot = resolveDefaultRootDir();
+    assert.equal(path.basename(resolvedRoot), 'aegis-harness');
+    const report = calculateBlastRadius('bin/init-harness.mjs');
+    assert.equal(report.error, undefined, 'Deve encontrar bin/init-harness.mjs no grafo padrão sem erro');
   });
 });
