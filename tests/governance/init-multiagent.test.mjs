@@ -88,6 +88,21 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.doesNotMatch(agentsContent, /Heldora/i, 'AGENTS.md não deve conter referência residual a Heldora');
       assert.doesNotMatch(agentsContent, /Firestore/i, 'AGENTS.md não deve conter lock-in a Firestore');
       assert.doesNotMatch(agentsContent, /Cloud Run/i, 'AGENTS.md não deve conter lock-in a Cloud Run');
+      assert.match(
+        agentsContent,
+        /\[Mantis-Advise\]: ✔ THREAT_MODEL\.md Consultado \(<TM-ID: CWE-XX>\) \| ✔ Padrões Defensivos Aplicados/,
+        'AGENTS.md deve exigir citação nominal de TM-ID no selo [Mantis-Advise]'
+      );
+      assert.match(agentsContent, /aegis-surface-hash/, 'AGENTS.md deve exigir sincronização do aegis-surface-hash');
+
+      // 5. Verifica criação do modelo de ameaças vivo workspace/kb/THREAT_MODEL.md
+      const threatModelPath = path.join(tmpDir, 'workspace', 'kb', 'THREAT_MODEL.md');
+      assert.equal(fs.existsSync(threatModelPath), true, 'workspace/kb/THREAT_MODEL.md deve ser criado pelo init-harness.mjs');
+      const threatModelContent = fs.readFileSync(threatModelPath, 'utf-8');
+      assert.match(threatModelContent, /^KB_SNAPSHOT:\s*UNPINNED/m);
+      assert.match(threatModelContent, /<!-- aegis-surface-hash: bootstrap -->/);
+      assert.match(threatModelContent, /TM-CORE-01/);
+      assert.match(threatModelContent, /TM-CORE-05/);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

@@ -38,10 +38,26 @@ describe('blast-radius.mjs — Motor Políglota Universal & Fast-Track XS_EXPRES
     assert.equal(singleReport.error, undefined);
     assert.equal(singleReport.isTest, false);
     assert.equal(singleReport.riskLevel, 'LOW');
+    assert.equal(singleReport.securitySurfaceTouched, false);
+    assert.deepEqual(singleReport.relatedDocs, []);
     assert.equal(singleReport.ceremonyTier, 'XS_EXPRESS');
 
     const multiReport = calculateMultiTargetBlastRadius(['src/utils/math-helper.ts'], fileMap);
+    assert.equal(multiReport.securitySurfaceTouched, false);
+    assert.deepEqual(multiReport.relatedDocs, []);
     assert.equal(multiReport.ceremonyTier, 'XS_EXPRESS');
+  });
+
+  it('1b. não gera falso positivo de superfície de segurança para src/utils/author-profile.ts (GF-02)', () => {
+    const tmpDir = createTempRepo({
+      'src/utils/author-profile.ts': 'export function getAuthorBio(name: string) { return name; }\n',
+    });
+    const fileMap = buildGraph(tmpDir);
+    const singleReport = calculateBlastRadius('src/utils/author-profile.ts', fileMap);
+
+    assert.equal(singleReport.securitySurfaceTouched, false);
+    assert.deepEqual(singleReport.relatedDocs, []);
+    assert.equal(singleReport.ceremonyTier, 'XS_EXPRESS');
   });
 
   it('2. classifica 1 arquivo de produção isolado + 1 arquivo de teste TDD (.test.mjs) como XS_EXPRESS (GF-03 TDD-safe)', () => {
@@ -90,18 +106,28 @@ describe('blast-radius.mjs — Motor Políglota Universal & Fast-Track XS_EXPRES
     assert.equal(multiReport.ceremonyTier, 'FULL_EGM_DAG');
   });
 
-  it('5. classifica 1 arquivo no Eixo B (src/auth/token-validator.ts) como FULL_EGM_DAG mesmo sem consumidores', () => {
+  it('5. classifica arquivos de superfície de segurança (src/auth/token-validator.ts e src/api/orders/route.ts) com securitySurfaceTouched=true, relatedDocs=[THREAT_MODEL.md] e FULL_EGM_DAG (GF-03)', () => {
     const tmpDir = createTempRepo({
       'src/auth/token-validator.ts': 'export function verifyToken(token: string) { return Boolean(token); }\n',
+      'src/api/orders/route.ts': 'export async function POST() { return { ok: true }; }\n',
     });
     const fileMap = buildGraph(tmpDir);
     const singleReport = calculateBlastRadius('src/auth/token-validator.ts', fileMap);
 
     assert.equal(singleReport.governanceAxis, 'B_SECURITY_HARDENING');
     assert.equal(singleReport.metrics.directConsumersCount, 0);
+    assert.equal(singleReport.securitySurfaceTouched, true);
+    assert.deepEqual(singleReport.relatedDocs, ['workspace/kb/THREAT_MODEL.md']);
     assert.equal(singleReport.ceremonyTier, 'FULL_EGM_DAG');
 
+    const apiRouteReport = calculateBlastRadius('src/api/orders/route.ts', fileMap);
+    assert.equal(apiRouteReport.securitySurfaceTouched, true);
+    assert.deepEqual(apiRouteReport.relatedDocs, ['workspace/kb/THREAT_MODEL.md']);
+    assert.equal(apiRouteReport.ceremonyTier, 'FULL_EGM_DAG');
+
     const multiReport = calculateMultiTargetBlastRadius(['src/auth/token-validator.ts'], fileMap);
+    assert.equal(multiReport.securitySurfaceTouched, true);
+    assert.deepEqual(multiReport.relatedDocs, ['workspace/kb/THREAT_MODEL.md']);
     assert.equal(multiReport.ceremonyTier, 'FULL_EGM_DAG');
   });
 

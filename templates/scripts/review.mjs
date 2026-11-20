@@ -232,6 +232,23 @@ function runPreInjectedCleanCodeScan(root, fileArray) {
 }
 
 /**
+ * Lê um resumo enxuto do modelo de ameaças vivo `workspace/kb/THREAT_MODEL.md` (GF-01, GF-07).
+ * @param {string} root
+ * @returns {string}
+ */
+export function readThreatModelSummary(root) {
+  const tmPath = path.join(root, 'workspace', 'kb', 'THREAT_MODEL.md');
+  if (!fs.existsSync(tmPath)) {
+    return 'AUSENTE (workspace/kb/THREAT_MODEL.md não encontrado no repositório).';
+  }
+  const lines = fs
+    .readFileSync(tmPath, 'utf8')
+    .split(/\r?\n/)
+    .filter((l) => l.startsWith('KB_SNAPSHOT:') || l.startsWith('<!-- aegis-surface-hash:') || l.startsWith('| TM-'));
+  return lines.length > 0 ? lines.join('\n') : 'PRESENTE (sem linhas TM-* sumarizadas).';
+}
+
+/**
  * Monta o texto Markdown completo do dossiê para o 2º Portão EGM Goldfish.
  * @param {Record<string, string>} sections
  * @returns {string}
@@ -242,34 +259,23 @@ function buildReviewPromptText(sections) {
     'Contexto:',
     sections.issueOrPlanHeader,
     sections.issueOrPlanContent,
-    '',
     '- Checklist Extraído de Cláusulas BDD Gherkin (Rastreabilidade 1:1 Obrigatória):',
     sections.bddChecklistContent,
-    '',
+    '- Modelo de Ameaças Vivo (workspace/kb/THREAT_MODEL.md - Regra 1.8):',
+    sections.threatModelContent,
     '- Roadmap / Outras Issues da Sequência (Fora do Escopo Desta Revisão):',
     sections.openIssuesContent,
-    '',
-    '- Arquivos Alterados / Removidos (git status --short):',
-    '```text',
-    sections.statusContent,
-    '```',
-    '',
-    '- Diff da Implementação Atual com Contexto Completo de Função:',
-    '```diff',
-    sections.diffContent,
-    '```',
-    '',
-    '## 🔬 TELEMETRIA DETERMINÍSTICA PRÉ-INJETADA (AST / CRAP / 22 Regras)',
-    '```json',
-    sections.telemetryContent,
-    '```',
-    '',
+    '- Arquivos Alterados / Removidos (git status --short):\n```text',
+    `${sections.statusContent}\n\`\`\``,
+    '- Diff da Implementação Atual com Contexto Completo de Função:\n```diff',
+    `${sections.diffContent}\n\`\`\``,
+    '## 🔬 TELEMETRIA DETERMINÍSTICA PRÉ-INJETADA (AST / CRAP / 22 Regras)\n```json',
+    `${sections.telemetryContent}\n\`\`\``,
     'Objetivo e Matriz de Avaliação nos 4 Eixos Inegociáveis:',
     '1. [Eixo 1 - Rastreabilidade BDD 1:1 e Anti-Mock Oco]: Cada cláusula "Então" possui asserção real nos testes?',
     '2. [Eixo 2 - Zero Spec Drift e Regra 1.12]: A implementação segue 100% os contratos sem código zumbi?',
     '3. [Eixo 3 - Segurança Serverless, Subprocessos e Tipagem]: Zero CWE-78, zero fire-and-forget e uso de "??" sobre "||".',
     '4. [Eixo 4 - Simulação de Execução Mental]: Existem bugs lógicos, race conditions ou quebras de borda?',
-    '',
     'Diretriz: Seja conciso. Categorize apontamentos reais com arquivo/linha. Se íntegro, responda apenas "APROVADO".',
   ].join('\n');
 }
@@ -319,6 +325,7 @@ export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
       : '- Requisitos Extraídos do Plano de Implementação:',
     issueOrPlanContent: issueId ? issueContent : planContent,
     bddChecklistContent,
+    threatModelContent: readThreatModelSummary(root),
     openIssuesContent,
     statusContent,
     diffContent,

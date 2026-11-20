@@ -227,6 +227,21 @@ function installDocsAndConfigs(targetDir, stack, force) {
       fs.writeFileSync(destDoc, renderTemplate(fs.readFileSync(path.join(docsTplDir, tpl), 'utf-8'), stack), 'utf-8');
     }
   }
+  installWorkspaceThreatModel(targetDir, stack, force);
+}
+
+/**
+ * Instala o Modelo de Ameaças Vivo em workspace/kb/THREAT_MODEL.md a partir do template (GF-01).
+ */
+export function installWorkspaceThreatModel(targetDir, stack, force = false) {
+  const tplPath = path.join(HARNESS_ROOT, 'templates', 'workspace', 'kb', 'THREAT_MODEL.template.md');
+  if (!fs.existsSync(tplPath)) return;
+  const kbDir = path.join(targetDir, 'workspace', 'kb');
+  fs.mkdirSync(kbDir, { recursive: true });
+  const destPath = path.join(kbDir, 'THREAT_MODEL.md');
+  if (!fs.existsSync(destPath) || force) {
+    fs.writeFileSync(destPath, renderTemplate(fs.readFileSync(tplPath, 'utf-8'), stack), 'utf-8');
+  }
 }
 
 /**

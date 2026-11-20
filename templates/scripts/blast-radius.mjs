@@ -42,7 +42,7 @@ const GOVERNANCE_AXIS_RULES = [
   {
     id: 'B_SECURITY_HARDENING',
     label: 'Eixo B — Segurança & Hardening / CWE',
-    regex: /(?:oidc|auth|sanitize|prompt-shield|firestore\.rules|security)/i,
+    regex: /(?:^|\/|[._-])(?:oidc|auth|sanitize|prompt-shield|security)(?:[._-]|\/|$)|(?:^|\/)firestore\.rules$/i,
   },
   {
     id: 'A_INFRA_SERVERLESS',
@@ -60,6 +60,33 @@ const GOVERNANCE_AXIS_RULES = [
     regex: /(?:firebase\/|firestore|storage\/|idb|local-draft|useAutoSave|types\/project\.ts|app\/api\/projects\/|app\/api\/account\/)/,
   },
 ];
+
+const SECURITY_SURFACE_PATH_REGEX =
+  /(?:^|\/)(?:api|routes|webhooks?|auth|oidc|security|firestore|gcs|storage|ai|prompts|cloud-tasks)(?:\/|$)|(?:^|\/|[._-])(?:auth|oidc|security|webhook|prompt-shield|sanitize|ffmpeg|rvc)(?:[._-]|\/|$)|(?:^|\/)(?:main\.py|schemas\.py|firestore\.rules)$/i;
+
+/**
+ * Verifica se um caminho pertence à superfície de segurança sem falso positivo para `author` (GF-02).
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+export function isSecuritySurfaceFile(filePath) {
+  const norm = String(filePath ?? '').replace(/\\/g, '/').replace(/^[./]+/, '');
+  if (!norm || /\.(test|spec|mcp)\.[^/]+$/i.test(norm) || norm.startsWith('tests/')) return false;
+  return SECURITY_SURFACE_PATH_REGEX.test(norm);
+}
+
+/**
+ * Resolve a flag de superfície de segurança e documentos vinculados (Regra 1.8).
+ * @param {string} foundNorm
+ * @param {boolean} isTest
+ */
+function resolveRelatedDocsForTarget(foundNorm, isTest) {
+  const securitySurfaceTouched = !isTest && isSecuritySurfaceFile(foundNorm);
+  return {
+    securitySurfaceTouched,
+    relatedDocs: securitySurfaceTouched ? ['workspace/kb/THREAT_MODEL.md'] : [],
+  };
+}
 
 const SCAN_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.md'];
 const RESOLVE_EXTENSIONS = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.md', '/index.ts', '/index.tsx', '/index.js', '/index.mjs'];
@@ -739,7 +766,12 @@ function isReportEligibleForExpress(r) {
   const totalConsumers =
     (r.metrics?.directConsumersCount ?? r.directConsumers?.length ?? 0) +
     (r.metrics?.transitiveConsumersCount ?? r.transitiveConsumers?.length ?? 0);
-  return totalConsumers === 0 && r.riskLevel === 'LOW' && r.governanceAxis !== 'B_SECURITY_HARDENING';
+  return (
+    totalConsumers === 0 &&
+    r.riskLevel === 'LOW' &&
+    r.governanceAxis !== 'B_SECURITY_HARDENING' &&
+    !r.securitySurfaceTouched
+  );
 }
 
 /**
@@ -759,6 +791,22 @@ export function computeCeremonyTier(validReports, scopeHeterogeneity) {
 }
 
 /**
+ * Constrói o objeto de métricas numéricas de dependentes e suítes impactadas (GF-01).
+ * @param {string[]} directConsumers
+ * @param {Set<string>} transitiveConsumers
+ * @param {string[]} impactedTestSuites
+ * @param {string[]} impactedE2ESuites
+ */
+function buildTargetMetrics(directConsumers, transitiveConsumers, impactedTestSuites, impactedE2ESuites) {
+  return {
+    directConsumersCount: directConsumers.length,
+    transitiveConsumersCount: transitiveConsumers.size,
+    impactedTestsCount: impactedTestSuites.length,
+    impactedE2ECount: impactedE2ESuites.length,
+  };
+}
+
+/**
  * Monta o objeto base de relatório de Blast Radius para um alvo resolvido.
  * @param {{ foundNorm: string; targetNode: Record<string, any>; directConsumers: string[]; transitiveConsumers: Set<string>; impactedTestSuites: string[]; impactedE2ESuites: string[]; fileMap: Map<string, any> }} ctx
  */
@@ -766,19 +814,20 @@ function createTargetReportObject(ctx) {
   const { foundNorm, targetNode, directConsumers, transitiveConsumers, impactedTestSuites, impactedE2ESuites, fileMap } = ctx;
   const layer = detectLayer(foundNorm);
   const axis = detectGovernanceAxis(foundNorm);
-  const totalConsumers = directConsumers.length + transitiveConsumers.size;
+  const isTest = Boolean(targetNode.isTest);
+  const { securitySurfaceTouched, relatedDocs } = resolveRelatedDocsForTarget(foundNorm, isTest);
   return {
-    /** @type {string | undefined} */
-    error: undefined,
-    /** @type {string[]} */
-    availableFilesSample: [],
+    /** @type {string | undefined} */ error: undefined,
+    /** @type {string[]} */ availableFilesSample: [],
     target: foundNorm,
-    isTest: Boolean(targetNode.isTest),
+    isTest,
+    securitySurfaceTouched,
+    relatedDocs,
     layer: layer.id,
     layerLabel: layer.label,
     governanceAxis: axis.id,
     governanceAxisLabel: axis.label,
-    riskLevel: computeRiskLevel(totalConsumers, directConsumers),
+    riskLevel: computeRiskLevel(directConsumers.length + transitiveConsumers.size, directConsumers),
     exportedSymbols: targetNode.exportedSymbols,
     consumerSymbolMap: buildConsumerSymbolMap(foundNorm, directConsumers, fileMap),
     directDependencies: Array.from(targetNode.imports),
@@ -788,14 +837,8 @@ function createTargetReportObject(ctx) {
     impactedE2ESuites,
     recommendedTestCommand: formatRecommendedVitestCommand(impactedTestSuites),
     recommendedE2ECommand: formatRecommendedPlaywrightCommand(impactedE2ESuites),
-    metrics: {
-      directConsumersCount: directConsumers.length,
-      transitiveConsumersCount: transitiveConsumers.size,
-      impactedTestsCount: impactedTestSuites.length,
-      impactedE2ECount: impactedE2ESuites.length,
-    },
-    /** @type {'XS_EXPRESS' | 'FULL_EGM_DAG'} */
-    ceremonyTier: 'FULL_EGM_DAG',
+    metrics: buildTargetMetrics(directConsumers, transitiveConsumers, impactedTestSuites, impactedE2ESuites),
+    /** @type {'XS_EXPRESS' | 'FULL_EGM_DAG'} */ ceremonyTier: 'FULL_EGM_DAG',
   };
 }
 
@@ -882,6 +925,8 @@ export function calculateMultiTargetBlastRadius(targetPaths, existingFileMap) {
   return {
     targets,
     ceremonyTier,
+    securitySurfaceTouched: validReports.some((r) => Boolean(r.securitySurfaceTouched)),
+    relatedDocs: Array.from(new Set(validReports.flatMap((r) => r.relatedDocs ?? []))),
     scopeHeterogeneity,
     consolidatedTestSuites: allVitestSuites,
     consolidatedE2ESuites: allE2ESuites,
@@ -920,6 +965,16 @@ function renderTargetDossierSectionMarkdown(report) {
 }
 
 /**
+ * Formata a linha de superfície de segurança / Threat Model no dossiê Goldfish (GF-01).
+ * @param {ReturnType<typeof calculateMultiTargetBlastRadius>} multiReport
+ */
+function formatThreatModelDossierLine(multiReport) {
+  return multiReport.securitySurfaceTouched
+    ? '- **Superfície de Segurança / Threat Model (Regra 1.8):** `workspace/kb/THREAT_MODEL.md` (Leitura Obrigatória)'
+    : '- **Superfície de Segurança / Threat Model (Regra 1.8):** _Não acionada diretamente_';
+}
+
+/**
  * Renderiza o Dossiê Pré-Compilado em Markdown enxuto para alimentar o subagente `Goldfish Cold Spec Auditor` (`--goldfish`).
  * Exemplo: const markdown = formatGoldfishDossierMarkdown(calculateMultiTargetBlastRadius(['scripts/blast-radius.mjs']));
  *
@@ -929,26 +984,19 @@ export function formatGoldfishDossierMarkdown(multiReport) {
   const { scopeHeterogeneity, ceremonyTier, targets, recommendedTestCommand, recommendedE2ECommand } = multiReport;
   const stopAndWarnBadge = scopeHeterogeneity.stopAndWarnTriggered ? '🚨 **SIM (STOP-AND-WARN ATIVADO)**' : '✅ **NÃO (Escopo Coeso)**';
   const targetSections = targets.map((t) => renderTargetDossierSectionMarkdown(t)).join('\n\n');
-
-  const axesDisplay = scopeHeterogeneity.axesTouched.length > 0
-    ? scopeHeterogeneity.axesTouched.map((a) => `\`${a}\``).join(', ')
-    : '_Nenhum_';
+  const axesDisplay = scopeHeterogeneity.axesTouched.length > 0 ? scopeHeterogeneity.axesTouched.map((a) => `\`${a}\``).join(', ') : '_Nenhum_';
   const vitestCmdDisplay = recommendedTestCommand !== '' ? recommendedTestCommand : 'Nenhuma suíte Vitest impactada';
   const e2eCmdDisplay = recommendedE2ECommand !== '' ? recommendedE2ECommand : 'Nenhuma suíte E2E impactada';
 
   return [
     `# 🐠 Dossiê Pré-Compilado para Cold Spec Review (EGM Goldfish)`,
-    ``,
     `## 🧭 Diagnóstico Preventivo de Heterogeneidade (Regra 1.11 — 5 Eixos)`,
     `- **Ceremony Tier:** \`${ceremonyTier}\``,
+    formatThreatModelDossierLine(multiReport),
     `- **Eixos Tocados:** ${axesDisplay}`,
     `- **Gatilho Stop-and-Warn:** ${stopAndWarnBadge}`,
     `- **Parecer:** ${scopeHeterogeneity.reason}`,
-    ``,
-    `## 📦 Contratos, Símbolos e Dependentes por Arquivo-Alvo`,
-    ``,
-    targetSections,
-    ``,
+    `## 📦 Contratos, Símbolos e Dependentes por Arquivo-Alvo\n\n${targetSections}`,
     `## 🧪 Comandos de Verificação Consolidados`,
     `- **Vitest (TDD Unitário/Integração):** \`${vitestCmdDisplay}\``,
     `- **Playwright / Dual E2E (`.concat('`.spec.ts` + `.mcp.ts`):** `') + `${e2eCmdDisplay}\``,

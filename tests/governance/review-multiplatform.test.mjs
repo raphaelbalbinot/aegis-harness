@@ -86,3 +86,29 @@ test('GF-07 / Repo Audit Agnostic', () => {
         fs.rmSync(rootDir, { recursive: true, force: true });
     }
 });
+
+test('GF-07 / Threat Model Summary Injection in review.mjs', () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-review-tm-'));
+    try {
+        const kbDir = path.join(rootDir, 'workspace', 'kb');
+        fs.mkdirSync(kbDir, { recursive: true });
+        fs.writeFileSync(
+            path.join(kbDir, 'THREAT_MODEL.md'),
+            [
+                'KB_SNAPSHOT: UNPINNED',
+                '<!-- aegis-surface-hash: bootstrap -->',
+                '# Threat Model',
+                '| TM-CORE-01 | CWE-284 / CWE-306: Controle de Acesso e Autenticação na Borda | Crítico | Mitigação |',
+            ].join('\n'),
+            'utf8'
+        );
+
+        generateReviewDossier({ rootDir });
+        const prompt = fs.readFileSync(path.join(rootDir, 'scratch', 'review_prompt.md'), 'utf8');
+        assert.match(prompt, /KB_SNAPSHOT: UNPINNED/);
+        assert.match(prompt, /<!-- aegis-surface-hash: bootstrap -->/);
+        assert.match(prompt, /TM-CORE-01/);
+    } finally {
+        fs.rmSync(rootDir, { recursive: true, force: true });
+    }
+});

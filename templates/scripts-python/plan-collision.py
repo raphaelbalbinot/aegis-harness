@@ -134,10 +134,16 @@ def _get_dirty_files(target_root: Path) -> list[str]:
     return [p for p in (_parse_porcelain_line(ln, target_root) for ln in lines) if p]
 
 
+MAX_SNAPSHOT_BASE64_BYTES = 2_097_152
+
+
 def _build_single_file_snapshot(target_root: Path, rel_path: str) -> dict[str, Any]:
     abs_path = target_root / rel_path
     if not abs_path.exists() or not abs_path.is_file():
         return {"existed": False, "sha256": None, "contentBase64": None}
+    file_size = abs_path.stat().st_size
+    if file_size > MAX_SNAPSHOT_BASE64_BYTES:
+        return {"existed": True, "sha256": f"size:{file_size}", "contentBase64": None}
     raw_bytes = abs_path.read_bytes()
     return {
         "existed": True,
@@ -147,15 +153,19 @@ def _build_single_file_snapshot(target_root: Path, rel_path: str) -> dict[str, A
 
 
 def _build_union_allowed_set(
-    slices_map: dict[str, Any],
+    plans: dict[str, Any],
     slice_id: str,
     extra_allowed: list[str],
 ) -> set[str]:
-    current_slice = slices_map.get(slice_id, {})
+    slices_map = plans.get("slices", {})
+    current_slice = slices_map.get(slice_id, {}) if isinstance(slices_map, dict) else {}
     union_allowed: set[str] = set(current_slice.get("allowedFiles", [])) | set(extra_allowed)
-    for other_id, other_entry in slices_map.items():
-        if str(other_id) != str(slice_id) and isinstance(other_entry, dict):
-            union_allowed.update(other_entry.get("allowedFiles", []))
+    if isinstance(slices_map, dict):
+        for other_id, other_entry in slices_map.items():
+            if str(other_id) != str(slice_id) and isinstance(other_entry, dict):
+                union_allowed.update(other_entry.get("allowedFiles", []))
+    for _, issue_entry in _iter_issue_plans(plans):
+        union_allowed.update(_normalize_path(f) for f in issue_entry.get("files", []))
     return union_allowed
 
 
@@ -171,8 +181,11 @@ def _is_file_modified_since_baseline(
     abs_path = target_root / rel_path
     if not abs_path.exists() or not abs_path.is_file():
         return bool(snapshot_entry.get("existed"))
+    expected_sha = str(snapshot_entry.get("sha256") or "")
+    if expected_sha.startswith("size:"):
+        return f"size:{abs_path.stat().st_size}" != expected_sha
     current_sha = hashlib.sha256(abs_path.read_bytes()).hexdigest()
-    return current_sha != snapshot_entry.get("sha256")
+    return current_sha != expected_sha
 
 
 def _revert_from_git_or_unlink(target_root: Path, rel_path: str, abs_path: Path) -> None:
@@ -261,7 +274,7 @@ def _handle_verify_slice(
         sys.stdout.write(f"{json.dumps(err, indent=2, ensure_ascii=False)}\n")
         return 1
     extra_allowed = [_normalize_path(f, target_root) for f in raw_files.split(",") if f.strip()]
-    union_allowed = _build_union_allowed_set(slices_map, slice_id, extra_allowed)
+    union_allowed = _build_union_allowed_set(plans, slice_id, extra_allowed)
     baseline_files = slice_entry.get("baselineFiles", {})
     unauthorized = _collect_unauthorized_files(target_root, baseline_files, union_allowed)
     reverted: list[str] = []

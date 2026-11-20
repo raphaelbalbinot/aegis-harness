@@ -9,6 +9,7 @@ import argparse
 import ast
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -16,6 +17,12 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 HIGH_RISK_THRESHOLD = 4
 MEDIUM_RISK_THRESHOLD = 2
+_SECURITY_SURFACE_RE = re.compile(
+    r"(?:^|/)(?:api|routes|webhooks?|auth|oidc|security|firestore|gcs|storage|ai|prompts|cloud-tasks)(?:/|$)|"
+    r"(?:^|/|[._-])(?:auth|oidc|security|webhook|ffmpeg|rvc)(?:[._-]|/|$)|"
+    r"(?:^|/)(?:main\.py|schemas\.py|firestore\.rules)$",
+    re.IGNORECASE,
+)
 
 AXIS_MAPPING = {
     "app/services/solfeggio_decider.py": "Eixo 1 — Prescrição Terapêutica & Geração Musical IA (Gemini 4 & Lyria)",
@@ -93,35 +100,48 @@ def _classify_risk_level(normalized: str, total_dependents: int) -> str:
     return "LOW"
 
 
-def _compute_ceremony_tier(normalized: str, risk_level: str, direct_dependents: list[str]) -> str:
-    lower_path = normalized.lower()
-    is_security_sensitive = any(tok in lower_path for tok in ("auth", "security", "webhook", "oidc", "firestore.rules"))
-    if risk_level == "LOW" and len(direct_dependents) == 0 and not is_security_sensitive:
+def _is_security_surface(normalized: str) -> bool:
+    if normalized.startswith("tests/"):
+        return False
+    return bool(_SECURITY_SURFACE_RE.search(normalized))
+
+
+def _compute_ceremony_tier(
+    normalized: str,
+    risk_level: str,
+    direct_dependents: list[str],
+    security_surface_touched: bool = False,
+) -> str:
+    if risk_level == "LOW" and len(direct_dependents) == 0 and not security_surface_touched:
         return "XS_EXPRESS"
     return "FULL_EGM_DAG"
 
 
+def _resolve_target_module(normalized: str) -> str:
+    target_path = REPO_ROOT / normalized
+    if target_path.exists() and target_path.suffix == ".py":
+        return _module_name_from_path(target_path)
+    return normalized.replace("/", ".").removesuffix(".py")
+
+
 def analyze_blast_radius(target_rel_path: str) -> dict[str, Any]:
     normalized = target_rel_path.strip().replace("\\", "/").lstrip("./")
-    target_path = REPO_ROOT / normalized
-    target_module = (
-        _module_name_from_path(target_path)
-        if target_path.exists() and target_path.suffix == ".py"
-        else normalized.replace("/", ".").removesuffix(".py")
-    )
-
+    target_module = _resolve_target_module(normalized)
     direct_dependents, impacted_tests = _find_direct_dependents_and_tests(normalized, target_module)
     _append_indirect_tests(direct_dependents, impacted_tests)
     risk_level = _classify_risk_level(normalized, len(direct_dependents) + len(impacted_tests))
-    ceremony_tier = _compute_ceremony_tier(normalized, risk_level, direct_dependents)
+    security_surface_touched = _is_security_surface(normalized)
+    related_docs = ["workspace/kb/THREAT_MODEL.md"] if security_surface_touched else []
+    ceremony_tier = _compute_ceremony_tier(normalized, risk_level, direct_dependents, security_surface_touched)
     axis = AXIS_MAPPING.get(normalized, "Eixo 5 — Infraestrutura Serverless, CI/CD & Governança")
-
     return {
         "target_file": normalized,
         "target_module": target_module,
         "governance_axis": axis,
         "risk_level": risk_level,
         "ceremony_tier": ceremony_tier,
+        "security_surface_touched": security_surface_touched,
+        "related_docs": related_docs,
         "direct_dependents": sorted(direct_dependents),
         "impacted_tests": sorted(impacted_tests),
     }

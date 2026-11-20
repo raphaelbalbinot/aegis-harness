@@ -63,7 +63,7 @@ Antes de planejar, refatorar ou escrever qualquer código neste repositório, vo
 
 ### 1.8 Raciocínio Sequencial Profundo (`sequential-thinking` MCP) e Segurança Shift-Left (`mantis-advise`)
 - **Raciocínio Sequencial:** Acionar `sequential-thinking` antes de algoritmos complexos, concorrência serverless, remediações CWE ou módulos com `riskLevel: "HIGH"`.
-- **Segurança Shift-Left (`mantis-advise`):** Em APIs/Webhooks, Autenticação/Permissões, Persistência multi-tenant, Subprocessos (`CWE-78`: usar `execFileSync` sem shell) ou Pipelines de IA/LLMs (`CWE-74`), acionar `mantis-advise`, consultar `workspace/kb/THREAT_MODEL.md`, validar schemas na borda e emitir o selo: `[Mantis-Advise]: ✔ Modelo de Ameaças Consultado | ✔ Padrões Defensivos Aplicados`.
+- **Segurança Shift-Left (`mantis-advise`):** Em APIs/Webhooks, Autenticação/Permissões, Persistência multi-tenant, Subprocessos (`CWE-78`: usar `execFileSync` sem shell) ou Pipelines de IA/LLMs (`CWE-74`), acionar `mantis-advise`, consultar obrigatoriamente `workspace/kb/THREAT_MODEL.md`, manter o `<!-- aegis-surface-hash: ... -->` sincronizado ao criar novas rotas/serviços, validar schemas na borda e emitir no fechamento o selo nominal citando os IDs `TM-*` e CWEs aplicáveis: `[Mantis-Advise]: ✔ THREAT_MODEL.md Consultado (<TM-ID: CWE-XX>) | ✔ Padrões Defensivos Aplicados` (é proibido emitir selo genérico sem citar o `TM-ID` real).
 
 ### 1.9 Governança de Context Caching e Eficiência de Inferência IA
 - **Regra:** Gerenciar caches explícitos de LLMs exclusivamente no backend com TTL curto dinâmico (+10 a +20 min) e desalocação garantida em bloco `try ... finally`.

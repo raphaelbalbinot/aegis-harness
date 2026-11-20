@@ -182,13 +182,19 @@ export function snapshotSliceBaseline({ sliceId, allowedFiles = [], rootDir = pr
  * @param {string[]} currentAllowed
  * @returns {Set<string>}
  */
-function buildUnionAllowedSet(slicesMap, sliceId, currentAllowed) {
+function buildUnionAllowedSet(state, sliceId, currentAllowed) {
+  const slicesMap = state.slices ?? {};
   const sliceEntry = slicesMap[sliceId];
   const unionAllowed = new Set([...(sliceEntry?.allowedFiles ?? []), ...currentAllowed]);
   for (const [otherId, otherSlice] of Object.entries(slicesMap)) {
     if (otherId === sliceId) continue;
     for (const file of otherSlice.allowedFiles ?? []) {
       unionAllowed.add(file);
+    }
+  }
+  for (const plan of Object.values(state.plans ?? {})) {
+    for (const file of plan.files ?? []) {
+      unionAllowed.add(normalizeFilePath(file));
     }
   }
   return unionAllowed;
@@ -251,7 +257,7 @@ export function verifySliceWhitelist({ sliceId, allowedFiles = [], revertUnautho
   }
 
   const normalizedExtra = allowedFiles.map((f) => normalizeFilePath(f, rootDir)).filter(Boolean);
-  const unionAllowed = buildUnionAllowedSet(state.slices, sliceId, normalizedExtra);
+  const unionAllowed = buildUnionAllowedSet(state, sliceId, normalizedExtra);
   const dirtyFiles = getDirtyFiles(rootDir);
   const dirtySet = new Set(dirtyFiles);
   const baselineFiles = sliceEntry.baselineFiles ?? {};
