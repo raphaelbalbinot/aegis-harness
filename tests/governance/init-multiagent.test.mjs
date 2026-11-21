@@ -37,8 +37,9 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.equal(fs.existsSync(goldfishAgentPath), true, '.claude/agents/goldfish-auditor.md deve ser criado');
       assert.equal(fs.existsSync(sliceExecutorPath), true, '.claude/agents/slice-executor.md deve ser criado');
 
-      // 2. Verifica presença dos scripts Multi-OS em scripts/
+      // 2. Verifica presença dos scripts Multi-OS em scripts/ e .agents/hooks.json (GF-08)
       const expectedScripts = [
+        'aegis-hook-guard.mjs',
         'review.mjs',
         'audit-repo.mjs',
         'blast-radius.mjs',
@@ -53,6 +54,14 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
           `Script Multi-OS scripts/${scriptName} deve estar presente no projeto alvo`
         );
       }
+      const hooksJsonPath = path.join(tmpDir, '.agents', 'hooks.json');
+      assert.equal(fs.existsSync(hooksJsonPath), true, '.agents/hooks.json deve ser criado pelo init-harness.mjs');
+      const hooksCfg = JSON.parse(fs.readFileSync(hooksJsonPath, 'utf-8'));
+      assert.match(
+        JSON.stringify(hooksCfg),
+        /\.\.\/scripts\/aegis-hook-guard\.mjs/,
+        'hooks.json deve invocar ../scripts/aegis-hook-guard.mjs (GF-01)'
+      );
 
       // 3. Verifica conteúdo de CLAUDE.md e subagentes .claude/agents/
       const claudeContent = fs.readFileSync(claudePath, 'utf-8');

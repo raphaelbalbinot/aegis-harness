@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { checkRuleFilesBudget, recordGateStamp } from './aegis-hook-guard.mjs';
 
 const configPath = path.resolve(process.cwd(), 'harness.config.json');
 
@@ -35,5 +36,12 @@ for (let i = 0; i < gates.length; i++) {
     process.exit(1);
   }
 }
+
+const budgetResult = checkRuleFilesBudget(process.cwd());
+if (!budgetResult.ok) {
+  console.error('❌ [audit-verify] Arquivo(s) de regra acima do limite de 22.000 bytes:', budgetResult.violations);
+  process.exit(1);
+}
+recordGateStamp(process.cwd(), 'auditVerifyPassedAt');
 
 console.log('🟢 [Aegis Harness] Todos os portões determinísticos passaram com sucesso (exit code 0)!\n');

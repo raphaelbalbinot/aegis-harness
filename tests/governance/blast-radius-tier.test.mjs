@@ -41,11 +41,13 @@ describe('blast-radius.mjs — Motor Políglota Universal & Fast-Track XS_EXPRES
     assert.equal(singleReport.securitySurfaceTouched, false);
     assert.deepEqual(singleReport.relatedDocs, []);
     assert.equal(singleReport.ceremonyTier, 'XS_EXPRESS');
+    assert.equal(singleReport.goldfishRequired, true, 'Goldfish deve ser sempre obrigatório (GF-07)');
 
     const multiReport = calculateMultiTargetBlastRadius(['src/utils/math-helper.ts'], fileMap);
     assert.equal(multiReport.securitySurfaceTouched, false);
     assert.deepEqual(multiReport.relatedDocs, []);
     assert.equal(multiReport.ceremonyTier, 'XS_EXPRESS');
+    assert.equal(multiReport.goldfishRequired, true, 'Goldfish deve ser sempre obrigatório no multiReport (GF-07)');
   });
 
   it('1b. não gera falso positivo de superfície de segurança para src/utils/author-profile.ts (GF-02)', () => {

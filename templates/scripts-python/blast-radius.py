@@ -27,8 +27,8 @@ _SECURITY_SURFACE_RE = re.compile(
 AXIS_MAPPING = {
     "app/services/solfeggio_decider.py": "Eixo 1 — Prescrição Terapêutica & Geração Musical IA (Gemini 4 & Lyria)",
     "app/services/lyria_service.py": "Eixo 1 — Prescrição Terapêutica & Geração Musical IA (Gemini 4 & Lyria)",
-    "app/services/fal_audio_service.py": "Eixo 2 — Engenharia Vocal Assíncrona & Pós-Produção Acústica (Fal.ai & FFmpeg)",
-    "app/services/ffmpeg_mixer.py": "Eixo 2 — Engenharia Vocal Assíncrona & Pós-Produção Acústica (Fal.ai & FFmpeg)",
+    "app/services/rvc_service.py": "Eixo 2 — Engenharia Vocal Assíncrona & Pós-Produção Acústica (RVC v2, UVR5 & FFmpeg)",
+    "app/services/ffmpeg_mixer.py": "Eixo 2 — Engenharia Vocal Assíncrona & Pós-Produção Acústica (RVC v2, UVR5 & FFmpeg)",
     "app/services/firestore_service.py": "Eixo 3 — Persistência Multiusuário, Segurança & Telemetria Tripla (Firestore & GCS)",
     "app/services/gcs_storage.py": "Eixo 3 — Persistência Multiusuário, Segurança & Telemetria Tripla (Firestore & GCS)",
     "app/services/telemetry_service.py": "Eixo 3 — Persistência Multiusuário, Segurança & Telemetria Tripla (Firestore & GCS)",
@@ -140,6 +140,7 @@ def analyze_blast_radius(target_rel_path: str) -> dict[str, Any]:
         "governance_axis": axis,
         "risk_level": risk_level,
         "ceremony_tier": ceremony_tier,
+        "goldfish_required": True,
         "security_surface_touched": security_surface_touched,
         "related_docs": related_docs,
         "direct_dependents": sorted(direct_dependents),

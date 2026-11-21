@@ -216,6 +216,12 @@ function installDocsAndConfigs(targetDir, stack, force) {
   }
   copyFileIfAllowed(path.join(cfgDir, 'repomix.config.json'), path.join(targetDir, 'repomix.config.json'), force);
   copyFileIfAllowed(path.join(cfgDir, 'mcp-servers.template.json'), path.join(targetDir, '.agents', 'mcp-servers.template.json'), true);
+  const hooksTpl = path.join(HARNESS_ROOT, 'templates', 'hooks.template.json');
+  const agentConfigDir = fs.existsSync(path.join(targetDir, '.agent'))
+    ? path.join(targetDir, '.agent')
+    : path.join(targetDir, '.agents');
+  fs.mkdirSync(agentConfigDir, { recursive: true });
+  copyFileIfAllowed(hooksTpl, path.join(agentConfigDir, 'hooks.json'), force);
   copyDirRecursive(path.join(HARNESS_ROOT, 'templates', 'github'), path.join(targetDir, '.github'));
 
   const docsTplDir = path.join(HARNESS_ROOT, 'templates', 'docs');

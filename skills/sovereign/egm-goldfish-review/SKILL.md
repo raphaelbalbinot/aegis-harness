@@ -20,15 +20,14 @@ Esta skill codifica o protocolo operacional completo da separação cognitiva en
 
 ---
 
-## ⚡ 1.1 Express Lane Determinística (`ceremonyTier: "XS_EXPRESS"` vs. `"FULL_EGM_DAG"`) (`GF-03`, `GF-05`)
+## ⚡ 1.1 Obrigatoriedade Universal dos 2 Portões Goldfish (`goldfishRequired: true`) e Protocolo Semáforo (`RequestFeedback: false -> true`)
 
-Para eliminar o imposto de latência em alterações triviais sem depender de julgamento subjetivo do LLM, o script `node scripts/blast-radius.mjs <arquivos> --json` calcula matematicamente o campo `ceremonyTier`:
-
-- **`ceremonyTier === "XS_EXPRESS"` (Fast-Track Determinístico TDD-Safe):**
-  - Emitido **somente quando** a mudança toca `<= 1` arquivo de produção acompanhado opcionalmente de seu(s) arquivo(s) de teste unitário (`.test.*` / `.spec.*` — preservando a Regra 1.6 TDD), possui `0` consumidores reversos (`totalConsumers === 0`), apresenta `riskLevel === "LOW"`, não pertence ao Eixo `B_SECURITY_HARDENING` e não aciona o gatilho `stopAndWarnTriggered`.
-  - **Rito `XS_EXPRESS`:** Dispensa a invocação de subagentes (`🐠 Goldfish` nos Portões 1 e 2 e `slice-executor` do DAG), mas **mantém estritamente obrigatórios** o ciclo TDD local (🔴 RED $\rightarrow$ 🟢 GREEN $\rightarrow$ 🔵 REFACTOR), o scanner `node scripts/scan-clean-code.mjs --changed` e a esteira `node scripts/audit-verify.mjs`.
-- **`ceremonyTier === "FULL_EGM_DAG"` (Rito Completo em Duplo Portão):**
-  - Emitido automaticamente quando há $2+$ arquivos de produção, consumidores reversos ($>0$), risco `MEDIUM`/`HIGH` ou Eixo `B_SECURITY_HARDENING`. Exige obrigatoriamente o **1º Portão Cold Spec Review**, a alocação no **Grafo DAG** e o **2º Portão Goldfish de Implementação**.
+- **Obrigatoriedade Universal (Sem Exceção por Risco Baixo — `GF-07`):**
+  - Todo `implementation_plan.md` passa **obrigatoriamente** pelo **1º Portão 🐠 Goldfish (`Cold Spec Review`)** na Fase `PLAN` e pelo **2º Portão 🐠 Goldfish (`review.mjs` / `review.ps1`)** na Fase `REVIEW`, independentemente de `riskLevel` ou `ceremonyTier` (`goldfishRequired: true`).
+  - O campo `ceremonyTier` (`"XS_EXPRESS"` vs. `"FULL_EGM_DAG"`) calculado por `node scripts/blast-radius.mjs <arquivos> --json` determina apenas se a execução das fatias na Fase `BUILD` ocorre sequencialmente na sessão principal ou via subagentes `slice-executor` em ondas.
+- **Protocolo Semáforo em 2 Passos na Fase `PLAN` (Fiscalizado por `scripts/aegis-hook-guard.mjs`):**
+  1. **Passo 1 — Rascunho Frio (`RequestFeedback: false`):** O **🐘 Elephant** grava o rascunho de `implementation_plan.md` obrigatoriamente com **`RequestFeedback: false`** (ocultando o botão *Proceed*), dispara o `invoke_subagent` (`Goldfish Cold Spec Auditor`) e **encerra o turno** aguardando o retorno reativo do subagente.
+  2. **Passo 2 — Plano Auditado (`RequestFeedback: true`):** Após o retorno do Goldfish, o Elephant insere a tabela `## 🐠 Relatório Cold Spec Review (EGM Goldfish)` (`GF-01..N`) e a seção `## 🕸️ Grafo de Dependências entre Fatias — DAG Execution Plan` e **somente nessa edição final** define **`RequestFeedback: true`** (qualquer tentativa de usar `RequestFeedback: true` sem a tabela `GF-01` é fisicamente negada pelo hook `PreToolUse`).
 
 ---
 

@@ -12,8 +12,8 @@ No pré-voo da fase **`PLAN` (1 única vez antes de montar o plano)**, o Orquest
 - **Python (`awencanto`):** `python scripts/blast-radius.py <arquivo> --json` (campo `ceremony_tier`)
 
 ### 🚦 Limiar de Cerimônia e Limiar de Ativação de Subagentes (`DAG Spawn Threshold`)
-1. **`"XS_EXPRESS"` (`riskLevel == "LOW"`, `0` consumidores reversos, `<= 1` arquivo de produção + testes TDD, fora do Eixo B):** Segue a *Express Lane* diretamente no agente principal sem subagentes (`Goldfish` / `DAG`).
-2. **`"FULL_EGM_DAG"` Sequencial ou Escopo Enxuto (`<= 4` arquivos de produção OU grafo sem paralelismo real na mesma onda):** Mantém o **1º e o 2º Portão 🐠 Goldfish**, mas o próprio **🐘 Elephant** implementa as fatias diretamente na sessão principal (aproveitando 100% do *Prompt Cache* sem custo de cold start de subagentes `slice-executor`).
+1. **Obrigatoriedade Universal do Duplo Portão 🐠 Goldfish (`goldfishRequired: true`):** Todo `implementation_plan.md` exige o **1º Portão 🐠 Goldfish** na Fase `PLAN` (gravando o rascunho com `RequestFeedback: false` e só habilitando `RequestFeedback: true` após consolidar `GF-01..N` + Grafo DAG) e o **2º Portão 🐠 Goldfish** na Fase `REVIEW`.
+2. **Execução Sequencial na Sessão Principal (`"XS_EXPRESS"` OU `"FULL_EGM_DAG"` com `<= 4` arquivos de produção sem paralelismo real na mesma onda):** Mantém o **1º e o 2º Portão 🐠 Goldfish**, e o próprio **🐘 Elephant** implementa as fatias diretamente na sessão principal (aproveitando 100% do *Prompt Cache* sem custo de cold start de subagentes `slice-executor`).
 3. **`"FULL_EGM_DAG"` com Paralelismo Real na Mesma Onda (`>= 2` fatias independentes na mesma Onda OU `5+` arquivos de código):** O **🐘 Elephant** despacha subagentes `slice-executor` por onda, protegidos pelo **Hard Sandbox criptográfico (`plan-collision.mjs` ou `plan-collision.py` com `snapshot-slice` / `verify-slice --revert-unauthorized`)** e pelo **`Single-Execution Gate Protocol`**.
 
 ---

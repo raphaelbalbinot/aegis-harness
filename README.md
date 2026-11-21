@@ -1,74 +1,71 @@
 # 🛡️ Aegis Harness (`aegis-harness`)
 
-**Adversarial Engineering Governance & Intelligent Skills** — Um *Engineering Harness* determinístico, adversarial e políglota para transformar agentes de IA em engenheiros de software seniores auditáveis em qualquer linguagem (TypeScript/Node.js, Python, Go, Rust, Java, C#).
+**Adversarial Engineering Governance & Intelligent Skills** — Um *Engineering Harness* determinístico, adversarial, políglota e **100% agnóstico de nuvem e de ferramenta agêntica** para transformar agentes de IA em engenheiros de software seniores auditáveis em qualquer linguagem (TypeScript/Node.js, Python, Go, Rust, Java, C#).
 
 ---
 
-## 🏛️ A Arquitetura Constitucional: `AGENTS.md` Unificado + A Tríade `docs/`
+## 🏛️ 1. Arquitetura Constitucional *Hub & Spoke* (`< 22 KB` Anti-Truncamento) + A Tríade `docs/`
 
-O `aegis-harness` elimina a dispersão de arquivos soltos de regras (`.agents/rules/*`) e estrutura a governança de qualquer projeto sobre **4 Documentos Constitucionais Obrigatórios** que o agente deve ler antes de planejar ou escrever uma única linha de código:
+Para impedir o truncamento silencioso de regras (como o limite físico de `24.000 bytes` por arquivo de regra do Google Antigravity) e manter o repositório enxuto e agnóstico, o `aegis-harness` estrutura a governança sobre o padrão **Hub & Spoke**:
 
-1. **`AGENTS.md` (Constituição Operacional Unificada — 20 Leis + 7 Core Behaviors):**
-   - Concentra em **um único arquivo na raiz** todas as regras de engenharia, travas serverless/Cloud Run (perfis de memória/concorrência, `SIGTERM`, anti-freeze, `/tmp`), segurança preventiva Shift-Left (`mantis-advise` + `THREAT_MODEL.md`), integridade física 1:1 de prompts (`fs.existsSync`), qualidade web moderna (`modern-web-guidance` + uso seletivo de `/hallmark`) e o protocolo adversarial **EGM (Elephant-Goldfish Model)** em Duplo Portão.
-2. **`docs/PRD.md` (Constituição do Produto & Negócio):**
-   - Define o propósito do sistema, personas, modelo de negócio, cotas/limites operacionais, jornadas E2E (`RF-01..N`), SLAs de latência e regras de privacidade/expiração de dados (LGPD/GDPR).
-3. **`docs/ARCHITECTURE.md` (Constituição Técnica & Topologia Imutável):**
-   - Define a stack oficial detectada, fronteiras de módulos, separação estrita de estado (Banco Estruturado vs. Object Storage vs. Estado Local), máquinas de estado, telemetria nos 3 níveis (`invoice_total`, `production`, `failed_and_retries`, `dev_and_test`) e diagramas vivos sincronizados com o código (`archify`).
-4. **`docs/DIRETRIZES_DOMINIO.md` *(ou `DIRETRIZES_CRIATIVAS.md` / `DIRETRIZES_EDITORIAIS.md`)* (Constituição Especialista & Linguagem Ubíqua):**
-   - Codifica as invariantes especialistas do negócio (seja engenharia editorial KDP, acústica Solfeggio/RVC, regras fiscais ou saúde), rubricas de qualidade de saída e o glossário oficial da **Linguagem Ubíqua (DDD — Regra 1.19)**.
-
-> **Trava Anti-Drift (`Regra 1.4`):** Nenhuma alteração funcional, mudança de contrato ou evolução de regra de domínio pode ir para o código (`BUILD`) sem antes atualizar a Tríade Constitucional em `docs/` (com exceção estrita para correções puras de bugs). Se o projeto alvo ainda não possuir esses arquivos em `docs/`, o `init-harness.mjs` gera automaticamente os 3 modelos parametrizados a partir de `templates/docs/`.
+1. **`AGENTS.md` (O Hub Constitucional Universal — `< 16 KB`):**
+   - Contém na **Seção 0 (`Universal Multi-Agent Routing`)** a tabela imperativa de carregamento sob demanda de regras modulares por domínio (`.agents/rules/*.md` ou `.agent/rules/*.md`, cada uma com `< 6 KB`), seguida das **20 Leis Inegociáveis**, da árvore de decisão `/using-agent-skills` e dos **7 Core Behaviors**.
+   - **Protocolo Semáforo Goldfish (`RequestFeedback: false -> true`) & Fiscal Determinístico (`scripts/aegis-hook-guard.mjs`):**
+     - **Obrigatoriedade Universal dos 2 Portões 🐠 Goldfish (`goldfishRequired: true`):** Todo `implementation_plan.md` passa obrigatoriamente pelo **1º Portão 🐠 Goldfish (`Cold Spec Review`)** na Fase `PLAN` e pelo **2º Portão 🐠 Goldfish (`review.mjs` / `review.ps1`)** na Fase `REVIEW`, sem exceção por risco baixo.
+     - **Trava Física `PreToolUse` (`.agents/hooks.json`):** O script `scripts/aegis-hook-guard.mjs` bloqueia fisicamente (`decision: "deny"`) qualquer tentativa de exibir o botão *Proceed* (`RequestFeedback: true`) em `implementation_plan.md` antes de a seção `## 🐠 Relatório Cold Spec Review` (`GF-01..N`) existir no plano, e bloqueia qualquer `git commit` se `.git/aegis-gate-stamp.json` não comprovar a execução recente de `audit-verify` e `review.mjs`.
+2. **A Tríade Constitucional em `docs/` (`templates/docs/`):**
+   - **`docs/PRD.md`**: Constituição do produto, modelo de negócio, jornadas críticas (`RF-01..N`), SLAs e privacidade (LGPD/GDPR).
+   - **`docs/ARCHITECTURE.md`**: Decisões técnicas imutáveis da stack detectada, fronteiras de módulos, separação de estado, telemetria nos 3 níveis (`invoice_total`, `production`, `failed_and_retries`, `dev_and_test`) e diagramas vivos sincronizados (`archify`).
+   - **`docs/DIRETRIZES_DOMINIO.md`**: Invariantes especialistas do domínio de negócio e glossário oficial da **Linguagem Ubíqua (DDD — Regra 1.19)**.
+3. **Modelo de Ameaças Vivo Shift-Left (`workspace/kb/THREAT_MODEL.md`):**
+   - Bootstrap automático com controles `TM-*` e hash criptográfico `<!-- aegis-surface-hash: ... -->`, exigindo citação nominal dos `TM-IDs` no selo `[Mantis-Advise]` (`Regra 1.8`).
 
 ---
 
-## ✨ O que vem dentro do `aegis-harness`?
+## 🤝 2. Compatibilidade Universal com as 8+ Ferramentas Agênticas do Mercado (Incluindo AWS Kiro & Amazon Q)
 
-1. **Constituição `AGENTS.md` Unificada + Templates da Tríade `docs/` (`templates/docs/`):**
-   - Zero commit proativo e Staging Cirúrgico por Issue (`Regra 1.1` e `1.1.1`).
-   - Planos isolados por conversa com **Boost Trade-off Matrix (Opção A vs. B)** e cenários **BDD Gherkin 1:1** (`Regra 1.3`).
-   - **Padrão Adversarial EGM (Elephant-Goldfish Model)** em Duplo Portão (documentado na skill `egm-goldfish-review`):
-     - **1º Portão (Fase Plan):** *Cold Spec Review* a frio com **Pre-Mortem de Produção** e **Navalha de Occam** (`Regra 1.3.7`).
-     - **2º Portão (Fase Review):** Auditoria cirúrgica do diff por lista de arquivos (`scripts/review.ps1 -Issue <ID> -Files "..."`) nos 4 Eixos com resolução autônoma (`ACCEPT & FIX via TDD` vs. `CONTEST WITH EVIDENCE`) até obter `APROVADO` (`Regra 1.18`).
-   - Classificação nos **5 Eixos de Escopo** com gatilho *Stop-and-Warn* (`Regra 1.11`) e proibição de compatibilidade zumbi / dual-schema (`Regra 1.12`).
-2. **Catálogo Completo de 54 Agent Skills (Upstream GitHub + Fallback Offline):**
+Graças à **Seção 0 (Universal Multi-Agent Routing)** no topo do `AGENTS.md` (`< 16 KB`), o `aegis-harness` funciona sem *vendor lock-in* nas principais ferramentas e IDEs agênticas do mercado:
+
+| Ferramenta / IDE Agêntica | Como Lê a Constituição e os Módulos `.agent(s)/rules/*.md` | Como Executa o Duplo Portão 🐠 Goldfish & Guardrails |
+| :--- | :--- | :--- |
+| **1. Google Antigravity / Gemini CLI** | Lê `AGENTS.md` e descobre automaticamente `.agents/rules/*.md` (ou `.agent/rules/*.md`). | Executa `.agents/hooks.json` (`aegis-hook-guard.mjs` em `PreToolUse`) e despacha subagentes nativos via `invoke_subagent` (`research` e `slice-executor`). |
+| **2. AWS Kiro (Amazon Spec-Driven IDE)** | Lê `AGENTS.md` nativamente na raiz e segue a tabela de roteamento da **Seção 0** para carregar `.agents/rules/*.md`. *(Opcionalmente, crie `.kiro/steering/aegis.md` contendo `#[[file:AGENTS.md]]` para fixar no Steering nativo do Kiro).* | Durante as fases *Requirements / Design / Tasks* do Kiro, executa `node scripts/blast-radius.mjs`, `node scripts/audit-verify.mjs` e `node scripts/review.mjs` (que carimbam `.git/aegis-gate-stamp.json`). |
+| **3. Amazon Q Developer (IDE & CLI)** | Lê `AGENTS.md` e `.amazonq/rules/*.md` (basta apontar para `AGENTS.md` e seguir a Seção 0). | Executa `node scripts/audit-verify.mjs`, `node scripts/review.mjs` e `node scripts/aegis-hook-guard.mjs --check-rules`. |
+| **4. Anthropic Claude Code** | Instalado com `--agent claude`: gera `CLAUDE.md` (que importa `@AGENTS.md`) e lê os módulos da Seção 0. | Despacha os subagentes nativos `.claude/agents/goldfish-auditor.md` (somente-leitura) e `.claude/agents/slice-executor.md`. |
+| **5. OpenAI Codex CLI & Web** | Lê `AGENTS.md` nativamente na raiz e carrega os módulos da Seção 0 sob demanda. | Despacha `codex exec --sandbox read-only` (para `🐠 Goldfish`) e `codex exec --full-auto` (para fatias DAG). |
+| **6. Cursor (Anysphere)** | Lê `AGENTS.md` nativamente na raiz e navega pelos módulos listados na Seção 0. | Executa os scripts Multi-OS (`blast-radius.mjs`, `plan-collision.mjs`, `audit-verify.mjs`, `review.mjs`). |
+| **7. Windsurf (Codeium)** | Lê `AGENTS.md` nativamente na raiz e carrega `.agents/rules/*.md` via Seção 0. | Executa os scripts determinísticos Multi-OS em `scripts/`. |
+| **8. GitHub Copilot Coding Agent & Cline / Roo Code** | Leem `AGENTS.md` nativamente na raiz do repositório. | Executam a esteira determinística (`node scripts/audit-verify.mjs`) e o verificador `aegis-hook-guard.mjs`. |
+
+---
+
+## ✨ 3. Catálogo de 55 Agent Skills & Motores Determinísticos Políglotas
+
+1. **55 Agent Skills (Upstream GitHub + Fallback Offline):**
    - **25 Skills de Engenharia (`addyosmani/agent-skills`):** `using-agent-skills`, `interview-me` (`/grill-me`), `doubt-driven-development`, `idea-refine`, `constraint-driven-development`, `source-driven-development`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `code-review-and-quality`, `security-and-hardening`, etc.
    - **6 Skills de Qualidade Web (`addyosmani/web-quality-skills`):** `accessibility`, `core-web-vitals`, `performance`, `seo`, `best-practices`, `web-quality-audit`.
    - **1 Skill de Arquitetura Interativa (`tt-a1i/archify`):** `archify` (diagramas interativos HTML/SVG e grafo JSON tipado verificados contra o código-fonte).
-   - **19 Skills de Segurança Defensiva (`google/mantis`):** `mantis-summarize`, `mantis-structural-index`, `mantis-history`, `mantis-architecture`, `mantis-threat-model`, `mantis-plan`, `mantis-researcher`, `mantis-dedupe`, `mantis-review`, `mantis-critic`, `mantis-reproduce`, `mantis-chain`, `mantis-calibrate`, `mantis-patch`, `mantis-report`, `mantis-reflect`, `mantis-advise`, `mantis-meta-agent`, `mantis-pipeline-adapter`.
-   - **3 Skills Soberanas do Aegis:**
-     - `egm-goldfish-review`: Protocolo completo de Duplo Portão do Padrão EGM (1º Portão Cold Spec Review + 2º Portão `review.ps1`).
-     - `clean-code-audit`: 22 regras universais + scanner AST determinístico + índice `CRAP < 10`.
-     - `mcp-ecosystem-guide`: Orquestração de `sequential-thinking` em 5 fases, `repomix`, `chrome-devtools-mcp` e busca externa (`brave-search` / `search_web` nativo) com trava de confrontação local.
-3. **Motores Determinísticos Políglotas (`templates/scripts/` e `templates/scripts-python/`):**
-   - `review.ps1` (com isolamento `-Files` e gravação em `scratch/review_prompt_issue_<ID>.md`) e `audit-repo.ps1`.
-   - `plan-collision.mjs` / `plan-collision.py` (reserva de arquivos em `.git/active-plans.json` para paralelismo sem conflitos).
-   - `blast-radius.mjs` / `blast-radius.py` (cálculo de impacto reverso e seleção de testes).
-   - `audit-verify.mjs` / `audit-verify.py` (executor políglota de portões orientado por `harness.config.json`).
-   - `check-test-naming-governance.mjs` / `check-test-naming-governance.py` (guardião semântico de testes).
-   - Configurações prontas em `templates/configs/` (`sgconfig.yml` + 3 regras AST, `knip.jsonc`, `.dependency-cruiser.js`, `repomix.config.json`, `mcp-servers.template.json`) e `templates/github/` (Issue Templates BDD + GitHub Actions `audit.yml`).
-4. **Apresentação Keynote Interativa de 21 Slides (`docs/keynote/index.html`):**
-   - Deck completo em tela cheia (`100dvh`), navegação horizontal e tema Hallmark Console auditado com `0 FAIL, 0 REFLEX, 0 WARN` no `sloplint.mjs`.
+   - **19 Skills de Segurança Defensiva (`google/mantis`):** `mantis-advise`, `mantis-threat-model`, `mantis-meta-agent` e todo o pipeline de 15 estágios.
+   - **4 Skills Soberanas do Aegis (`skills/sovereign/`):**
+     - `egm-goldfish-review`: Protocolo completo de Duplo Portão do Padrão EGM com Protocolo Semáforo (`RequestFeedback: false -> true`).
+     - `dag-slice-orchestrator`: Orquestração Reativa por Ondas DAG com `Single-Execution Gate Protocol` e Hard Sandbox de Whitelist.
+     - `clean-code-audit`: 22 regras universais + scanner AST determinístico + índice $\text{CRAP}(m) < 10$.
+     - `mcp-ecosystem-guide`: Orquestração de `sequential-thinking`, `repomix`, `chrome-devtools-mcp` e busca externa.
+2. **Motores Determinísticos Multi-OS (`templates/scripts/` e `templates/scripts-python/`):**
+   - `aegis-hook-guard.mjs`: Fiscal `PreToolUse` (`hooks.json`) + validador de orçamento `< 22.000 bytes` (`--check-rules`) + carimbo `.git/aegis-gate-stamp.json` (`--stamp-verify` / `--stamp-review`).
+   - `review.mjs` / `review.ps1` e `audit-repo.mjs` / `audit-repo.ps1`.
+   - `plan-collision.mjs` / `plan-collision.py` (`register`, `release`, `snapshot-slice`, `verify-slice --revert-unauthorized`).
+   - `blast-radius.mjs` / `blast-radius.py` (`goldfishRequired: true`, `securitySurfaceTouched`, `ceremonyTier`).
+   - `audit-verify.mjs` / `audit-verify.py` e `check-test-naming-governance.mjs` / `.py`.
 
 ---
 
-## 🚀 Como Instalar em Qualquer Máquina
-
-Clone este repositório diretamente na pasta global de skills do Antigravity:
+## 🚀 4. Como Instalar em Qualquer Projeto e Hospedeiro Agêntico
 
 ```bash
-git clone https://github.com/<seu-usuario>/aegis-harness ~/.gemini/config/skills/aegis-harness
-```
-
-Depois, abra qualquer projeto (em qualquer linguagem) e peça no chat do Antigravity:
-
-> **"Use a skill `aegis-harness` para instalar o Engineering Harness neste projeto."**
-
-Ou rode diretamente via CLI:
-
-```bash
-# Busca a versão mais recente no GitHub com fallback automático para o snapshot local:
+# Auto-detecção do agente hospedeiro (Antigravity, Claude Code, Codex, Kiro, Cursor, etc.):
 node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto
 
-# Forçar instalação 100% offline (usando apenas o cache local embarcado):
-node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --offline
+# Forçar modo específico de hospedeiro (--agent antigravity | claude | codex | all) e modo 100% offline:
+node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --agent antigravity --offline
 ```

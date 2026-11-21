@@ -863,6 +863,7 @@ function buildTargetBlastReport(foundNorm, fileMap) {
     fileMap,
   });
   report.ceremonyTier = computeCeremonyTier([report], { stopAndWarnTriggered: false });
+  report.goldfishRequired = true;
   return report;
 }
 
@@ -882,6 +883,7 @@ export function calculateBlastRadius(rawTargetPath, existingFileMap) {
       error: `Arquivo não encontrado no grafo de código: ${rawTargetPath}`,
       availableFilesSample: Array.from(fileMap.keys()).slice(0, MAX_SAMPLE_FILES),
       ceremonyTier: 'FULL_EGM_DAG',
+      goldfishRequired: true,
     };
   }
   return buildTargetBlastReport(foundNorm, fileMap);
@@ -925,6 +927,7 @@ export function calculateMultiTargetBlastRadius(targetPaths, existingFileMap) {
   return {
     targets,
     ceremonyTier,
+    goldfishRequired: true,
     securitySurfaceTouched: validReports.some((r) => Boolean(r.securitySurfaceTouched)),
     relatedDocs: Array.from(new Set(validReports.flatMap((r) => r.relatedDocs ?? []))),
     scopeHeterogeneity,
