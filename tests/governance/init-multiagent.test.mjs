@@ -39,6 +39,7 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
 
       // 2. Verifica presença dos scripts Multi-OS em scripts/ e .agents/hooks.json (GF-08)
       const expectedScripts = [
+        'aegis-finops-telemetry.mjs',
         'aegis-hook-guard.mjs',
         'review.mjs',
         'audit-repo.mjs',

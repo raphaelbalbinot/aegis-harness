@@ -9,9 +9,11 @@ import { fileURLToPath } from 'node:url';
 import {
   MAX_RULE_FILE_BYTES,
   checkRuleFilesBudget,
+  diagnoseParallelIssueBlocker,
   evaluatePreToolUseHook,
   recordGateStamp,
 } from '../../templates/scripts/aegis-hook-guard.mjs';
+import { computeIssueFinOpsMarkdown } from '../../templates/scripts/aegis-finops-telemetry.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +26,7 @@ function createTempWorkspace() {
 }
 
 describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-02, GF-03, GF-04)', () => {
-  it('Cenário 1: valida orçamento estrito (< 22.000 bytes) de templates/AGENTS.template.md e README Multi-Agente com AWS Kiro', () => {
+  it('Cenário 1: valida orçamento estrito (< 22 KB) de templates/AGENTS.template.md e README Multi-Agente com AWS Kiro', () => {
     const tplPath = path.join(REPO_ROOT, 'templates', 'AGENTS.template.md');
     const tplBytes = fs.statSync(tplPath).size;
     assert.ok(
@@ -44,7 +46,7 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
     assert.match(readmeText, /aegis-hook-guard\.mjs/, 'README.md deve documentar o fiscal aegis-hook-guard.mjs');
   });
 
-  it('Cenário 1b: checkRuleFilesBudget reprova arquivo AGENTS.md ou .agents/rules/*.md > 22.000 bytes', () => {
+  it('Cenário 1b: checkRuleFilesBudget reprova arquivo AGENTS.md ou .agents/rules/*.md acima de 22 KB', () => {
     const tmpDir = createTempWorkspace();
     try {
       fs.writeFileSync(path.join(tmpDir, 'AGENTS.md'), '# Curto\n', 'utf8');
@@ -175,5 +177,113 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
+  });
+
+  it('Cenário 6: Gate 0 exige CONFIDENCE >= 95% com interview-me e idea-refine automáticos e exibição FinOps no chat', () => {
+    const tplText = fs.readFileSync(path.join(REPO_ROOT, 'templates', 'AGENTS.template.md'), 'utf8');
+    assert.match(tplText, /CONFIDENCE.*95%/i, 'AGENTS.template.md deve exigir Gate 0 CONFIDENCE >= 95%');
+    assert.match(tplText, /interview-me/i, 'AGENTS.template.md deve acionar interview-me automaticamente abaixo de 95%');
+    assert.match(tplText, /idea-refine/i, 'AGENTS.template.md deve acionar idea-refine para pedidos exploratórios');
+    assert.match(tplText, /Telemetria FinOps da Entrega/i, 'AGENTS.template.md deve exigir tabela FinOps no fechamento do chat');
+  });
+
+  it('Cenário 7: diagnoseParallelIssueBlocker detecta arquivo de outra Issue paralela em schemas Node e Python sem auto-colisão (GF-09, GF-10)', () => {
+    const tmpDir = createTempWorkspace();
+    const plansPath = path.join(tmpDir, '.git', 'active-plans.json');
+    try {
+      // 1. Apenas 1 issue ativa e currentIssueId vazio -> NÃO deve acusar falso positivo (GF-10)
+      fs.writeFileSync(
+        plansPath,
+        JSON.stringify({ plans: { '29': { issue: '29', files: ['src/my-file.ts'] } } }),
+        'utf8'
+      );
+      const singleNoId = diagnoseParallelIssueBlocker(tmpDir, 'FAIL src/my-file.ts', '');
+      assert.equal(singleNoId.blockedByParallelIssue, false);
+
+      // 2. Duas issues no schema Node (plans) -> detecta bloqueio pela Issue #30
+      fs.writeFileSync(
+        plansPath,
+        JSON.stringify({
+          plans: {
+            '29': { issue: '29', files: ['src/issue29.ts'] },
+            '30': { issue: '30', files: ['tests/audio/test_production_acoustic_auditor.py'] },
+          },
+        }),
+        'utf8'
+      );
+      const nodeCol = diagnoseParallelIssueBlocker(
+        tmpDir,
+        'AssertionError in tests/audio/test_production_acoustic_auditor.py:42',
+        '29'
+      );
+      assert.equal(nodeCol.blockedByParallelIssue, true);
+      assert.deepEqual(nodeCol.conflictingIssues, ['30']);
+      assert.match(nodeCol.banner, /BLOQUEIO POR ISSUE PARALELA EM ANDAMENTO/);
+
+      // 3. Schema Python top-level (awencanto GF-09) -> detecta bloqueio pela Issue #31
+      fs.writeFileSync(
+        plansPath,
+        JSON.stringify({
+          slices: {},
+          '29': { issue: '29', files: ['AGENTS.md'] },
+          '31': { issue: '31', files: ['app/services/localized_acoustic_auditor.py'] },
+        }),
+        'utf8'
+      );
+      const pyCol = diagnoseParallelIssueBlocker(
+        tmpDir,
+        '[R14] app\\services\\localized_acoustic_auditor.py:129',
+        '29'
+      );
+      assert.equal(pyCol.blockedByParallelIssue, true);
+      assert.deepEqual(pyCol.conflictingIssues, ['31']);
+      assert.deepEqual(pyCol.matchedFiles, ['app/services/localized_acoustic_auditor.py']);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('Cenário 8: computeIssueFinOpsMarkdown gera Tabela 1 por Fase e Tabela 2 filtrando apenas modelos utilizados (calls > 0, sem Tabela 3 — GF-13, GF-14)', () => {
+    const sampleSteps = [
+      {
+        type: 'PLANNER_RESPONSE',
+        phase: 'DEFINE & PLAN',
+        model: 'gemini-4-argon-low',
+        input_tokens: 10000,
+        cache_read_tokens: 200000,
+        output_tokens: 2000,
+      },
+      {
+        type: 'PLANNER_RESPONSE',
+        phase: 'BUILD',
+        model: 'gemini-4-hydrogen',
+        input_tokens: 20000,
+        cache_read_tokens: 400000,
+        output_tokens: 5000,
+      },
+      {
+        type: 'PLANNER_RESPONSE',
+        phase: 'REVIEW',
+        model: 'gemini-4-argon-low',
+        input_tokens: 5000,
+        cache_read_tokens: 100000,
+        output_tokens: 1000,
+      },
+    ];
+
+    const markdown = computeIssueFinOpsMarkdown(sampleSteps);
+    assert.match(markdown, /## 💰 Telemetria FinOps da Entrega/);
+    assert.match(markdown, /DEFINE & PLAN/);
+    assert.match(markdown, /BUILD/);
+    assert.match(markdown, /REVIEW/);
+    assert.match(markdown, /TOTAL DESTA ISSUE/);
+    assert.match(markdown, /gemini-4-hydrogen/);
+    assert.match(markdown, /gemini-4-argon-low/);
+    assert.doesNotMatch(
+      markdown,
+      /gemini-4-carbon/,
+      'Modelos com 0 chamadas (gemini-4-carbon) NÃO devem aparecer na Tabela 2 (GF-14)'
+    );
+    assert.doesNotMatch(markdown, /Últimas 5 Horas/i, 'Não deve existir Tabela 3 de janela renovável');
   });
 });

@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { computeIssueFinOpsMarkdown } from './aegis-finops-telemetry.mjs';
 
 const BDD_LINE_REGEX =
   /^\s*(?:#{1,6}\s+|\d+\.\s+|[-*]\s+)?(?:\*\*|__)?(?:Cen[aá]rio|Dado|Quando|Ent[aã]o|E\s)(?:\*\*|__|:|\b)/i;
@@ -319,7 +320,7 @@ export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
   const { statusContent, diffContent } = collectGitStatusAndDiff(root, fileArray);
   const telemetryContent = runPreInjectedCleanCodeScan(root, fileArray);
 
-  const prompt = buildReviewPromptText({
+  const prompt = `${buildReviewPromptText({
     issueOrPlanHeader: issueId
       ? `- Requisitos Exclusivos da Issue #${issueId}:`
       : '- Requisitos Extraídos do Plano de Implementação:',
@@ -330,7 +331,7 @@ export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
     statusContent,
     diffContent,
     telemetryContent,
-  });
+  })}\n\n${computeIssueFinOpsMarkdown()}`;
 
   writeReviewScratchFiles({ root, prompt, issueId, planPath });
   recordReviewGateStamp(root);

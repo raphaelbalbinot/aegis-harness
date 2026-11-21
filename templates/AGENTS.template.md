@@ -31,8 +31,11 @@ Para impedir o truncamento de contexto (como o limite físico de `24.000 bytes` 
 - Referencie sempre a(s) issue(s) no título do commit: `<type>(<scope>): <descrição> (closes #<ID>)` ou `(#<ID>)`.
 - **Proibição de `git add .` / `git add -A`:** Faça staging cirúrgico (`git add <arq1> <arq2> ...`) listando apenas os arquivos do plano da issue e, após o commit, libere o registro via `node scripts/plan-collision.mjs release --issue <ID>` (ou `python scripts/plan-collision.py release --issue <ID>`).
 
-### 1.2 Proibição Estrita de Desenvolvimento Prematuro (Implementação Apenas Sob Demanda Expressa)
+### 1.2 Proibição Estrita de Desenvolvimento Prematuro & Portão Zero Anti-Inferência (`CONFIDENCE >= 95%` via `interview-me` / `idea-refine`)
 - **O agente NUNCA deve iniciar a fase `BUILD` sem autorização expressa do usuário.** Enquanto estiver alinhando requisitos, atue exclusivamente em `DEFINE` e `PLAN`.
+- **Portão Zero Anti-Inferência Silenciosa (`Gate 0 — CONFIDENCE >= 95%` Antes do Plano):**
+  - Se o pedido do usuário for exploratório/conceito aberto (*"como podemos melhorar X?"*, *"me dê ideias para..."*), acione **automaticamente** a skill `idea-refine` (gerando variações divergentes e convergindo na direção escolhida).
+  - Antes de escrever 1 linha de `implementation_plan.md`, calcule honestamente sua confiança sobre os requisitos (`CONFIDENCE: 0–100%`). Se existir **qualquer** decisão de regra de negócio, UX, comportamento de borda ou contrato não especificada pelo usuário que exigiria adivinhação/inferência, sua confiança é **`< 95%`** e é **PROIBIDO** gerar o `implementation_plan.md` naquele turno: acione **automaticamente** a skill `interview-me` exibindo `HYPOTHESIS: ...` + `CONFIDENCE: X% (< 95%) — Falta alinhar: [...]` e faça a pergunta focada com o palpite recomendado (`GUESS` / `ask_question`) até atingir **`CONFIDENCE >= 95%`**.
 
 ### 1.3 Apresentação Obrigatória de Implementation Plan, Obrigatoriedade Universal do 🐠 Goldfish e Protocolo Semáforo (`RequestFeedback: false -> true`)
 - **Isolamento Total na Conversa:** Crie o plano exclusivamente no artefato da conversa (`<appDataDir>/brain/<conversation-id>/implementation_plan.md`). Nunca grave `tasks/todo.md` ou `tasks/plan.md` no repositório.
@@ -99,7 +102,7 @@ Para impedir o truncamento de contexto (como o limite físico de `24.000 bytes` 
 - É **terminantemente proibido** pedir ou executar `git commit` (bloqueado fisicamente por `scripts/aegis-hook-guard.mjs` via `.git/aegis-gate-stamp.json`) sem cumprir integralmente os 3 passos finais:
   1. Executar `node scripts/scan-clean-code.mjs --changed` e `node scripts/audit-verify.mjs` (ou `python scripts/audit-verify.py`), corrigindo quaisquer desvios das 22 regras e gravando `auditVerifyPassedAt`;
   2. Extrair o dossiê cirúrgico (`node scripts/review.mjs --issue <ID> --files "<arqs>"`, `--plan <caminho>` ou `powershell -File .\scripts\review.ps1 -Issue <ID> -Files "<arqs>"`), gravando `reviewDossierGeneratedAt`;
-  3. Invocar o subagente **🐠 Goldfish de Implementação** lendo `scratch/review_prompt.md` até obter o veredito estrito **`APROVADO`** (`ACCEPT & FIX via TDD` ou `CONTEST WITH EVIDENCE`), apresentando a tabela final `## 🐠 Relatório Goldfish de Implementação`.
+  3. Invocar o subagente **🐠 Goldfish de Implementação** lendo `scratch/review_prompt.md` até obter o veredito estrito **`APROVADO`** (`ACCEPT & FIX via TDD` ou `CONTEST WITH EVIDENCE`), apresentando na resposta final do chat a tabela `## 🐠 Relatório Goldfish de Implementação` seguida obrigatoriamente do bloco `## 💰 Telemetria FinOps da Entrega` (Tabela 1 por Fase `DEFINE & PLAN | BUILD | REVIEW | TOTAL` e Tabela 2 filtrando exclusivamente os modelos utilizados com `calls > 0`).
 
 ### 1.19 Governança de Linguagem Ubíqua (DDD Ubiquitous Language) e Orçamento de Rules (`<= 22.000 bytes`)
 - Mantenha terminologia canônica estrita conforme `docs/DIRETRIZES_DOMINIO.md` e garanta que `AGENTS.md` e cada arquivo em `.agent(s)/rules/*.md` nunca ultrapassem `22.000 bytes` (`node scripts/aegis-hook-guard.mjs --check-rules`).

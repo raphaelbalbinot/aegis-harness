@@ -5,12 +5,10 @@
  *
  * Responsabilidades:
  * 1. PreToolUse (write_file | edit_file | multi_edit_file): Bloqueia `RequestFeedback: true`
- *    em `implementation_plan.md` caso a seção `## 🐠 Relatório Cold Spec Review` e `GF-01`
- *    ainda não estejam presentes no documento resultante (GF-01, GF-02).
- * 2. PreToolUse (run_command com `git commit`): Bloqueia o commit caso `.git/aegis-gate-stamp.json`
- *    não contenha ambos os carimbos (`auditVerifyPassedAt` e `reviewDossierGeneratedAt`) válidos (GF-03).
- * 3. CLI (`--check-rules` / `--stamp-verify` / `--stamp-review`): Valida que `AGENTS.md` e
- *    `.agent(s)/rules/*.md` respeitam o teto de 22.000 bytes (< 24 KB limite do Antigravity).
+ *    em `implementation_plan.md` sem `## 🐠 Relatório Cold Spec Review` e `GF-01` (GF-01, GF-02).
+ * 2. PreToolUse (run_command com `git commit`): Bloqueia commit sem `.git/aegis-gate-stamp.json` (GF-03).
+ * 3. Diagnóstico de Colisão Paralela (`diagnoseParallelIssueBlocker` — GF-09, GF-10, GF-12).
+ * 4. CLI (`--check-rules` / `--stamp-verify` / `--stamp-review` / `--diagnose-blocker`).
  */
 
 import fs from 'node:fs';
@@ -64,6 +62,79 @@ export function recordGateStamp(repoRoot, fieldName) {
 }
 
 /**
+ * Extrai entradas de planos ativos suportando tanto `state.plans` (Node) quanto chaves de topo (Python) (GF-09).
+ * @param {Record<string, any>} rawState
+ * @returns {Array<{ issueId: string; files: string[] }>}
+ */
+function extractActiveIssueEntries(rawState) {
+  const entries = [];
+  const plansObj = rawState?.plans && typeof rawState.plans === 'object' ? rawState.plans : {};
+  for (const [key, item] of Object.entries(plansObj)) {
+    if (item && Array.isArray(item.files)) {
+      entries.push({ issueId: String(item.issue ?? key), files: item.files });
+    }
+  }
+  for (const [key, item] of Object.entries(rawState ?? {})) {
+    if (key === 'plans' || key === 'slices') continue;
+    if (item && typeof item === 'object' && Array.isArray(item.files)) {
+      entries.push({ issueId: String(item.issue ?? key), files: item.files });
+    }
+  }
+  return entries;
+}
+
+/**
+ * Filtra os arquivos de uma entrada de Issue que aparecem mencionados na saída de erro.
+ * @param {string[]} rawFiles
+ * @param {string} normError
+ * @returns {string[]}
+ */
+function findMatchingEntryFiles(rawFiles, normError) {
+  return rawFiles
+    .map((rawFile) => String(rawFile).replace(/\\/g, '/').replace(/^\.\//, ''))
+    .filter((normFile) => Boolean(normFile) && normError.includes(normFile));
+}
+
+/**
+ * Diagnostica se uma falha do `audit-verify` ocorreu em arquivo pertencente a outra Issue paralela em `.git/active-plans.json` (GF-09, GF-10).
+ * @param {string} repoRoot
+ * @param {string} errorOutput
+ * @param {string} [currentIssueId]
+ */
+export function diagnoseParallelIssueBlocker(repoRoot, errorOutput, currentIssueId = '') {
+  const activePlansPath = path.join(repoRoot, '.git', 'active-plans.json');
+  const emptyResult = { blockedByParallelIssue: false, conflictingIssues: [], matchedFiles: [], banner: '' };
+  if (!fs.existsSync(activePlansPath) || !errorOutput) return emptyResult;
+
+  let rawState = {};
+  try {
+    rawState = JSON.parse(fs.readFileSync(activePlansPath, 'utf8'));
+  } catch {
+    return emptyResult;
+  }
+  const allEntries = extractActiveIssueEntries(rawState);
+  if (!currentIssueId && allEntries.length <= 1) return emptyResult;
+
+  const normError = String(errorOutput).replace(/\\/g, '/');
+  const conflictingIssues = new Set();
+  const matchedFiles = new Set();
+
+  for (const entry of allEntries) {
+    if (currentIssueId && entry.issueId === String(currentIssueId)) continue;
+    const hits = findMatchingEntryFiles(entry.files, normError);
+    if (hits.length > 0) {
+      conflictingIssues.add(entry.issueId);
+      hits.forEach((f) => matchedFiles.add(f));
+    }
+  }
+  if (conflictingIssues.size === 0) return emptyResult;
+  const issuesList = Array.from(conflictingIssues);
+  const filesList = Array.from(matchedFiles);
+  const banner = `⏸️ [BLOQUEIO POR ISSUE PARALELA EM ANDAMENTO (#${issuesList.join(', #')})]: A falha ocorreu em arquivo(s) em edição ativa por outra conversa (${filesList.join(', ')}). Nenhum teste é ignorado: conclua o passo GREEN na outra aba antes de finalizar o audit-verify e o commit.`;
+  return { blockedByParallelIssue: true, conflictingIssues: issuesList, matchedFiles: filesList, banner };
+}
+
+/**
  * Coleta os caminhos de arquivos de regras (`AGENTS.md`, `.agents/rules/*.md`, `.agent/rules/*.md`).
  * @param {string} repoRoot
  * @returns {string[]}
@@ -85,7 +156,7 @@ function listRuleFiles(repoRoot) {
 }
 
 /**
- * Verifica se todos os arquivos de regra respeitam `MAX_RULE_FILE_BYTES` (22.000 bytes).
+ * Verifica se todos os arquivos de regra respeitam `MAX_RULE_FILE_BYTES` (22 KB).
  * @param {string} repoRoot
  * @returns {{ ok: boolean; violations: Array<{ file: string; bytes: number }> }}
  */
@@ -209,17 +280,17 @@ export function evaluatePreToolUseHook(payload) {
 }
 
 /**
- * Executa os modos CLI (`--check-rules`, `--stamp-verify`, `--stamp-review`) ou o modo Hook stdin.
+ * Executa os modos CLI (`--check-rules`, `--stamp-verify`, `--stamp-review`, `--diagnose-blocker`) ou o modo Hook stdin.
  * @param {string[]} argv
  */
 function runCliOrHook(argv) {
   const repoRoot = resolveRepoRoot(process.cwd());
-  if (argv.includes('--stamp-verify')) {
-    recordGateStamp(repoRoot, 'auditVerifyPassedAt');
-    return;
-  }
-  if (argv.includes('--stamp-review')) {
-    recordGateStamp(repoRoot, 'reviewDossierGeneratedAt');
+  if (argv.includes('--stamp-verify')) return recordGateStamp(repoRoot, 'auditVerifyPassedAt');
+  if (argv.includes('--stamp-review')) return recordGateStamp(repoRoot, 'reviewDossierGeneratedAt');
+  if (argv.includes('--diagnose-blocker')) {
+    const diagIdx = argv.indexOf('--diagnose-blocker');
+    const diag = diagnoseParallelIssueBlocker(repoRoot, String(argv[diagIdx + 1] ?? ''), String(argv[diagIdx + 2] ?? ''));
+    if (diag.blockedByParallelIssue) process.stderr.write(`${diag.banner}\n`);
     return;
   }
   if (argv.includes('--check-rules')) {
@@ -234,8 +305,7 @@ function runCliOrHook(argv) {
   }
   const rawStdin = fs.readFileSync(0, 'utf8').trim();
   const payload = rawStdin ? JSON.parse(rawStdin) : {};
-  const out = evaluatePreToolUseHook(payload);
-  process.stdout.write(`${JSON.stringify(out)}\n`);
+  process.stdout.write(`${JSON.stringify(evaluatePreToolUseHook(payload))}\n`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
