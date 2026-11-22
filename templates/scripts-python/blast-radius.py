@@ -18,6 +18,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 HIGH_RISK_THRESHOLD = 4
 MEDIUM_RISK_THRESHOLD = 2
+MS_PER_SECOND = 1000
 _DEFAULT_SECURITY_SURFACE_RE = re.compile(
     r"(?:^|/)(?:api|routes|webhooks?|auth|oidc|security|storage|ai|prompts|workers?)(?:/|$)|"
     r"(?:^|/|[._-])(?:auth|oidc|security|webhook|jwt|oauth|rbac|sanitize)(?:[._-]|/|$)|"
@@ -27,22 +28,24 @@ _DEFAULT_SECURITY_SURFACE_RE = re.compile(
 _WEB_FILE_RE = re.compile(r"\.(?:tsx|jsx|css|scss|html|vue|svelte)$", re.IGNORECASE)
 
 
+def _compile_pattern_safe(pattern: Any) -> re.Pattern[str] | None:
+    try:
+        return re.compile(str(pattern), re.IGNORECASE)
+    except re.error:
+        return None
+
+
 def _load_harness_security_patterns() -> list[re.Pattern[str]]:
     cfg_path = REPO_ROOT / "harness.config.json"
     if not cfg_path.exists():
         return []
     try:
         parsed = json.loads(cfg_path.read_text(encoding="utf-8"))
-        raw_patterns = parsed.get("blastRadius", {}).get("securityPatterns", [])
-        compiled: list[re.Pattern[str]] = []
-        for pattern in raw_patterns:
-            try:
-                compiled.append(re.compile(str(pattern), re.IGNORECASE))
-            except re.error:
-                continue
-        return compiled
     except Exception:
         return []
+    raw_patterns = parsed.get("blastRadius", {}).get("securityPatterns", [])
+    compiled = [_compile_pattern_safe(p) for p in raw_patterns]
+    return [c for c in compiled if c is not None]
 
 
 def _module_name_from_path(py_file: Path) -> str:
@@ -169,7 +172,7 @@ def _record_blast_radius_stamp(
         "codeGoldfishRequired": code_goldfish_required,
         "ceremonyTier": ceremony_tier,
         "evaluatedFiles": [normalized],
-        "evaluatedAt": int(time.time() * 1000),
+        "evaluatedAt": int(time.time() * MS_PER_SECOND),
     }
     stamp_path.write_text(json.dumps(current, indent=2), encoding="utf-8")
 

@@ -270,6 +270,37 @@ function evaluatePlanWriteGuard(repoRoot, args) {
 }
 
 /**
+ * Valida se o staging no Fast-Path Tier 0 contém apenas arquivos avaliados pelo blast-radius.
+ * @param {Record<string, any> | undefined} evalMeta
+ * @param {string[] | null} stagedFiles
+ * @returns {{ decision: 'allow' | 'deny'; reason?: string } | null}
+ */
+function checkFastPathStagedFiles(evalMeta, stagedFiles) {
+  if (!evalMeta || evalMeta.planGoldfishRequired !== false) return null;
+  if (!Array.isArray(stagedFiles) || stagedFiles.length === 0) return null;
+  const allowedSet = new Set(
+    (evalMeta.evaluatedFiles ?? []).map((/** @type {string} */ f) => String(f).replace(/\\/g, '/').replace(/^\.\//, ''))
+  );
+  const unauthorized = stagedFiles.filter((f) => !allowedSet.has(f));
+  if (unauthorized.length === 0) return null;
+  return {
+    decision: 'deny',
+    reason: `BLOQUEADO (Trava Anti-Burla Fast-Path): O staging contém arquivo(s) não avaliados no Tier 0 (${unauthorized.join(', ')}). Re-execute blast-radius.mjs e cumpra o portão FULL_EGM_DAG antes de fazer commit.`,
+  };
+}
+
+/**
+ * Verifica se o commit contém exclusivamente arquivos Markdown quando o blast-radius dispensou 2º Goldfish.
+ * @param {Record<string, any> | undefined} evalMeta
+ * @param {string[] | null} stagedFiles
+ * @returns {boolean}
+ */
+function isDocsOnlyCommit(evalMeta, stagedFiles) {
+  if (evalMeta?.codeGoldfishRequired !== false) return false;
+  return Array.isArray(stagedFiles) && stagedFiles.length > 0 && stagedFiles.every((f) => f.endsWith('.md'));
+}
+
+/**
  * Avalia chamadas `run_command` que disparam `git commit` contra `.git/aegis-gate-stamp.json` e `git diff --cached` (GF-03).
  * @param {string} repoRoot
  * @param {Record<string, any>} args
@@ -278,54 +309,31 @@ function evaluatePlanWriteGuard(repoRoot, args) {
 function evaluateGitCommitGuard(repoRoot, args) {
   const cmdLine = String(args.CommandLine ?? args.command ?? '');
   if (!GIT_COMMIT_CMD_RE.test(cmdLine)) return { decision: 'allow' };
-
   if (GIT_COMMIT_ALL_FLAG_RE.test(cmdLine)) {
     return {
       decision: 'deny',
-      reason:
-        'BLOQUEADO PELA REGRA 1.1: Proibido usar `git commit -a` / `--all`. Faça staging cirúrgico (`git add <arqs>`) para permitir a auditoria determinística do diff.',
+      reason: 'BLOQUEADO PELA REGRA 1.1: Proibido usar `git commit -a` / `--all`. Faça staging cirúrgico (`git add <arqs>`).',
     };
   }
-
   const stampPath = path.join(repoRoot, '.git', 'aegis-gate-stamp.json');
   if (!fs.existsSync(stampPath)) {
     return {
       decision: 'deny',
-      reason:
-        'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Nenhum carimbo de validação final (.git/aegis-gate-stamp.json) encontrado. Execute audit-verify e review.mjs/review.ps1 (+ 2º Portão Goldfish) antes de fazer git commit.',
+      reason: 'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Nenhum carimbo (.git/aegis-gate-stamp.json) encontrado. Execute audit-verify e review antes de commitar.',
     };
   }
   const stamp = readGateStamp(repoRoot);
-  const now = Date.now();
-  const verifyAge = now - Number(stamp.auditVerifyPassedAt ?? 0);
-  const reviewAge = now - Number(stamp.reviewDossierGeneratedAt ?? 0);
-
-  const evalMeta = stamp?.blastRadiusEvaluation;
   const stagedFiles = listStagedFiles(repoRoot);
-  if (evalMeta && evalMeta.planGoldfishRequired === false && Array.isArray(stagedFiles) && stagedFiles.length > 0) {
-    const allowedSet = new Set(
-      (evalMeta.evaluatedFiles ?? []).map((/** @type {string} */ f) => String(f).replace(/\\/g, '/').replace(/^\.\//, ''))
-    );
-    const unauthorized = stagedFiles.filter((f) => !allowedSet.has(f));
-    if (unauthorized.length > 0) {
-      return {
-        decision: 'deny',
-        reason: `BLOQUEADO (Trava Anti-Burla Fast-Path): O staging contém arquivo(s) não avaliados no Tier 0 (${unauthorized.join(', ')}). Re-execute blast-radius.mjs e cumpra o portão FULL_EGM_DAG antes de fazer commit.`,
-      };
-    }
-  }
+  const fastPathViolation = checkFastPathStagedFiles(stamp?.blastRadiusEvaluation, stagedFiles);
+  if (fastPathViolation) return fastPathViolation;
 
-  const isDocsOnly =
-    evalMeta?.codeGoldfishRequired === false &&
-    Array.isArray(stagedFiles) &&
-    stagedFiles.length > 0 &&
-    stagedFiles.every((f) => f.endsWith('.md'));
-
-  if (verifyAge > STAMP_MAX_AGE_MS || (!isDocsOnly && reviewAge > STAMP_MAX_AGE_MS)) {
+  const now = Date.now();
+  const verifyExpired = now - Number(stamp.auditVerifyPassedAt ?? 0) > STAMP_MAX_AGE_MS;
+  const reviewExpired = now - Number(stamp.reviewDossierGeneratedAt ?? 0) > STAMP_MAX_AGE_MS;
+  if (verifyExpired || (!isDocsOnlyCommit(stamp?.blastRadiusEvaluation, stagedFiles) && reviewExpired)) {
     return {
       decision: 'deny',
-      reason:
-        'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Carimbo de pré-commit incompleto ou expirado em .git/aegis-gate-stamp.json. Execute audit-verify e review.mjs/review.ps1 (+ 2º Goldfish) antes de executar git commit.',
+      reason: 'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Carimbo de pré-commit incompleto ou expirado. Execute audit-verify e review (+ 2º Goldfish) antes de commitar.',
     };
   }
   return { decision: 'allow' };
