@@ -267,12 +267,66 @@ export function installMultiAgentBridge(targetDir, stack, { force = false } = {}
   );
 }
 
+const MANTIS_TOP_LEVEL_SKILLS = new Set(['mantis-meta-agent', 'mantis-advise']);
+
+/**
+ * Consolida a suíte Mantis em Hub-Skill: mantém apenas `mantis-meta-agent` e `mantis-advise`
+ * na raiz de `.agents/skills/`, move os demais estágios `mantis-*` para
+ * `mantis-meta-agent/references/<skill>.md` e remove as pastas antigas para evitar duplicação.
+ */
+export function consolidateMantisHubSkill(targetSkillsDir) {
+  const hubDir = path.join(targetSkillsDir, 'mantis-meta-agent');
+  if (!fs.existsSync(hubDir)) return [];
+  const refsDir = path.join(hubDir, 'references');
+  fs.mkdirSync(refsDir, { recursive: true });
+
+  const consolidated = [];
+  for (const entry of fs.readdirSync(targetSkillsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (!entry.name.startsWith('mantis-') || MANTIS_TOP_LEVEL_SKILLS.has(entry.name)) continue;
+    const srcSkillDir = path.join(targetSkillsDir, entry.name);
+    const srcSkillMd = path.join(srcSkillDir, 'SKILL.md');
+    if (fs.existsSync(srcSkillMd)) {
+      fs.copyFileSync(srcSkillMd, path.join(refsDir, `${entry.name}.md`));
+      consolidated.push(entry.name);
+    }
+    fs.rmSync(srcSkillDir, { recursive: true, force: true });
+  }
+
+  const hubSkillMd = path.join(hubDir, 'SKILL.md');
+  if (consolidated.length > 0 && fs.existsSync(hubSkillMd)) {
+    const current = fs.readFileSync(hubSkillMd, 'utf-8');
+    if (!current.includes('## Estágios Consolidados em `references/`')) {
+      const indexLines = consolidated.sort().map((name) => `- \`references/${name}.md\``).join('\n');
+      const appendix = `\n\n## Estágios Consolidados em \`references/\`\n${indexLines}\n`;
+      fs.writeFileSync(hubSkillMd, `${current.trimEnd()}${appendix}`, 'utf-8');
+    }
+  }
+  return consolidated.sort();
+}
+
+/**
+ * Instala os módulos `.agents/rules/*.md` (Hub & Spoke) a partir de `templates/rules/`.
+ */
+export function installModularRules(targetDir, { force = false } = {}) {
+  const agentConfigDir = fs.existsSync(path.join(targetDir, '.agent'))
+    ? path.join(targetDir, '.agent')
+    : path.join(targetDir, '.agents');
+  copyFlatFiles(
+    path.join(HARNESS_ROOT, 'templates', 'rules'),
+    path.join(agentConfigDir, 'rules'),
+    { force, extFilter: '.md' }
+  );
+}
+
 function writeHarnessAndConstitution(targetDir, stack, { force = false, agentHost = 'all' } = {}) {
   const harnessConfigPath = path.join(targetDir, 'harness.config.json');
   if (!fs.existsSync(harnessConfigPath) || force) {
     const payload = {
       harness: 'aegis-harness', version: '2.0.0', agentHost, language: stack.language,
-      stackSummary: stack.stackSummary, testDomains: stack.testDomains, gates: stack.gates
+      stackSummary: stack.stackSummary, testDomains: stack.testDomains,
+      blastRadius: { securityPatterns: [] },
+      gates: stack.gates
     };
     fs.writeFileSync(harnessConfigPath, JSON.stringify(payload, null, 2), 'utf-8');
   }
@@ -291,8 +345,10 @@ function main() {
   const targetSkillsDir = path.join(opts.target, '.agents', 'skills');
   fs.mkdirSync(targetSkillsDir, { recursive: true });
   for (const upstream of manifest.upstreams) syncUpstreamSkills(upstream, targetSkillsDir, opts);
+  consolidateMantisHubSkill(targetSkillsDir);
   copyTemplateScripts(opts.target, opts);
   installDocsAndConfigs(opts.target, stack, opts.force);
+  installModularRules(opts.target, { force: opts.force });
   writeHarnessAndConstitution(opts.target, stack, { force: opts.force, agentHost });
   if (agentHost === 'claude' || agentHost === 'all') {
     installMultiAgentBridge(opts.target, stack, opts);

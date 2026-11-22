@@ -25,15 +25,15 @@ const ROOT = resolveDefaultRootDir();
 const HIGH_RISK_CONSUMER_THRESHOLD = 5;
 const MIN_SEARCH_TOKEN_LENGTH = 6;
 const MAX_SAMPLE_FILES = 10;
-const AGGREGATOR_BARREL_PATH = 'backend/src/index.ts';
-const PROMPT_LOADER_PATH = 'backend/src/prompts/loader.ts';
+const AGGREGATOR_BARREL_PATH = 'src/index.ts';
+const PROMPT_LOADER_PATH = 'src/prompts/loader.ts';
 
-const PERSISTENCE_LAYER_TOKENS = ['firebase/', 'firestore', 'storage', 'idb', 'db/'];
+const PERSISTENCE_LAYER_TOKENS = ['db/', 'database/', 'migrations/', 'storage/', 'repositories/', 'prisma/', 'firestore', 'firebase/'];
 
 const LAYER_RULES = [
   { test: (/** @type {string} */ n) => n.includes('export/') || n.includes('publish/'), id: 'PUBLICATION', label: 'Exportação & Publicação de Artefatos' },
-  { test: (/** @type {string} */ n) => n.includes('app/api/') || n.includes('routes/'), id: 'CORE', label: 'Core Handlers & Rotas de API' },
-  { test: (/** @type {string} */ n) => n.includes('components/') || n.includes('app/'), id: 'CLIENTS', label: 'Borda & Componentes de Interface' },
+  { test: (/** @type {string} */ n) => n.includes('app/api/') || n.includes('routes/') || n.includes('controllers/'), id: 'CORE', label: 'Core Handlers & Rotas de API' },
+  { test: (/** @type {string} */ n) => n.includes('components/') || n.includes('pages/') || n.includes('app/'), id: 'CLIENTS', label: 'Borda & Componentes de Interface' },
   { test: (/** @type {string} */ n) => n.includes('ai/') || n.includes('prompts/') || n.includes('services/'), id: 'SERVICES', label: 'Motores de Domínio, Serviços & IA' },
   { test: (/** @type {string} */ n) => PERSISTENCE_LAYER_TOKENS.some((tok) => n.includes(tok)), id: 'PERSISTENCE', label: 'Persistência & Resiliência de Estado' },
 ];
@@ -42,37 +42,112 @@ const GOVERNANCE_AXIS_RULES = [
   {
     id: 'B_SECURITY_HARDENING',
     label: 'Eixo B — Segurança & Hardening / CWE',
-    regex: /(?:^|\/|[._-])(?:oidc|auth|sanitize|prompt-shield|security)(?:[._-]|\/|$)|(?:^|\/)firestore\.rules$/i,
+    regex: /(?:^|\/|[._-])(?:oidc|auth|sanitize|prompt-shield|security|permissions|rbac|jwt|oauth)(?:[._-]|\/|$)|(?:^|\/)(?:firestore|storage)\.rules$/i,
   },
   {
     id: 'A_INFRA_SERVERLESS',
-    label: 'Eixo A — Infraestrutura & Nuvem Serverless',
-    regex: /(?:cloud-tasks\/|gcs\/|Dockerfile|next\.config|app\/api\/batch\/|app\/api\/tasks\/)/,
+    label: 'Eixo A — Infraestrutura & Runtime',
+    regex: /(?:Dockerfile|docker-compose|cloudbuild|terraform|k8s\/|infra\/|workers?\/|queues?\/|\.github\/workflows\/)/i,
   },
   {
     id: 'C_AI_AND_DOMAIN',
     label: 'Eixo C — Lógica de Domínio & Motores de IA',
-    regex: /(?:backend\/src\/ai\/|backend\/prompts\/|backend\/src\/prompts\/|frontend\/src\/lib\/ai\/|frontend\/src\/lib\/prompts\/|app\/api\/ai\/)/,
+    regex: /(?:^|\/)(?:ai|prompts|llm|agents?|domain|services)\//i,
   },
   {
     id: 'E_PERSISTENCE_STATE',
-    label: 'Eixo E — Persistência & Estado Híbrido',
-    regex: /(?:firebase\/|firestore|storage\/|idb|local-draft|useAutoSave|types\/project\.ts|app\/api\/projects\/|app\/api\/account\/)/,
+    label: 'Eixo E — Persistência & Estado',
+    regex: /(?:^|\/)(?:db|database|migrations|schemas?|storage|repositories|prisma)\/|firestore|firebase\//i,
   },
 ];
 
-const SECURITY_SURFACE_PATH_REGEX =
-  /(?:^|\/)(?:api|routes|webhooks?|auth|oidc|security|firestore|gcs|storage|ai|prompts|cloud-tasks)(?:\/|$)|(?:^|\/|[._-])(?:auth|oidc|security|webhook|prompt-shield|sanitize|ffmpeg|rvc)(?:[._-]|\/|$)|(?:^|\/)(?:main\.py|schemas\.py|firestore\.rules)$/i;
+const DEFAULT_SECURITY_SURFACE_REGEX =
+  /(?:^|\/)(?:api|routes|webhooks?|auth|oidc|security|storage|ai|prompts|workers?)(?:\/|$)|(?:^|\/|[._-])(?:auth|oidc|security|webhook|prompt-shield|sanitize|jwt|oauth|rbac)(?:[._-]|\/|$)|(?:^|\/)(?:main\.py|schemas\.py|firestore\.rules|storage\.rules)$/i;
+
+const WEB_FILE_REGEX = /\.(?:tsx|jsx|css|scss|html|vue|svelte)$/i;
+
+/**
+ * Carrega padrões customizados de `harness.config.json` (se existir) para manter o script 100% agnóstico de projeto.
+ * @param {string} [repoRoot]
+ */
+function loadHarnessBlastConfig(repoRoot = ROOT) {
+  try {
+    const cfgPath = path.join(repoRoot, 'harness.config.json');
+    if (!fs.existsSync(cfgPath)) return { securityRegexes: [] };
+    const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+    const rawPatterns = Array.isArray(parsed?.blastRadius?.securityPatterns) ? parsed.blastRadius.securityPatterns : [];
+    const securityRegexes = rawPatterns
+      .map((/** @type {string} */ p) => {
+        try { return new RegExp(p, 'i'); } catch { return null; }
+      })
+      .filter(Boolean);
+    return { securityRegexes };
+  } catch {
+    return { securityRegexes: [] };
+  }
+}
 
 /**
  * Verifica se um caminho pertence à superfície de segurança sem falso positivo para `author` (GF-02).
  * @param {string} filePath
+ * @param {string} [repoRoot]
  * @returns {boolean}
  */
-export function isSecuritySurfaceFile(filePath) {
+export function isSecuritySurfaceFile(filePath, repoRoot = ROOT) {
   const norm = String(filePath ?? '').replace(/\\/g, '/').replace(/^[./]+/, '');
   if (!norm || /\.(test|spec|mcp)\.[^/]+$/i.test(norm) || norm.startsWith('tests/')) return false;
-  return SECURITY_SURFACE_PATH_REGEX.test(norm);
+  if (DEFAULT_SECURITY_SURFACE_REGEX.test(norm)) return true;
+  const { securityRegexes } = loadHarnessBlastConfig(repoRoot);
+  return securityRegexes.some((/** @type {RegExp} */ re) => re.test(norm));
+}
+
+/**
+ * Calcula o piso mínimo garantido de skills recomendadas com base nos arquivos avaliados.
+ * @param {Array<Record<string, any>>} validReports
+ * @returns {string[]}
+ */
+export function computeRecommendedSkills(validReports) {
+  const skills = new Set();
+  const hasCode = validReports.some((r) => !String(r.target ?? '').endsWith('.md'));
+  if (hasCode) {
+    skills.add('test-driven-development');
+    skills.add('code-review-and-quality');
+  }
+  if (validReports.some((r) => Boolean(r.securitySurfaceTouched))) {
+    skills.add('mantis-advise');
+  }
+  if (validReports.some((r) => WEB_FILE_REGEX.test(String(r.target ?? '')))) {
+    skills.add('accessibility');
+    skills.add('core-web-vitals');
+  }
+  if (validReports.some((r) => r.ceremonyTier === 'FULL_EGM_DAG')) {
+    skills.add('egm-goldfish-review');
+    skills.add('clean-code-audit');
+  }
+  return Array.from(skills);
+}
+
+/**
+ * Grava a avaliação determinística do blast-radius em `.git/aegis-gate-stamp.json` para validação anti-burla no hook.
+ * @param {string} repoRoot
+ * @param {{ planGoldfishRequired: boolean; codeGoldfishRequired: boolean; ceremonyTier: string; evaluatedFiles: string[] }} evaluation
+ */
+export function recordBlastRadiusStamp(repoRoot, evaluation) {
+  const gitDir = path.join(repoRoot, '.git');
+  if (!fs.existsSync(gitDir)) return;
+  const stampPath = path.join(gitDir, 'aegis-gate-stamp.json');
+  let current = {};
+  if (fs.existsSync(stampPath)) {
+    try { current = JSON.parse(fs.readFileSync(stampPath, 'utf8')); } catch { current = {}; }
+  }
+  const updated = {
+    ...current,
+    blastRadiusEvaluation: {
+      ...evaluation,
+      evaluatedAt: Date.now(),
+    },
+  };
+  fs.writeFileSync(stampPath, JSON.stringify(updated, null, 2), 'utf8');
 }
 
 /**
@@ -863,7 +938,10 @@ function buildTargetBlastReport(foundNorm, fileMap) {
     fileMap,
   });
   report.ceremonyTier = computeCeremonyTier([report], { stopAndWarnTriggered: false });
-  report.goldfishRequired = true;
+  report.planGoldfishRequired = report.ceremonyTier !== 'XS_EXPRESS';
+  report.codeGoldfishRequired = !String(report.target ?? '').endsWith('.md');
+  report.goldfishRequired = report.codeGoldfishRequired;
+  report.recommendedSkills = computeRecommendedSkills([report]);
   return report;
 }
 
@@ -883,7 +961,10 @@ export function calculateBlastRadius(rawTargetPath, existingFileMap) {
       error: `Arquivo não encontrado no grafo de código: ${rawTargetPath}`,
       availableFilesSample: Array.from(fileMap.keys()).slice(0, MAX_SAMPLE_FILES),
       ceremonyTier: 'FULL_EGM_DAG',
+      planGoldfishRequired: true,
+      codeGoldfishRequired: true,
       goldfishRequired: true,
+      recommendedSkills: ['egm-goldfish-review', 'clean-code-audit'],
     };
   }
   return buildTargetBlastReport(foundNorm, fileMap);
@@ -921,13 +1002,21 @@ export function calculateMultiTargetBlastRadius(targetPaths, existingFileMap) {
   const ceremonyTier = hasInvalidTarget
     ? 'FULL_EGM_DAG'
     : computeCeremonyTier(validReports, scopeHeterogeneity);
+  const planGoldfishRequired = ceremonyTier !== 'XS_EXPRESS';
+  const codeGoldfishRequired = hasInvalidTarget || validReports.some((r) => !String(r.target ?? '').endsWith('.md'));
   const allVitestSuites = Array.from(new Set(validReports.flatMap((r) => r.impactedTestSuites ?? [])));
   const allE2ESuites = Array.from(new Set(validReports.flatMap((r) => r.impactedE2ESuites ?? [])));
+  const recommendedSkills = computeRecommendedSkills(
+    validReports.map((r) => ({ ...r, ceremonyTier }))
+  );
 
   return {
     targets,
     ceremonyTier,
-    goldfishRequired: true,
+    planGoldfishRequired,
+    codeGoldfishRequired,
+    goldfishRequired: codeGoldfishRequired,
+    recommendedSkills,
     securitySurfaceTouched: validReports.some((r) => Boolean(r.securitySurfaceTouched)),
     relatedDocs: Array.from(new Set(validReports.flatMap((r) => r.relatedDocs ?? []))),
     scopeHeterogeneity,
@@ -1068,6 +1157,12 @@ function runCli(args) {
 
   if (isGoldfish || targetArgs.length > 1) {
     const multiReport = calculateMultiTargetBlastRadius(targetArgs);
+    recordBlastRadiusStamp(ROOT, {
+      planGoldfishRequired: multiReport.planGoldfishRequired,
+      codeGoldfishRequired: multiReport.codeGoldfishRequired,
+      ceremonyTier: multiReport.ceremonyTier,
+      evaluatedFiles: multiReport.targets.filter((t) => !t.error && t.target).map((t) => t.target),
+    });
     printLine(isJson ? JSON.stringify(multiReport, null, 2) : formatGoldfishDossierMarkdown(multiReport));
     return;
   }
@@ -1082,6 +1177,12 @@ function runCli(args) {
     }
     process.exit(1);
   }
+  recordBlastRadiusStamp(ROOT, {
+    planGoldfishRequired: singleResult.planGoldfishRequired,
+    codeGoldfishRequired: singleResult.codeGoldfishRequired,
+    ceremonyTier: singleResult.ceremonyTier,
+    evaluatedFiles: singleResult.target ? [singleResult.target] : [],
+  });
   if (isJson) printLine(JSON.stringify(singleResult, null, 2));
   else printHumanReadableBlastRadius(singleResult);
 }

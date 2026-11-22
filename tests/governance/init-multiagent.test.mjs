@@ -87,23 +87,31 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.match(dagSkillContent, /EnableMCPTools:\s*false/, 'dag-slice-orchestrator deve definir EnableMCPTools: false (GF-05)');
       assert.match(dagSkillContent, /Single-Execution Gate/i, 'dag-slice-orchestrator deve conter o protocolo Single-Execution Gate');
 
-      // 4. Verifica AGENTS.md: ceremonyTier (XS_EXPRESS / FULL_EGM_DAG) e ausência de lock-in (Heldora / Firestore / Cloud Run)
+      // 4. Verifica AGENTS.md v2 enxuto + módulos .agents/rules/ + Mantis Hub-Skill + ausência de lock-in
       const agentsContent = fs.readFileSync(agentsPath, 'utf-8');
-      assert.match(agentsContent, /ceremonyTier/);
       assert.match(agentsContent, /XS_EXPRESS/);
       assert.match(agentsContent, /FULL_EGM_DAG/);
-      assert.match(agentsContent, /scripts\/review\.mjs/);
-      assert.match(agentsContent, /snapshot-slice/);
-      assert.match(agentsContent, /verify-slice/);
+      assert.match(agentsContent, /planGoldfishRequired/);
+      assert.match(agentsContent, /codeGoldfishRequired/);
+      assert.match(agentsContent, /recommendedSkills/);
       assert.doesNotMatch(agentsContent, /Heldora/i, 'AGENTS.md não deve conter referência residual a Heldora');
       assert.doesNotMatch(agentsContent, /Firestore/i, 'AGENTS.md não deve conter lock-in a Firestore');
       assert.doesNotMatch(agentsContent, /Cloud Run/i, 'AGENTS.md não deve conter lock-in a Cloud Run');
-      assert.match(
-        agentsContent,
-        /\[Mantis-Advise\]: ✔ THREAT_MODEL\.md Consultado \(<TM-ID: CWE-XX>\) \| ✔ Padrões Defensivos Aplicados/,
-        'AGENTS.md deve exigir citação nominal de TM-ID no selo [Mantis-Advise]'
-      );
-      assert.match(agentsContent, /aegis-surface-hash/, 'AGENTS.md deve exigir sincronização do aegis-surface-hash');
+
+      // 5. Verifica módulos .agents/rules/*.md e consolidação Mantis Hub-Skill
+      for (const ruleFile of ['runtime-infra.md', 'ai-finops.md', 'web-frontend.md', 'security-threat-model.md']) {
+        assert.equal(fs.existsSync(path.join(tmpDir, '.agents', 'rules', ruleFile)), true, `Regra modular ${ruleFile} deve ser instalada`);
+      }
+      assert.equal(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mantis-meta-agent', 'SKILL.md')), true);
+      assert.equal(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'mantis-advise', 'SKILL.md')), true);
+      const topLevelMantis = fs.readdirSync(path.join(tmpDir, '.agents', 'skills')).filter((d) => d.startsWith('mantis-'));
+      assert.deepEqual(topLevelMantis.sort(), ['mantis-advise', 'mantis-meta-agent'], 'Apenas mantis-advise e mantis-meta-agent devem ficar no topo');
+      const mantisRefs = fs.readdirSync(path.join(tmpDir, '.agents', 'skills', 'mantis-meta-agent', 'references'));
+      assert.ok(mantisRefs.length >= 15, 'Estágios consolidados do Mantis devem estar em mantis-meta-agent/references/');
+      const secRuleContent = fs.readFileSync(path.join(tmpDir, '.agents', 'rules', 'security-threat-model.md'), 'utf-8');
+      assert.match(secRuleContent, /THREAT_MODEL\.md/i, 'security-threat-model.md deve referenciar THREAT_MODEL.md');
+      assert.match(secRuleContent, /TM-\*/i, 'security-threat-model.md deve exigir citação nominal de TM-IDs');
+      assert.match(secRuleContent, /aegis-surface-hash/, 'security-threat-model.md deve exigir sincronização do aegis-surface-hash');
 
       // 5. Verifica criação do modelo de ameaças vivo workspace/kb/THREAT_MODEL.md
       const threatModelPath = path.join(tmpDir, 'workspace', 'kb', 'THREAT_MODEL.md');

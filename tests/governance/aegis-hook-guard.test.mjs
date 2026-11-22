@@ -34,9 +34,10 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
       `templates/AGENTS.template.md (${tplBytes} B) deve ter <= ${MAX_RULE_FILE_BYTES} B`
     );
     const tplText = fs.readFileSync(tplPath, 'utf8');
-    assert.match(tplText, /## 🧭 0\. Índice de Regras Modulares por Domínio/);
-    assert.match(tplText, /AWS Kiro/i);
+    assert.ok(tplBytes <= 6000, `templates/AGENTS.template.md v2 (${tplBytes} B) deve ser enxuto (<= 6000 B)`);
+    assert.match(tplText, /## 🧭 0\. Roteamento Modular/);
     assert.match(tplText, /RequestFeedback:\s*false/);
+    assert.match(tplText, /BDD Gherkin/i);
     assert.doesNotMatch(tplText, /Cloud Run/i);
     assert.doesNotMatch(tplText, /Firestore/i);
 
@@ -179,12 +180,49 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
     }
   });
 
-  it('Cenário 6: Gate 0 exige CONFIDENCE >= 95% com interview-me e idea-refine automáticos e exibição FinOps no chat', () => {
+  it('Cenário 6: v2 exige Gherkin + interview-me + resumo enxuto, bloqueia git commit -a e libera Fast-Path Tier 0 no plano', () => {
     const tplText = fs.readFileSync(path.join(REPO_ROOT, 'templates', 'AGENTS.template.md'), 'utf8');
-    assert.match(tplText, /CONFIDENCE.*95%/i, 'AGENTS.template.md deve exigir Gate 0 CONFIDENCE >= 95%');
-    assert.match(tplText, /interview-me/i, 'AGENTS.template.md deve acionar interview-me automaticamente abaixo de 95%');
-    assert.match(tplText, /idea-refine/i, 'AGENTS.template.md deve acionar idea-refine para pedidos exploratórios');
-    assert.match(tplText, /Telemetria FinOps da Entrega/i, 'AGENTS.template.md deve exigir tabela FinOps no fechamento do chat');
+    assert.match(tplText, /interview-me/i, 'AGENTS.template.md deve acionar interview-me para dúvidas de requisito');
+    assert.match(tplText, /BDD Gherkin/i, 'AGENTS.template.md deve exigir Gherkin em 100% dos planos');
+    assert.match(tplText, /resumo executivo compacto/i, 'AGENTS.template.md deve exigir resumo compacto no chat');
+    assert.doesNotMatch(tplText, /CONFIDENCE.*95%/i, 'v2 remove cálculo artificial CONFIDENCE >= 95%');
+
+    const tmpDir = createTempWorkspace();
+    try {
+      const commitAllDeny = evaluatePreToolUseHook({
+        cwd: tmpDir,
+        toolCall: { name: 'run_command', args: { CommandLine: 'git commit -am "feat: bypass"' } },
+      });
+      assert.equal(commitAllDeny.decision, 'deny', 'git commit -a deve ser bloqueado');
+
+      fs.writeFileSync(
+        path.join(tmpDir, '.git', 'aegis-gate-stamp.json'),
+        JSON.stringify({
+          blastRadiusEvaluation: {
+            planGoldfishRequired: false,
+            codeGoldfishRequired: true,
+            ceremonyTier: 'XS_EXPRESS',
+            evaluatedFiles: ['src/utils/math.ts'],
+            evaluatedAt: Date.now(),
+          },
+        }),
+        'utf8'
+      );
+      const fastPathPlanAllow = evaluatePreToolUseHook({
+        cwd: tmpDir,
+        toolCall: {
+          name: 'write_file',
+          args: {
+            Path: path.join(tmpDir, 'implementation_plan.md'),
+            Content: '# Plano Tier 0\n## Cenários Gherkin\nDado X Quando Y Então Z',
+            ArtifactMetadata: { RequestFeedback: true, Summary: 'Tier 0', UserFacing: true },
+          },
+        },
+      });
+      assert.equal(fastPathPlanAllow.decision, 'allow', 'Tier 0 XS_EXPRESS deve liberar RequestFeedback: true sem GF-01');
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   });
 
   it('Cenário 7: diagnoseParallelIssueBlocker detecta arquivo de outra Issue paralela em schemas Node e Python sem auto-colisão (GF-09, GF-10)', () => {

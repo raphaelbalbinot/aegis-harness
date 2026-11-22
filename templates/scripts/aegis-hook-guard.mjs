@@ -11,6 +11,7 @@
  * 4. CLI (`--check-rules` / `--stamp-verify` / `--stamp-review` / `--diagnose-blocker`).
  */
 
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -23,6 +24,7 @@ const STAMP_MAX_AGE_MS = 2700000;
 const GOLDFISH_HEADER_RE = /##\s+.*Cold Spec Review/i;
 const GOLDFISH_ROW_RE = /\|\s*\*{0,2}GF-01\*{0,2}\s*\|/i;
 const GIT_COMMIT_CMD_RE = /(?:^|[;&|]\s*)git\s+commit\b/i;
+const GIT_COMMIT_ALL_FLAG_RE = /(?:^|[;&|]\s*)git\s+commit\b[^;&|]*(?:\s-(?:[a-zA-Z]*a[a-zA-Z]*)|--all)\b/i;
 
 /**
  * Resolve o diretório raiz do repositório a partir de `cwd` do payload ou da posição do script (GF-01).
@@ -199,11 +201,48 @@ function simulatePlanContent(args) {
 }
 
 /**
+ * Lê `.git/aegis-gate-stamp.json` de forma segura.
+ * @param {string} repoRoot
+ * @returns {Record<string, any>}
+ */
+function readGateStamp(repoRoot) {
+  const stampPath = path.join(repoRoot, '.git', 'aegis-gate-stamp.json');
+  if (!fs.existsSync(stampPath)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(stampPath, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Lista arquivos em staging (`git diff --cached --name-only`) sem interpolação de shell (CWE-78).
+ * @param {string} repoRoot
+ * @returns {string[] | null}
+ */
+function listStagedFiles(repoRoot) {
+  try {
+    const out = execFileSync('git', ['diff', '--cached', '--name-only'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return out
+      .split(/\r?\n/)
+      .map((line) => line.trim().replace(/\\/g, '/').replace(/^\.\//, ''))
+      .filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Avalia chamadas `write_file` / `edit_file` / `multi_edit_file` sobre `implementation_plan.md`.
+ * @param {string} repoRoot
  * @param {Record<string, any>} args
  * @returns {{ decision: 'allow' | 'deny'; reason?: string }}
  */
-function evaluatePlanWriteGuard(args) {
+function evaluatePlanWriteGuard(repoRoot, args) {
   const targetPath = String(args.Path ?? args.TargetFile ?? '').replace(/\\/g, '/');
   if (!targetPath.endsWith('/implementation_plan.md') && targetPath !== 'implementation_plan.md') {
     return { decision: 'allow' };
@@ -211,20 +250,27 @@ function evaluatePlanWriteGuard(args) {
   const reqFeedback = Boolean(args.ArtifactMetadata?.RequestFeedback);
   if (!reqFeedback) return { decision: 'allow' };
 
+  const stamp = readGateStamp(repoRoot);
+  const evalMeta = stamp?.blastRadiusEvaluation;
+  const evalFresh = evalMeta && Date.now() - Number(evalMeta.evaluatedAt ?? 0) <= STAMP_MAX_AGE_MS;
+  if (evalFresh && evalMeta.planGoldfishRequired === false) {
+    return { decision: 'allow' };
+  }
+
   const resultingText = simulatePlanContent(args);
   const hasGoldfishSection = GOLDFISH_HEADER_RE.test(resultingText) && GOLDFISH_ROW_RE.test(resultingText);
   if (!hasGoldfishSection) {
     return {
       decision: 'deny',
       reason:
-        'BLOQUEADO PELA REGRA 1.3.7 (Protocolo Semáforo Goldfish): Proibido usar RequestFeedback: true em implementation_plan.md antes de executar o 1º Portão Goldfish (Cold Spec Review) e incluir a tabela "## 🐠 Relatório Cold Spec Review" com GF-01. Grave o rascunho com RequestFeedback: false, invoque o subagente Goldfish e só habilite RequestFeedback: true após consolidar os achados.',
+        'BLOQUEADO PELA REGRA 1.3 (Protocolo Semáforo Goldfish): Proibido usar RequestFeedback: true em implementation_plan.md antes de executar o 1º Portão Goldfish (Cold Spec Review) e incluir a tabela "## 🐠 Relatório Cold Spec Review" com GF-01 (ou comprovar Tier 0 XS_EXPRESS via blast-radius).',
     };
   }
   return { decision: 'allow' };
 }
 
 /**
- * Avalia chamadas `run_command` que disparam `git commit` contra `.git/aegis-gate-stamp.json` (GF-03).
+ * Avalia chamadas `run_command` que disparam `git commit` contra `.git/aegis-gate-stamp.json` e `git diff --cached` (GF-03).
  * @param {string} repoRoot
  * @param {Record<string, any>} args
  * @returns {{ decision: 'allow' | 'deny'; reason?: string }}
@@ -233,28 +279,53 @@ function evaluateGitCommitGuard(repoRoot, args) {
   const cmdLine = String(args.CommandLine ?? args.command ?? '');
   if (!GIT_COMMIT_CMD_RE.test(cmdLine)) return { decision: 'allow' };
 
+  if (GIT_COMMIT_ALL_FLAG_RE.test(cmdLine)) {
+    return {
+      decision: 'deny',
+      reason:
+        'BLOQUEADO PELA REGRA 1.1: Proibido usar `git commit -a` / `--all`. Faça staging cirúrgico (`git add <arqs>`) para permitir a auditoria determinística do diff.',
+    };
+  }
+
   const stampPath = path.join(repoRoot, '.git', 'aegis-gate-stamp.json');
   if (!fs.existsSync(stampPath)) {
     return {
       decision: 'deny',
       reason:
-        'BLOQUEADO PELAS REGRAS 1.16 e 1.18: Nenhum carimbo de validação final (.git/aegis-gate-stamp.json) encontrado. Execute audit-verify e review.mjs/review.ps1 (+ 2º Portão Goldfish) antes de fazer git commit.',
+        'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Nenhum carimbo de validação final (.git/aegis-gate-stamp.json) encontrado. Execute audit-verify e review.mjs/review.ps1 (+ 2º Portão Goldfish) antes de fazer git commit.',
     };
   }
-  let stamp = {};
-  try {
-    stamp = JSON.parse(fs.readFileSync(stampPath, 'utf8'));
-  } catch {
-    stamp = {};
-  }
+  const stamp = readGateStamp(repoRoot);
   const now = Date.now();
   const verifyAge = now - Number(stamp.auditVerifyPassedAt ?? 0);
   const reviewAge = now - Number(stamp.reviewDossierGeneratedAt ?? 0);
-  if (verifyAge > STAMP_MAX_AGE_MS || reviewAge > STAMP_MAX_AGE_MS) {
+
+  const evalMeta = stamp?.blastRadiusEvaluation;
+  const stagedFiles = listStagedFiles(repoRoot);
+  if (evalMeta && evalMeta.planGoldfishRequired === false && Array.isArray(stagedFiles) && stagedFiles.length > 0) {
+    const allowedSet = new Set(
+      (evalMeta.evaluatedFiles ?? []).map((/** @type {string} */ f) => String(f).replace(/\\/g, '/').replace(/^\.\//, ''))
+    );
+    const unauthorized = stagedFiles.filter((f) => !allowedSet.has(f));
+    if (unauthorized.length > 0) {
+      return {
+        decision: 'deny',
+        reason: `BLOQUEADO (Trava Anti-Burla Fast-Path): O staging contém arquivo(s) não avaliados no Tier 0 (${unauthorized.join(', ')}). Re-execute blast-radius.mjs e cumpra o portão FULL_EGM_DAG antes de fazer commit.`,
+      };
+    }
+  }
+
+  const isDocsOnly =
+    evalMeta?.codeGoldfishRequired === false &&
+    Array.isArray(stagedFiles) &&
+    stagedFiles.length > 0 &&
+    stagedFiles.every((f) => f.endsWith('.md'));
+
+  if (verifyAge > STAMP_MAX_AGE_MS || (!isDocsOnly && reviewAge > STAMP_MAX_AGE_MS)) {
     return {
       decision: 'deny',
       reason:
-        'BLOQUEADO PELAS REGRAS 1.16 e 1.18: Carimbo de pré-commit incompleto ou expirado em .git/aegis-gate-stamp.json. Execute ambos os portões finais (audit-verify e review.mjs/review.ps1 + 2º Goldfish) antes de executar git commit.',
+        'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Carimbo de pré-commit incompleto ou expirado em .git/aegis-gate-stamp.json. Execute audit-verify e review.mjs/review.ps1 (+ 2º Goldfish) antes de executar git commit.',
     };
   }
   return { decision: 'allow' };
@@ -271,7 +342,7 @@ export function evaluatePreToolUseHook(payload) {
   const repoRoot = resolveRepoRoot(payload?.cwd);
 
   if (toolName === 'write_file' || toolName === 'edit_file' || toolName === 'multi_edit_file') {
-    return evaluatePlanWriteGuard(args);
+    return evaluatePlanWriteGuard(repoRoot, args);
   }
   if (toolName === 'run_command' || toolName === 'bash') {
     return evaluateGitCommitGuard(repoRoot, args);
