@@ -69,3 +69,22 @@ node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminh
 # Forçar modo específico de hospedeiro (--agent antigravity | claude | codex | all) e modo 100% offline:
 node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --agent antigravity --offline
 ```
+
+---
+
+## 🧪 5. Como Avaliar a Eficácia do Aegis (Simulação Determinística & Benchmark A/B)
+
+Qualquer pessoa que baixar o repositório pode comprovar na prática o funcionamento dos guardrails anti-drift:
+
+1. **Simulação Determinística de Guardrails (0 custo de API, ~6 cenários adversariais incluindo Spec Drift e Scope Drift):**
+   ```bash
+   node scripts/simulate-efficacy.mjs
+   ```
+2. **Benchmark A/B com LLM Real (`Sem Aegis` vs. `Com Aegis v2` em 6 tarefas-armadilha com juiz determinístico):**
+   ```bash
+   GEMINI_API_KEY="sua-chave" node scripts/benchmark-ab.mjs
+   ```
+3. **Suíte de Testes de Governança do Harness:**
+   ```bash
+   node --test tests/governance/*.test.mjs
+   ```
