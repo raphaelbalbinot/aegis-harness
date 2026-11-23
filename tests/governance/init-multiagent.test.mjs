@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,6 +173,42 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
     } finally {
       fs.rmSync(tmpDirFlag, { recursive: true, force: true });
       fs.rmSync(tmpDirAuto, { recursive: true, force: true });
+    }
+  });
+
+  it('Cenário 6: --agent opencode instala plugin .opencode/plugins/aegis-hook-guard.mjs + subagentes e bloqueia git commit -a', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-init-opencode-'));
+    try {
+      fs.mkdirSync(path.join(tmpDir, '.git'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tmpDir, 'package.json'),
+        JSON.stringify({ name: 'opencode-app', version: '1.0.0' }, null, 2),
+        'utf-8'
+      );
+
+      execFileSync(process.execPath, [INIT_SCRIPT, '--target', tmpDir, '--agent', 'opencode', '--offline'], {
+        encoding: 'utf-8',
+        stdio: 'pipe'
+      });
+
+      const cfg = JSON.parse(fs.readFileSync(path.join(tmpDir, 'harness.config.json'), 'utf-8'));
+      assert.equal(cfg.agentHost, 'opencode');
+      const pluginPath = path.join(tmpDir, '.opencode', 'plugins', 'aegis-hook-guard.mjs');
+      const goldfishPath = path.join(tmpDir, '.opencode', 'agents', 'goldfish-auditor.md');
+      const slicePath = path.join(tmpDir, '.opencode', 'agents', 'slice-executor.md');
+      assert.equal(fs.existsSync(pluginPath), true, 'Plugin OpenCode deve ser criado');
+      assert.equal(fs.existsSync(goldfishPath), true, 'Subagente goldfish-auditor OpenCode deve ser criado');
+      assert.equal(fs.existsSync(slicePath), true, 'Subagente slice-executor OpenCode deve ser criado');
+
+      const { AegisHookGuardPlugin } = await import(pathToFileURL(pluginPath).href);
+      const hooks = await AegisHookGuardPlugin({ directory: tmpDir });
+      await assert.rejects(
+        () => hooks['tool.execute.before']({ tool: 'bash' }, { args: { command: 'git commit -am "bypass"' } }),
+        /REGRA 1\.1/i,
+        'Plugin OpenCode deve bloquear git commit -a via scripts/aegis-hook-guard.mjs'
+      );
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 });

@@ -24,7 +24,7 @@ function cliPrint(message) {
   process.stdout.write(`${message}\n`);
 }
 
-const VALID_AGENT_HOSTS = new Set(['antigravity', 'claude', 'codex', 'all']);
+const VALID_AGENT_HOSTS = new Set(['antigravity', 'claude', 'codex', 'opencode', 'all']);
 
 function parseArgs(argv) {
   let target = process.cwd();
@@ -52,6 +52,7 @@ export function detectAgentHost(targetDir, requestedAgent = 'auto', env = proces
   if (VALID_AGENT_HOSTS.has(normalized)) return normalized;
   const hasMarker = (rel) => fs.existsSync(path.join(targetDir, rel));
   if (hasMarker('.claude') || hasMarker('CLAUDE.md') || Boolean(env.CLAUDE_CODE)) return 'claude';
+  if (hasMarker('.opencode') || hasMarker('opencode.json') || Boolean(env.OPENCODE)) return 'opencode';
   if (hasMarker('.gemini') || hasMarker('.agents') || hasMarker('.agent')) return 'antigravity';
   if (Boolean(env.CODEX_CLI)) return 'codex';
   return 'all';
@@ -267,6 +268,22 @@ export function installMultiAgentBridge(targetDir, stack, { force = false } = {}
   );
 }
 
+/**
+ * Instala adaptador nativo do OpenCode: plugin `tool.execute.before` e subagentes em `.opencode/`.
+ */
+export function installOpenCodeBridge(targetDir, { force = false } = {}) {
+  copyFlatFiles(
+    path.join(HARNESS_ROOT, 'templates', 'opencode', 'plugins'),
+    path.join(targetDir, '.opencode', 'plugins'),
+    { force, extFilter: '.mjs' }
+  );
+  copyFlatFiles(
+    path.join(HARNESS_ROOT, 'templates', 'opencode', 'agents'),
+    path.join(targetDir, '.opencode', 'agents'),
+    { force, extFilter: '.md' }
+  );
+}
+
 const MANTIS_TOP_LEVEL_SKILLS = new Set(['mantis-meta-agent', 'mantis-advise']);
 
 /**
@@ -352,6 +369,9 @@ function main() {
   writeHarnessAndConstitution(opts.target, stack, { force: opts.force, agentHost });
   if (agentHost === 'claude' || agentHost === 'all') {
     installMultiAgentBridge(opts.target, stack, opts);
+  }
+  if (agentHost === 'opencode' || agentHost === 'all') {
+    installOpenCodeBridge(opts.target, opts);
   }
   cliPrint(`🎉 [Aegis Harness v2.0 | host=${agentHost}] Instalação concluída em ${opts.target}!`);
 }

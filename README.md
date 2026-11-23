@@ -35,7 +35,23 @@ Graças à **Seção 0 (Universal Multi-Agent Routing)** no topo do `AGENTS.md` 
 | **5. OpenAI Codex CLI & Web** | Lê `AGENTS.md` nativamente na raiz e carrega os módulos da Seção 0 sob demanda. | Despacha `codex exec --sandbox read-only` (para `🐠 Goldfish`) e `codex exec --full-auto` (para fatias DAG). |
 | **6. Cursor (Anysphere)** | Lê `AGENTS.md` nativamente na raiz e navega pelos módulos listados na Seção 0. | Executa os scripts Multi-OS (`blast-radius.mjs`, `plan-collision.mjs`, `audit-verify.mjs`, `review.mjs`). |
 | **7. Windsurf (Codeium)** | Lê `AGENTS.md` nativamente na raiz e carrega `.agents/rules/*.md` via Seção 0. | Executa os scripts determinísticos Multi-OS em `scripts/`. |
-| **8. GitHub Copilot Coding Agent & Cline / Roo Code** | Leem `AGENTS.md` nativamente na raiz do repositório. | Executam a esteira determinística (`node scripts/audit-verify.mjs`) e o verificador `aegis-hook-guard.mjs`. |
+| **8. OpenCode (CLI / TUI)** | Instalado com `--agent opencode` (ou `--agent all`): lê `AGENTS.md` + `.agents/skills/` nativamente e instala `.opencode/agents/{goldfish-auditor,slice-executor}.md`. | Plugin nativo `.opencode/plugins/aegis-hook-guard.mjs` (`tool.execute.before`) delega para `scripts/aegis-hook-guard.mjs` bloqueando commits sem carimbo e planos fora do `Confidence Gate (≥ 95%)`. |
+| **9. GitHub Copilot Coding Agent & Cline / Roo Code** | Leem `AGENTS.md` nativamente na raiz do repositório. | Executam a esteira determinística (`node scripts/audit-verify.mjs`) e o verificador `aegis-hook-guard.mjs`. |
+
+### 🤖 Modelos Recomendados por Fase & Adaptação para Outros Agentes
+
+O `aegis-harness` é **100% agnóstico de provedor/modelo** (Gemini, Claude, GPT/Codex, DeepSeek, Llama/Qwen locais). Para equilibrar qualidade e FinOps:
+
+| Fase do Ciclo | Perfil de Modelo Recomendado | Exemplos |
+| :--- | :--- | :--- |
+| **`DEFINE` / `PLAN` & 1º/2º 🐠 Goldfish** | **Reasoning / Frontier** (alta capacidade de crítica arquitetural e detecção de *edge cases*) | Gemini Pro / Argon, Claude Sonnet/Opus, GPT-5 / o3, DeepSeek-R1 |
+| **`BUILD` (Fatias DAG isoladas)** | **Fast / Mid-tier** (baixa latência para ciclos curtos de TDD em arquivos delimitados) | Gemini Flash / Neon, Claude Sonnet/Haiku, GPT-4.1 / Codex-mini |
+| **`AUDIT` (`blast-radius`, `audit-verify`, `scan-clean-code`)** | **0 tokens (100% determinístico local)** | Node.js / Python scripts em `scripts/` |
+
+**Como adaptar para qualquer outro agente/IDE não listado:**
+1. **Instruções:** aponte o arquivo de regras do seu agente para `AGENTS.md` na raiz (ex.: `@AGENTS.md`, `#[[file:AGENTS.md]]` ou cópia de referência) e mantenha `.agents/rules/*.md` sob demanda.
+2. **Esteira determinística:** permita que o agente execute `node scripts/blast-radius.mjs`, `node scripts/audit-verify.mjs` e `node scripts/review.mjs` (ou os equivalentes em `scripts/*.py`).
+3. **Trava física opcional (PreToolUse):** caso seu agente suporte hooks pré-execução de ferramenta, envolva `evaluatePreToolUseHook` de `scripts/aegis-hook-guard.mjs` (use `.opencode/plugins/aegis-hook-guard.mjs` como modelo de adaptador de ~50 linhas).
 
 ---
 
@@ -63,11 +79,11 @@ Graças à **Seção 0 (Universal Multi-Agent Routing)** no topo do `AGENTS.md` 
 ## 🚀 4. Como Instalar em Qualquer Projeto e Hospedeiro Agêntico
 
 ```bash
-# Auto-detecção do agente hospedeiro (Antigravity, Claude Code, Codex, Kiro, Cursor, etc.):
+# Auto-detecção do agente hospedeiro (Antigravity, OpenCode, Claude Code, Codex, Kiro, Cursor, etc.):
 node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto
 
-# Forçar modo específico de hospedeiro (--agent antigravity | claude | codex | all) e modo 100% offline:
-node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --agent antigravity --offline
+# Forçar modo específico de hospedeiro (--agent antigravity | opencode | claude | codex | all) e modo 100% offline:
+node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --agent opencode --offline
 ```
 
 ---
