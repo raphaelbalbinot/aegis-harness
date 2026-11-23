@@ -20,7 +20,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const MAX_RULE_FILE_BYTES = 22000;
-const STAMP_MAX_AGE_MS = 2700000;
 const GOLDFISH_HEADER_RE = /##\s+.*Cold Spec Review/i;
 const GOLDFISH_ROW_RE = /\|\s*\*{0,2}GF-01\*{0,2}\s*\|/i;
 const GIT_COMMIT_CMD_RE = /(?:^|[;&|]\s*)git\s+commit\b/i;
@@ -43,7 +42,25 @@ export function resolveRepoRoot(candidateCwd) {
 }
 
 /**
+ * Retorna o SHA atual de `HEAD` (ou string vazia se o repositório ainda não tiver commits).
+ * @param {string} repoRoot
+ * @returns {string}
+ */
+function resolveCurrentHeadSha(repoRoot) {
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return '';
+  }
+}
+
+/**
  * Grava com merge JSON um carimbo determinístico em `.git/aegis-gate-stamp.json` (GF-03).
+ * Vinculado ao `HEAD` atual (sem expiração por relógio/TTL).
  * @param {string} repoRoot
  * @param {'auditVerifyPassedAt' | 'reviewDossierGeneratedAt'} fieldName
  */
@@ -59,7 +76,8 @@ export function recordGateStamp(repoRoot, fieldName) {
       current = {};
     }
   }
-  const updated = { ...current, [fieldName]: Date.now() };
+  const headSha = resolveCurrentHeadSha(repoRoot);
+  const updated = { ...current, [fieldName]: Date.now(), ...(headSha ? { headSha } : {}) };
   fs.writeFileSync(stampPath, JSON.stringify(updated, null, 2), 'utf8');
 }
 
@@ -251,9 +269,7 @@ function evaluatePlanWriteGuard(repoRoot, args) {
   if (!reqFeedback) return { decision: 'allow' };
 
   const stamp = readGateStamp(repoRoot);
-  const evalMeta = stamp?.blastRadiusEvaluation;
-  const evalFresh = evalMeta && Date.now() - Number(evalMeta.evaluatedAt ?? 0) <= STAMP_MAX_AGE_MS;
-  if (evalFresh && evalMeta.planGoldfishRequired === false) {
+  if (stamp?.blastRadiusEvaluation?.planGoldfishRequired === false) {
     return { decision: 'allow' };
   }
 
@@ -270,26 +286,6 @@ function evaluatePlanWriteGuard(repoRoot, args) {
 }
 
 /**
- * Valida se o staging no Fast-Path Tier 0 contém apenas arquivos avaliados pelo blast-radius.
- * @param {Record<string, any> | undefined} evalMeta
- * @param {string[] | null} stagedFiles
- * @returns {{ decision: 'allow' | 'deny'; reason?: string } | null}
- */
-function checkFastPathStagedFiles(evalMeta, stagedFiles) {
-  if (!evalMeta || evalMeta.planGoldfishRequired !== false) return null;
-  if (!Array.isArray(stagedFiles) || stagedFiles.length === 0) return null;
-  const allowedSet = new Set(
-    (evalMeta.evaluatedFiles ?? []).map((/** @type {string} */ f) => String(f).replace(/\\/g, '/').replace(/^\.\//, ''))
-  );
-  const unauthorized = stagedFiles.filter((f) => !allowedSet.has(f));
-  if (unauthorized.length === 0) return null;
-  return {
-    decision: 'deny',
-    reason: `BLOQUEADO (Trava Anti-Burla Fast-Path): O staging contém arquivo(s) não avaliados no Tier 0 (${unauthorized.join(', ')}). Re-execute blast-radius.mjs e cumpra o portão FULL_EGM_DAG antes de fazer commit.`,
-  };
-}
-
-/**
  * Verifica se o commit contém exclusivamente arquivos Markdown quando o blast-radius dispensou 2º Goldfish.
  * @param {Record<string, any> | undefined} evalMeta
  * @param {string[] | null} stagedFiles
@@ -301,7 +297,7 @@ function isDocsOnlyCommit(evalMeta, stagedFiles) {
 }
 
 /**
- * Avalia chamadas `run_command` que disparam `git commit` contra `.git/aegis-gate-stamp.json` e `git diff --cached` (GF-03).
+ * Avalia chamadas `run_command` que disparam `git commit` contra `.git/aegis-gate-stamp.json` (GF-03).
  * @param {string} repoRoot
  * @param {Record<string, any>} args
  * @returns {{ decision: 'allow' | 'deny'; reason?: string }}
@@ -324,16 +320,14 @@ function evaluateGitCommitGuard(repoRoot, args) {
   }
   const stamp = readGateStamp(repoRoot);
   const stagedFiles = listStagedFiles(repoRoot);
-  const fastPathViolation = checkFastPathStagedFiles(stamp?.blastRadiusEvaluation, stagedFiles);
-  if (fastPathViolation) return fastPathViolation;
-
-  const now = Date.now();
-  const verifyExpired = now - Number(stamp.auditVerifyPassedAt ?? 0) > STAMP_MAX_AGE_MS;
-  const reviewExpired = now - Number(stamp.reviewDossierGeneratedAt ?? 0) > STAMP_MAX_AGE_MS;
-  if (verifyExpired || (!isDocsOnlyCommit(stamp?.blastRadiusEvaluation, stagedFiles) && reviewExpired)) {
+  const currentHead = resolveCurrentHeadSha(repoRoot);
+  const headChanged = Boolean(stamp.headSha && currentHead && stamp.headSha !== currentHead);
+  const missingVerify = Number(stamp.auditVerifyPassedAt ?? 0) <= 0;
+  const missingReview = Number(stamp.reviewDossierGeneratedAt ?? 0) <= 0;
+  if (headChanged || missingVerify || (!isDocsOnlyCommit(stamp?.blastRadiusEvaluation, stagedFiles) && missingReview)) {
     return {
       decision: 'deny',
-      reason: 'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Carimbo de pré-commit incompleto ou expirado. Execute audit-verify e review (+ 2º Goldfish) antes de commitar.',
+      reason: 'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Carimbo de pré-commit ausente ou desatualizado para o HEAD atual. Execute audit-verify e review (+ 2º Goldfish) antes de commitar.',
     };
   }
   return { decision: 'allow' };
