@@ -2,6 +2,9 @@
 
 **Adversarial Engineering Governance & Intelligent Skills** — Um *Engineering Harness* determinístico, adversarial, políglota e **100% agnóstico de nuvem e de ferramenta agêntica** para transformar agentes de IA em engenheiros de software seniores auditáveis em qualquer linguagem (TypeScript/Node.js, Python, Go, Rust, Java, C#).
 
+> *"Um LLM de fronteira é um motor probabilístico de altíssima potência, mas sem freios nativos. Sem um **Harness** (arreio, sensores e trilhos determinísticos), ele corre rápido na direção errada. O **Engineering Harness** não reduz a potência do modelo — ele canaliza 100% dessa força bruta para dentro de barreiras físico-matemáticas onde alucinações, regressões e dívida técnica são fisicamente bloqueadas."*  
+> — **Síntese da Tese de Engenharia Agêntica** *(inspirada em **Addy Osmani**, "AI-Assisted Engineering / Beyond Vibe Coding", & **Anthropic Engineering**, "Building Effective Agents" / SWE-bench Agent Harness)*
+
 ---
 
 ## 🏛️ 1. Arquitetura Constitucional *Hub & Spoke* (`< 22 KB` Anti-Truncamento) + A Tríade `docs/`
