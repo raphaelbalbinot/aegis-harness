@@ -1,58 +1,74 @@
-# 🛡️ Apresentação Técnica & Executiva: Engineering Harness para Desenvolvimento Assistido por IA
-### *Arquitetura Reutilizável Multi-Projeto de Governança Determinística, Padrão EGM (Elephant-Goldfish), Skills Soberanas, Guardrails AST e Auditoria de 12 Portões*
+# 🛡️ Apresentação Técnica & Executiva: Aegis Engineering Harness para Desenvolvimento Assistido por IA
+### *Arquitetura Reutilizável Multi-Projeto e Multi-Agente: Model vs. Engineering Harness, Constituição Hub & Spoke (`< 22 KB`), Padrão EGM (Elephant-Goldfish) com Protocolo Semáforo, Grafo DAG (`Single-Execution Gate`), Living Threat Model e Esteira de 12 Portões*
 
 ---
 
-## 🎯 Slide 1: Visão Executiva — O Paradigma do Engineering Harness
+## 🎯 Slide 1: Abertura Executiva — O Que é um Engineering Harness? (*Model vs. Engineering Harness*)
 
-> **Tese Central:** Modelos de linguagem (LLMs) sem trilhos produzem velocidade ilusória no Dia 1 e dívida técnica exponencial no Dia 30 (*alucinação de escopo, código morto, testes tautológicos, quebras silenciosas em Serverless e regressões*).  
-> **Nossa Resposta:** Construímos um **Engineering Harness Determinístico e Adversarial** que transforma agentes autônomos em engenheiros seniores auditáveis, onde **nenhuma linha de código chega ao repositório sem passar por 12 portões determinísticos e 2 auditorias adversariais sem contexto (EGM Goldfish)**.
+> *"Um LLM de fronteira é um motor probabilístico de altíssima potência, mas sem freios nativos. Sem um **Harness** (arreio, sensores e trilhos determinísticos), ele corre rápido na direção errada. O **Engineering Harness** não reduz a potência do modelo — ele canaliza 100% dessa força bruta para dentro de barreiras físico-matemáticas onde alucinações, regressões e dívida técnica são fisicamente bloqueadas."*  
+> — **Síntese da Tese de Engenharia Agêntica** *(inspirada em **Addy Osmani**, "AI-Assisted Engineering / Beyond Vibe Coding", & **Anthropic Engineering**, "Building Effective Agents" / SWE-bench Agent Harness)*
 
-### Os 4 Resultados Estratégicos (ROI de Engenharia)
-1. **Zero Alucinação & Zero Drift Arquitetural:** Contratos físicos verificados por AST (`ast-grep`), grafo 3D sincronizado (`Archify`) e proibição estrita de compatibilidade zumbi (`Regra 1.12`).
-2. **Desenvolvimento Paralelo Seguro (Multi-Agent / Multi-Session):** Radar de colisão em `.git/active-plans.json` (`plan-collision.mjs`), isolamento de artefatos por conversa e *staging* cirúrgico por Issue.
-3. **Eliminação do Viés de Autoconfirmação (*Self-Review Bias*):** O agente que escreve o plano ou o código (**🐘 Elephant**) nunca é o único a se julgar — um subagente isolado com zero contexto da conversa (**🐠 Goldfish**) audita tanto o plano quanto o diff final.
-4. **Qualidade em Tolerância Zero (22/22 Clean Code + 12 Portões):** O comando `npm run precommit` (`audit:verify`) bloqueia deterministicamente qualquer desvio de tipagem, código órfão, vulnerabilidade ou complexidade ciclomática excessiva (`CRAP < 10`).
+### A Diferença na Indústria: Prompt Pack vs. Agent Framework vs. Engineering Harness
+
+| Categoria no Mercado | O Que Faz | Limitação / Papel Real |
+| :--- | :--- | :--- |
+| **1. Prompt / Rules Pack** (`.md` soltos) | Pede boas práticas por texto passivo no início da conversa. | Sofre de truncamento silencioso (`> 24 KB`), esquecimento ao longo da janela de contexto e *self-review bias* (*rubber-stamping*). |
+| **2. Agent Framework** (`LangChain`, `CrewAI`, `AutoGen`) | Biblioteca de código para programar chatbots ou fluxos de IA de produto do zero. | Não governa o ciclo de engenharia de software do repositório nem audita commits, AST ou testes. |
+| **3. Engineering Harness** (**`Aegis Harness`** — *Padrão Ouro*) | **Constituição *Hub & Spoke* (`< 22 KB`) + 55 Skills + Hooks Físicos `PreToolUse` + Duplo Portão 🐠 Goldfish + Hard Sandbox `SHA-256` + 12 Portões Determinísticos.** | Governa qualquer agente de código (**Antigravity, AWS Kiro, Amazon Q Developer, Claude Code, OpenAI Codex CLI, Cursor, Windsurf, GitHub Copilot**) com bloqueios físicos determinísticos antes do código, entre fatias e antes do commit. |
 
 ---
 
-## 🗺️ Slide 2: Arquitetura Geral do Harness (Visão em 5 Camadas)
+## 🏛️ Slide 2: Visão Executiva — Os 4 Pilares de Engenharia do Aegis Harness
+
+1. **Constituição *Hub & Spoke* (`< 22.000 bytes`) + Tríade `docs/`:**
+   - O arquivo [AGENTS.template.md](../templates/AGENTS.template.md) (`< 16 KB`) opera como Hub universal na raiz com a **Seção 0 (`Universal Multi-Agent Routing`)**, roteando sob demanda para regras modulares de domínio em `.agents/rules/*.md` (`< 6 KB` cada, fiscalizadas por `aegis-hook-guard.mjs --check-rules` contra o limite de `24 KB` do Antigravity) e exigindo atualização pré-código da Tríade `docs/PRD.md`, `docs/ARCHITECTURE.md` e `docs/DIRETRIZES_DOMINIO.md`.
+2. **Revisão Adversarial EGM (Elephant-Goldfish Model) com Protocolo Semáforo e Hook `PreToolUse`:**
+   - **1º Portão (`Cold Spec Review`):** Rascunho frio gravado com `RequestFeedback: false` (sem botão *Proceed*) $\rightarrow$ auditoria pelo subagente **🐠 Goldfish** (memória zero, respondendo ao *Pre-Mortem de Produção* e à *Navalha de Occam*) $\rightarrow$ liberação de `RequestFeedback: true` somente após incluir a tabela `GF-01..N` e o Grafo DAG (bloqueado fisicamente por [aegis-hook-guard.mjs](../templates/scripts/aegis-hook-guard.mjs) em [hooks.template.json](../templates/hooks.template.json)).
+   - **2º Portão (`review.mjs` / `review.ps1`):** Obrigatório para 100% dos commits de código (`codeGoldfishRequired: true`), pré-injetando cláusulas BDD Gherkin, resumo do `THREAT_MODEL.md` e telemetria AST/CRAP do `scan-clean-code.mjs`, com Trava Anti-Burla via `git diff --cached` em `.git/aegis-gate-stamp.json`.
+3. **Orquestração Reativa por Ondas DAG (`dag-slice-orchestrator` — `Single-Execution Gate Protocol`):**
+   - Aloca `100%` dos achados `GF-01..N` em fatias com `Allowed Files Whitelist` disjunta ($\text{Files}(A) \cap \text{Files}(B) = \emptyset$), roteia entre 3 Tiers de Modelo (`flash` / `inherit` / `pro` + *Retry Escalation*) e confina cada `slice-executor` (`EnableMCPTools: false`) com `plan-collision snapshot-slice` e `verify-slice --revert-unauthorized` (`~50ms`).
+4. **Qualidade em Tolerância Zero (22/22 Clean Code + Living Threat Model + 12 Portões):**
+   - Esteira [audit-verify.mjs](../templates/scripts/audit-verify.mjs) validando lockfile, supply chain, `ast-grep`, `dependency-cruiser`, `knip`, `tsc`, `Archify 3D`, suítes TDD, nomenclatura semântica de testes, `scan-clean-code.mjs --enforce-zero-rules` ($\text{CRAP}(m) < 10$) e sincronia criptográfica `<!-- aegis-surface-hash -->` do [THREAT_MODEL.template.md](../templates/workspace/kb/THREAT_MODEL.template.md).
+
+---
+
+## 🗺️ Slide 3: Arquitetura Geral em 5 Camadas Concêntricas (Defense-in-Depth)
 
 ```mermaid
 flowchart TB
-    subgraph L1 ["📜 CAMADA 1: CONSTITUIÇÃO & LEIS INEGOCIÁVEIS (AGENTS.md)"]
+    subgraph L1 ["📜 CAMADA 1: CONSTITUIÇÃO HUB & SPOKE (< 22 KB) & TRÍADE docs/"]
         direction LR
-        A1["🛑 Regras 1.1 a 1.20<br/>Zero Commit Proativo, TDD, Serverless"]
-        A2["🧭 5 Eixos de Escopo<br/>Stop-and-Warn Anti-Scope Creep"]
-        A3["⚖️ 7 Core Behaviors<br/>Push Back, Simplicidade, '??' vs '||'"]
+        A1["🧭 Seção 0 Universal Routing<br/>AGENTS.md (<16KB) + .agents/rules/*.md (<6KB)"]
+        A2["🛑 20 Leis & 5 Eixos<br/>Stop-and-Warn, TDD, Zero Dual-Schema"]
+        A3["⚖️ 7 Core Behaviors<br/>Push Back, Occam, '??' vs '||', CWE-78"]
     end
 
-    subgraph L2 ["🧠 CAMADA 2: META-SKILL & CATÁLOGO DE SKILLS (.agents/skills/)"]
+    subgraph L2 ["🧠 CAMADA 2: CATÁLOGO DE 55 SKILLS & LIVING THREAT MODEL"]
         direction LR
         S1["🔄 using-agent-skills<br/>Roteador de 5 Fases (DEFINE → SHIP)"]
-        S2["🧹 clean-code-audit<br/>22 Regras + Scanner AST + CRAP < 10"]
-        S3["🏛️ archify & Dominio KDP<br/>Grafo 3D 5 Abas, DOCX, EPUB, CIP"]
+        S2["🛡️ Mantis Hub-Skill & THREAT_MODEL.md<br/>mantis-advise + aegis-surface-hash + TM-ID"]
+        S3["🧹 clean-code-audit & archify<br/>22 Regras (CRAP < 10) + Central 3D 5 Abas"]
     end
 
-    subgraph L3 ["🔌 CAMADA 3: ECOSSISTEMA MCP & CONTEXTO CIRÚRGICO"]
+    subgraph L3 ["🔌 CAMADA 3: COGNIÇÃO MCP & ORQUESTRAÇÃO DAG"]
         direction LR
         M1["🧠 sequential-thinking<br/>Córtex Pré-Frontal (5 Fases Debug)"]
-        M2["🌐 chrome-devtools-mcp<br/>Inspeção Real DOM/Network & E2E Dual"]
-        M3["📦 repomix & brave-search<br/>Contexto < 3k tokens + Trava Local"]
+        M2["🕸️ dag-slice-orchestrator<br/>Single-Execution Gate & Hard Sandbox SHA-256"]
+        M3["🌐 chrome-devtools-mcp & repomix<br/>Inspeção Real DOM/CWV & Contexto < 3k tokens"]
     end
 
-    subgraph L4 ["🐘🐠 CAMADA 4: MODELO ADVERSARIAL EGM (ELEPHANT-GOLDFISH)"]
+    subgraph L4 ["🐘🐠 CAMADA 4: DUPLO PORTÃO EGM GOLDFISH & FISCAL PRETOOLUSE"]
         direction LR
-        G1["🐠 Portão 1: Cold Spec Review<br/>Auditoria a Frio do Implementation Plan"]
-        G2["🐠 Portão 2: review.ps1 -Issue<br/>Auditoria Sênior nos 4 Eixos + Diff"]
-        G3["🏗️ audit-repo.ps1<br/>Health Check Global → Issues GitHub"]
+        G1["🚦 Portão 1: Semáforo Cold Spec<br/>RequestFeedback: false → GF-01..N → true"]
+        G2["🐠 Portão 2: review.mjs Multi-OS<br/>Diff + BDD + AST/CRAP + THREAT_MODEL"]
+        G3["🔒 aegis-hook-guard.mjs (hooks.json)<br/>Bloqueia Proceed sem GF-01 e Commit sem Stamp"]
     end
 
-    subgraph L5 ["🛡️ CAMADA 5: ESTEIRA DETERMINÍSTICA (audit-verify.mjs — 12 Portões)"]
+    subgraph L5 ["🛡️ CAMADA 5: ESTEIRA DETERMINÍSTICA (audit-verify — 12 Portões)"]
         direction LR
-        V1["💥 blast-radius & plan-collision<br/>Impacto Reverso & Zero Conflito"]
+        V1["💥 blast-radius & plan-collision<br/>securitySurfaceTouched, recommendedSkills & Lock"]
         V2["🔍 ast-grep + knip + depcruise + tsc<br/>AST, Código Morto, Fronteiras, Tipos"]
-        V3["🧪 Vitest + Playwright/MCP + 22/22 Clean Code<br/>TDD Estrito & Tolerância Zero"]
+        V3["🧪 TDD + Dual E2E + 22/22 Clean Code<br/>Carimbo .git/aegis-gate-stamp.json (Exit 0)"]
     end
 
     L1 ==> L2 ==> L3 ==> L4 ==> L5
@@ -60,183 +76,59 @@ flowchart TB
 
 ---
 
-## 📜 Slide 3: `AGENTS.md` — A Constituição de Governança (Regras 1.1 a 1.20)
-
-O arquivo [AGENTS.md](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/AGENTS.md) não é uma documentação passiva: é o **contrato constitucional carregado no prompt de sistema de todas as sessões**.
-
-| Regra | Nome do Guardrail | O que Proíbe / Obriga na Prática |
-| :--- | :--- | :--- |
-| **1.1 & 1.1.1** | **Controle de Versão & Staging Cirúrgico** | Proibido `git commit`/`push` sem ordem expressa. Proibido `git add .` ou `git add -A`: exige staging explícito arquivo por arquivo do plano e rastreabilidade `(#ID)` ou `(closes #ID)`. |
-| **1.2 & 1.3** | **Zero Código Prematuro, Trade-offs & BDD 1:1** | Proibido codificar sem `implementation_plan.md` aprovado, contendo **Boost Trade-off Matrix (Opção A vs. B)**, cenários **BDD Gherkin (`Dado/Quando/Então`)** espelhados 1:1 com a Issue no GitHub e **Cold Spec Review** (com Pre-Mortem de Produção e Navalha de Occam). |
-| **1.4** | **Tríade Documental Pré-Código** | Mudanças arquiteturais ou de negócio exigem atualizar `docs/PRD.md`, `docs/ARCHITECTURE.md` e `docs/DIRETRIZES_EDITORIAIS.md` **antes** do código. |
-| **1.5** | **Travas Serverless Cloud Run** | **Anti-Freeze:** Zero promessas *fire-and-forget* pós-resposta HTTP. **Stateless:** Zero estado mutável em memória global do servidor. Uso estrito de `PORT ?? 8080` e `SIGTERM`. |
-| **1.6 & 1.16** | **TDD Mandatório & Two-Cycle Workflow** | Ciclo 🔴 RED → 🟢 GREEN → 🔵 REFACTOR para cada fatia vertical. Separação estrita entre **Inner Loop** (testes cirúrgicos do domínio) e **Outer Loop** (`npm run precommit`). |
-| **1.11** | **5 Eixos & Gatilho *Stop-and-Warn*** | Classifica demandas nos Eixos **A (Infra)**, **B (Segurança/CWE)**, **C (IA/Domínio)**, **D (UI/Editor)** e **E (Persistência)**. Se cruzar > 2 eixos ou misturar Infra com UI, o agente **PARA** e propõe fatiar em novas Issues. |
-| **1.12** | **Proibição de Compatibilidade Zumbi** | Banido manter dual-schema (`novo ?? antigo`) ou normalizadores de legado. Mudou contrato? Atualiza 100% da base e bloqueia o formato antigo no `ast-grep`. |
-| **1.14 & 1.15** | **Governança de Testes & Paridade Dual E2E** | Proibido nomear testes com `issue-XX` ou `stage-a-cluster`. Organização estrita em 6 domínios (`ai`, `editor`, `kdp`, `telemetry`, `storage`, `governance`) + Paridade 1:1 entre Playwright (`.spec.ts`) e MCP (`.mcp.ts`). |
-| **1.19 & 1.20** | **Léxico Canônico & Modern Web Guidance** | Adoção estrita de **"Bíblia da Obra"** (banido *"Bíblia de Lore"*) e consulta obrigatória a `modern-web-guidance` com `legacy-scan = 0` em `frontend` e `landing` (`structuredClone`, `toSorted()`, `!isComposing`, `scrollbar-color`). |
-
----
-
-## 🧠 Slide 4: Ciclo `/using-agent-skills` — Orquestração por Fase de Engenharia
-
-Em vez de prompts improvisados, cada turno de trabalho aciona o roteador [SKILL.md](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/.agents/skills/using-agent-skills/SKILL.md), ativando procedimentos especializados para cada etapa do ciclo de vida:
-
-```mermaid
-flowchart LR
-    P1["<b>1. DEFINE</b><br/>• interview-me<br/>• idea-refine<br/>• spec-driven-dev"]
-    P2["<b>2. PLAN</b><br/>• planning-and-task-breakdown<br/>• constraint-driven-dev<br/>• doubt-driven-dev (Goldfish 1)"]
-    P3["<b>3. BUILD</b><br/>• incremental-implementation<br/>• modern-web-guidance + UI/A11y/CWV<br/>• api-and-interface-design<br/>• source-driven-dev"]
-    P4["<b>4. VERIFY</b><br/>• test-driven-development<br/>• browser-testing-with-devtools<br/>• archify (5 Abas 3D)"]
-    P5["<b>5. REVIEW & SHIP</b><br/>• clean-code-audit (--changed)<br/>• modern-web-guidance + web-quality-audit<br/>• code-review-and-quality (Goldfish 2)<br/>• security-and-hardening"]
-
-    P1 --> P2 --> P3 --> P4 --> P5
-```
-
-### O Padrão *Domain-as-a-Skill* (Encapsulamento de Regras de Negócio)
-Em vez de inflar o prompt global ou confiar na memória do LLM para regras complexas de negócio (sejam fiscais, financeiras, jurídicas ou editoriais), o harness isola o conhecimento específico do produto em Skills soberanas sob demanda:
-- **Exemplo Real (Caso Heldora — Publicação Amazon KDP):** `kdp-docx-exporter`, `kdp-epub-exporter`, `kdp-copyright-and-cip-cataloging` (blindando fórmulas matemáticas de sangria, margens progressivas, lombada, sumário interativo e catalogação internacional em 26 variantes de idioma).
-- **Segurança & Modelagem de Ameaças (Suite Mantis):** `mantis-threat-model`, `mantis-advise`, `mantis-researcher`, `mantis-review`, `mantis-patch` e `firestore-rules-creation` (delegação obrigatória para o subagente especialista `firestore-rules-author`).
-
----
-
-## 🐘🐠 Slide 5: Padrão EGM (Elephant-Goldfish Model) — Revisão Adversarial em Duplo Portão
-
-### Por que o Modelo Elephant-Goldfish existe?
-Um agente de IA que passa 40 turnos conversando com o usuário acumula contexto rico (**🐘 Elephant**), mas desenvolve **viés de autoconfirmação**: ele tende a justificar atalhos e aprovar o próprio código. O **🐠 Goldfish** é um subagente invocado com **zero histórico da conversa**, recebendo apenas os fatos brutos (a especificação, a Issue do GitHub, o Blast Radius e o Diff real).
+## 🚦 Slide 4: Padrão EGM (Elephant-Goldfish), Protocolo Semáforo e Fiscal Nativo (`aegis-hook-guard.mjs`)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as 👤 Usuário
-    participant E as 🐘 Agente Elephant<br/>(Com Contexto da Sessão)
+    participant E as 🐘 Agente Elephant<br/>(Com Contexto)
+    participant H as 🔒 aegis-hook-guard.mjs<br/>(PreToolUse Hook)
     participant G1 as 🐠 Goldfish Portão 1<br/>(Cold Spec Auditor)
-    participant G2 as 🐠 Goldfish Portão 2<br/>(Revisor Sênior - review.ps1)
+    participant G2 as 🐠 Goldfish Portão 2<br/>(Revisor Sênior - review.mjs)
 
     U->>E: Solicita Feature / Issue #ID
-    E->>E: Roda blast-radius.mjs + plan-collision.mjs
-    E->>E: Elabora implementation_plan.md (BDD Gherkin)
-    E->>G1: Invoca Subagente (Zero Contexto + Plano + Arquivos-Alvo)
-    G1-->>E: Devolve Achados GF-01, GF-02... (Riscos, Casos de Borda, CWE)
-    E->>U: Apresenta Plano + Tabela Categorizada (GF-01..N) para Decisão
-    U->>E: Aprova Plano (Proceed = Default Approve nas sugestões)
-    E->>E: Ciclo TDD (RED -> GREEN -> REFACTOR) + audit:clean-code --changed
-    E->>E: Executa scripts/review.ps1 -Issue #ID -Files "..."
-    E->>G2: Invoca Subagente com scratch/review_prompt_issue_ID.md
-    alt Há apontamentos técnicos reais
-        G2-->>E: Lista falhas [BDD/TDD], [Clean Code], [Serverless], [Bug Lógico]
-        E->>E: ACCEPT & FIX via TDD (ou CONTEST WITH EVIDENCE se pedido explícito)
-        E->>G2: Re-submete novo Diff atualizado
-    end
+    E->>E: Roda blast-radius.mjs (1x) + plan-collision register
+    E->>H: write_file(implementation_plan.md, RequestFeedback: false)
+    H-->>E: decision: "allow" (Rascunho Frio sem botão Proceed)
+    E->>G1: invoke_subagent (Plano + Blast Radius + Arquivos-Alvo)
+    G1-->>E: Devolve Pre-Mortem, Navalha de Occam e Achados GF-01..N
+    E->>H: write_file(implementation_plan.md + GF-01..N + Grafo DAG, RequestFeedback: true)
+    H-->>E: decision: "allow" (Verifica ## 🐠 Relatório Cold Spec Review + GF-01)
+    E->>U: Exibe Plano Auditado com Botão Proceed
+    U->>E: Aprova Plano (Proceed = Default Approve)
+    E->>E: Executa Ondas DAG (snapshot-slice -> Micro-Gate TDD -> verify-slice)
+    E->>E: Outer Loop (audit-verify.mjs -> grava auditVerifyPassedAt)
+    E->>E: node scripts/review.mjs (grava reviewDossierGeneratedAt + evaluatedFiles)
+    E->>G2: invoke_subagent com scratch/review_prompt.md
     G2-->>E: Veredito Estrito: "APROVADO"
-    E->>U: Entrega Final + Relatório Categorizado Goldfish
+    U->>E: Autoriza Commit
+    E->>H: run_command("git commit ...")
+    H-->>E: decision: "allow" (Valida .git/aegis-gate-stamp.json + git diff --cached)
 ```
 
-### Trava de Proteção do Usuário (`ACCEPT & FIX` vs. `CONTEST WITH EVIDENCE`)
-- **Bugs técnicos, falta de teste BDD, tipagem ou falha Serverless (`✅ ACCEPT & FIX via TDD`):** O Elephant escreve o teste cobrindo a falha apontada pelo Goldfish, corrige o código e re-submete automaticamente.
-- **Sugestão sem contexto que contradiz pedido explícito do usuário (`🛡️ CONTEST WITH EVIDENCE`):** O Elephant **nunca desfaz em silêncio o que o usuário pediu** para agradar o revisor; ele apresenta a evidência do requisito aprovado e preserva a decisão humana.
+---
+
+## 🛡️ Slide 5: Segurança Contínua Shift-Left — Living Threat Model (`THREAT_MODEL.md`) vs. Campanha `mantis-meta-agent`
+
+1. **Modelo de Ameaças Vivo em Cada Issue (`< 20ms` — Regra 1.8):**
+   - **Detecção Preventiva no Ciclo 1 (`blast-radius`):** Identifica automaticamente quando arquivos de superfície de ataque são tocados (`securitySurfaceTouched: true`), injetando `relatedDocs: ["workspace/kb/THREAT_MODEL.md"]` e recomendando `mantis-advise`.
+   - **Trava Anti-Drift Criptográfica no Ciclo 2 (`<!-- aegis-surface-hash -->`):** Se uma nova rota ou serviço for adicionado sem atualizar a tabela de controles `| TM-* |` em `workspace/kb/THREAT_MODEL.md`, a esteira determinística bloqueia a entrega.
+   - **Pré-Injeção no 2º Goldfish e Fim do *Rubber-Stamping*:** `review.mjs` injeta as linhas `| TM-* |` diretamente em `scratch/review_prompt.md`, e o fechamento exige citação nominal dos IDs reais (`[Mantis-Advise]: ✔ THREAT_MODEL.md Consultado (TM-XX: CWE-YY) | ✔ Padrões Defensivos Aplicados`).
+2. **Arquitetura `Mantis Hub-Skill` (`consolidateMantisHubSkill`):**
+   - Mantém apenas **2 entrypoints** na raiz de `.agents/skills/` (`mantis-advise` para proteção contínua por Issue e `mantis-meta-agent` para campanhas completas de 15 estágios em marcos de arquitetura, com os 17 submódulos organizados em `.agents/skills/mantis-meta-agent/references/`).
 
 ---
 
-## 🔬 Slide 6: Radiografia do `scripts/review.ps1` e `scripts/audit-repo.ps1`
+## 🤝 Slide 6: Portabilidade Universal Multi-Agente (8+ Ferramentas Incluindo AWS Kiro & Amazon Q)
 
-Temos dois scripts PowerShell complementares que automatizam a coleta de contexto factual para revisão sênior:
+Graças ao padrão **Hub & Spoke (`AGENTS.md` `< 16 KB` + Seção 0 Universal)** e ao bootstrapper [init-harness.mjs](../bin/init-harness.mjs) (`--agent antigravity|claude|codex|all`), o Aegis Harness opera nativamente nas **8+ principais ferramentas agênticas do mercado**:
 
-### 1. Revisão Cirúrgica por Issue: [review.ps1](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/scripts/review.ps1) (`powershell -File .\scripts\review.ps1 -Issue <ID> -Files "..."`)
-1. **Extração Direta da Issue (`gh issue view`):** Puxa os requisitos oficiais e extrai automaticamente via Regex todas as cláusulas **BDD Gherkin (`Cenário / Dado / Quando / Então / E`)**.
-2. **Blindagem Anti-Alucinação de Escopo (`gh issue list --state open`):** Injeta a lista de outras issues abertas do roadmap proibindo terminantemente o revisor de cobrar itens que pertencem a outras issues futuras.
-3. **Diff com Contexto Completo de Função (`git diff HEAD --function-context`):** Filtra apenas os arquivos da issue (`-Files`), ignorando lockfiles e artefatos gerados, para que o revisor veja a função inteira e não apenas 3 linhas soltas.
-4. **Matriz Inegociável de 4 Eixos:**
-   - **Eixo 1 — Rastreabilidade BDD 1:1 & Anti-Mock Oco:** Cada cláusula `Então` tem asserção real? Rejeita testes que só testam o próprio mock.
-   - **Eixo 2 — Zero Spec Drift & Regra 1.12:** Nomes exatos da especificação e zero dual-schema (`novo ?? antigo`).
-   - **Eixo 3 — Segurança Serverless & Tipagem:** Zero promessas sem `await`, zero estado global mutável, uso de `??` em vez de `||`.
-   - **Eixo 4 — Simulação de Execucao Mental:** Simula linha a linha em busca de *race conditions*, loops infinitos ou *null/undefined crashes*.
-
-### 2. Auditoria Estrutural do Monorepo: [audit-repo.ps1](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/scripts/audit-repo.ps1)
-- Executa um *health check* global combinando árvore do Git, `docs/ARCHITECTURE.md`, `dependency-cruiser`, `tsc`, `ast-grep` e `knip`.
-- **Regra de Rastreabilidade:** Desvios estruturais encontrados por `audit-repo.ps1` **nunca são remendados no escuro** — eles geram propostas formais de novas Issues atômicas (`gh issue create`) separadas pelos 5 Eixos.
-
----
-
-## 🧹 Slide 7: Skill `clean-code-audit` — 22 Regras em Tolerância Zero
-
-A skill [SKILL.md](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/.agents/skills/clean-code-audit/SKILL.md) e seu motor determinístico `scan-clean-code.mjs` auditam o código tanto de forma incremental antes do review (`--changed`) quanto em modo de bloqueio total no precommit (`--enforce-zero-rules`).
-
-### As 22 Regras Agrupadas por Dimensão
-- **Estrutura, Coesão & Complexidade (`R1`, `R2`, `R6`, `R7`, `R9`, `R21`, `R22`):**
-  - `R1`: Funções pequenas (4–25 linhas imperativas efetivas, descontando JSX declarativo e templates multilinhas).
-  - `R2`: Single Responsibility Principle (proibido misturar I/O de servidor com UI/JSX ou importar SDKs de I/O em módulos de contratos).
-  - `R6`: DRY (zero blocos duplicados de 6+ linhas significativas).
-  - `R9`: Aninhamento raso ($< 3$ níveis com *guard clauses*) e **Índice CRAP < 10**:
-    $$\text{CRAP}(m) = \text{comp}(m)^2 \times (1 - \text{cov}(m))^3 + \text{comp}(m) < 10$$
-  - `R21` & `R22`: Zero dependências circulares (`A ↔ B`) e zero ternários aninhados.
-- **Tipagem, Fronteiras & Dados (`R5`, `R15`, `R16`, `R18`, `R20`):**
-  - `R5`: Zero `any` e **Estados Ilegais Irrepresentáveis** (proibido combinar $\ge 3$ flags booleanas como `isLoading`, `isSuccess`, `isError`; obrigatório usar *Discriminated Unions* `status: 'idle' | 'loading' | 'success' | 'error'`).
-  - `R15` & `R16`: Máximo de 3 parâmetros posicionais (usar objeto de opções) e imutabilidade estrita de argumentos.
-  - `R18` & `R20`: Zero compatibilidade zumbi (`a.word_count ?? a.wordCount`) e *Parse, Don't Validate* (proibido `JSON.parse(x) as Tipo` sem schema/TypeGuard).
-- **Resiliência Serverless Cloud Run & Observabilidade (`R10`, `R12`, `R13`, `R17`, `R19`):**
-  - `R17`: **Anti-Freeze Serverless** (toda Promise aguardada com `await` antes do retorno HTTP; zero `setTimeout` solto no backend).
-  - `R19`: **Servidor 100% Stateless** (zero `new Map()` ou estado mutável em escopo global de módulo).
-  - `R10`, `R12`, `R13`: Erros com contexto (`received`/`expected`), logs JSON estruturados e zero *silent catch* (`catch {}` vazio ou perda do `{ cause: err }`).
-- **Legibilidade, Semântica & Testes Comportamentais (`R3`, `R4`, `R8`, `R11`, `R14`):**
-  - `R3`, `R4`, `R11`, `R14`: Nomes com intenção (banido `data`, `temp`, `val`), docstrings com proveniência, zero comentários óbvios e constantes nomeadas com unidade (`MAX_RETRY_DELAY_MS`).
-  - `R8`: **Injeção de Dependência (DI) & Testes Comportamentais** (proibido instanciar `new Firestore()` hardcoded e proibidos testes teatrais `expect(true).toBe(true)`).
-
----
-
-## 🛡️ Slide 8: `audit-verify.mjs` (`npm run precommit`) — Os 12 Portões Determinísticos
-
-Antes que qualquer tarefa possa ser considerada concluída (Outer Loop da Regra 1.16), o script [audit-verify.mjs](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/scripts/audit-verify.mjs) executa em sequência **12 verificações determinísticas**. Se qualquer passo retornar código $\neq 0$, a entrega é bloqueada imediatamente:
-
-| Passo | Portão Determinístico | Ferramenta / Script | O que Bloqueia |
-| :---: | :--- | :--- | :--- |
-| **1** | **Integridade do Lockfile** | `check-lockfile-sync.mjs` | Descompasso entre `package-lock.json` e os workspaces `frontend`, `backend` e `landing` (evita quebra de `npm ci`). |
-| **2** | **Segurança de Supply Chain** | `npm audit --omit=dev` | Vulnerabilidades `high` ou `critical` em dependências de produção. |
-| **3** | **Guardrails Sintáticos AST** | `ast-grep` (`npm run ast:scan`) | Uso proibido de `process.env.X || default`, padrões legados banidos e anti-patterns sintáticos. |
-| **4** | **Fronteiras Arquiteturais** | `dependency-cruiser` | Vazamento de módulos de servidor para o cliente, importações cruzadas ilegais e ciclos. |
-| **5** | **Código Morto & Órfãos** | `knip` (`audit:dead-code`) | Arquivos abandonados por alucinação, exports nunca consumidos e dependências fantasmas. |
-| **6** | **Typecheck Frontend** | `tsc` (`frontend`) | Qualquer erro de contrato estático TypeScript na aplicação Next.js. |
-| **7** | **Typecheck Backend** | `tsc` (`backend`) | Qualquer erro de contrato estático TypeScript nos motores de IA e workers. |
-| **8** | **Typecheck Landing Page** | `tsc` (`landing`) | Qualquer erro de tipagem na vitrine comercial. |
-| **9** | **Fitness Function Arquitetural** | `sync-architecture-graph.mjs --check` | Divergência (Drift) entre rotas/prompts/fluxos E2E reais no disco e o grafo 3D (`Archify`). |
-| **10** | **Suíte de Regressão Completa** | `vitest` (`npm test`) | Qualquer falha nas suítes unitárias e de integração (Backend + Frontend). |
-| **11** | **Governança Semântica de Testes** | `check-test-naming-governance.mjs` | Testes nomeados com `issue-XX`, `pr-XX`, `cluster` ou fora dos 6 diretórios canônicos de domínio. |
-| **12** | **Tolerância Zero Clean Code** | `scan-clean-code.mjs --enforce-zero-rules` | Qualquer violação em qualquer uma das **22 regras** de Clean Code em todo o repositório. |
-
----
-
-## 💥 Slide 9: Prevenção Pré-Voo — `blast-radius.mjs` e `plan-collision.mjs`
-
-O harness não age apenas no final (*post-mortem*); ele protege o planejamento **antes da primeira linha de código ser escrita**:
-
-### 1. Análise de Impacto Reverso: [blast-radius.mjs](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/scripts/blast-radius.mjs)
-- **Como funciona:** Constrói o grafo de importações diretas, re-exports (`export * from`) e referências de prompts em todo o monorepo.
-- **Classificação Automática:** Identifica a Camada Arquitetural (`CLIENTS`, `CORE`, `SERVICES`, `PERSISTENCE`, `PUBLICATION`), o **Eixo de Governança (A a E)**, o nível de risco (`LOW`, `MEDIUM`, `HIGH` quando $\ge 5$ consumidores) e lista exatamente **quais suítes Vitest precisam ser rodadas no Inner Loop**.
-
-### 2. Radar de Colisão Paralela: [plan-collision.mjs](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/scripts/plan-collision.mjs)
-- **Problema resolvido:** Duas conversas ou agentes trabalhando em Issues diferentes ao mesmo tempo na mesma máquina e editando o mesmo arquivo sem saber.
-- **Solução:** Ao criar um plano, o agente registra os arquivos-alvo em `.git/active-plans.json` (fora do working tree do Git):
-  `node scripts/plan-collision.mjs register --issue 50 --files frontend/src/a.ts`
-- **Resultado:** O plano exibe no topo `🟢 ZERO COLISÃO PARALELA` ou `⚠️ ALERTA DE COLISÃO PARALELA` apontando exatamente qual outra Issue ativa reservou aquele arquivo. Após o commit cirúrgico, `release --issue 50` libera os arquivos.
-
----
-
-## 🔌 Slide 10: Ecossistema MCP, `Archify` 3D e Governança Dual de Testes
-
-### 1. Servidores MCP Locais de Baixa Latência (`stdio`) e Pesquisa com Trava
-- **`sequential-thinking` (Córtex Pré-Frontal):** Obrigatório em algoritmos de Diff, fluxos Serverless Cloud Run, segurança CWE e arquivos com Blast Radius `HIGH`. Segue o protocolo de 5 fases (*Isolamento do Sintoma → Hipóteses Concorrentes → Coleta Factual sem editar código → Blast Radius → Convergência BDD*).
-- **`chrome-devtools-mcp` (Runtime Real):** Inspeção ao vivo de DOM, console, rede, acessibilidade WCAG e validação visual em Light e Dark mode.
-- **`brave-search` + Trava Obrigatória de Confrontação:** Toda busca externa é confrontada com as skills soberanas locais (`.agents/skills/`). Se a web divergir da nossa regra local, **a execução para e o usuário decide**.
-- **`repomix` (`npm run context:summary`):** Condensação cirúrgica de assinaturas e tipos via Tree-sitter em $< 3.000$ tokens para planejamento macro.
-
-### 2. Arquitetura Viva em 5 Abas (`Archify` — [mesa-editorial-architecture-3d.html](file:///c:/Users/s023319089/Documents/Projetos/mesa-editorial-heldora/docs/architecture/mesa-editorial-architecture-3d.html))
-Gerado e verificado automaticamente por `sync-architecture-graph.mjs`:
-1. **🌐 Topologia 3D:** Esfera orbital interativa das 5 camadas com partículas de Blast Radius.
-2. **⚡ Pipelines & Sequência IA:** Linha do tempo das Fases 1 a 4, prompts físicos (`_common.md`) e Context Caching.
-3. **💰 Telemetria & Créditos:** Fluxo financeiro e gravação tripla (`Obra`, `Autora` e `Sistema` nas 4 caixas mensais).
-4. **🔄 Máquinas de Estado:** Transições formais de ciclo de vida de Projetos, Seções e Lotes.
-5. **🧪 Jornadas E2E:** Passos extraídos diretamente dos adaptadores `.mcp.ts`.
-
-### 3. Pirâmide de Testes & Paridade Dual E2E (Regra 1.14 e 1.15)
-- **Unitários & Integração (Vitest):** Nascidos via TDD estrito a partir de cláusulas BDD Gherkin, organizados semanticamente em 6 domínios (`ai`, `editor`, `kdp`, `telemetry`, `storage`, `governance`) e protegidos contra nomes de issues por `check-test-naming-governance.mjs`.
-- **Paridade Dual E2E 1:1:** Cada jornada crítica possui simultaneamente o teste headless para CI (`frontend/e2e/*.spec.ts` via Playwright) e o cenário declarativo para agentes autônomos (`frontend/e2e/mcp/*.mcp.ts` via Chrome DevTools MCP), compartilhando as mesmas rotas e seletores `data-testid`.
+| Ferramenta Agêntica | Integração Constitucional (`Seção 0`) | Execução de Subagentes e Guardrails |
+| :--- | :--- | :--- |
+| **1. Google Antigravity / Gemini CLI** | Lê `AGENTS.md` e descobre `.agents/rules/*.md` (ou `.agent/rules/*.md`). | Executa `.agents/hooks.json` (`aegis-hook-guard.mjs`) e `invoke_subagent` (`research` / `slice-executor`). |
+| **2. AWS Kiro (Amazon Spec-Driven IDE)** | Lê `AGENTS.md` nativamente na raiz (e opcionalmente `.kiro/steering/aegis.md` com `#[[file:AGENTS.md]]`) e carrega `.agents/rules/*.md` pela Seção 0. | Nas fases *Requirements / Design / Tasks* do Kiro, executa `blast-radius.mjs`, `audit-verify.mjs` e `review.mjs`. |
+| **3. Amazon Q Developer (IDE & CLI)** | Lê `AGENTS.md` e `.amazonq/rules/*.md` seguindo o roteamento da Seção 0. | Executa `audit-verify.mjs`, `review.mjs` e `aegis-hook-guard.mjs --check-rules`. |
+| **4. Anthropic Claude Code** | Com `--agent claude`: gera `CLAUDE.md` (`@AGENTS.md`) e lê os módulos da Seção 0. | Despacha `.claude/agents/goldfish-auditor.md` e `.claude/agents/slice-executor.md`. |
+| **5. OpenAI Codex CLI & Web** | Lê `AGENTS.md` nativamente na raiz e segue a Seção 0. | Despacha `codex exec --sandbox read-only` (Goldfish) e `codex exec --full-auto` (Slices). |
+| **6. Cursor, Windsurf, GitHub Copilot & Cline/Roo** | Leem `AGENTS.md` nativamente na raiz e carregam os módulos de domínio listados na Seção 0. | Executam os motores Multi-OS (`blast-radius.mjs`, `plan-collision.mjs`, `audit-verify.mjs`, `review.mjs`). |

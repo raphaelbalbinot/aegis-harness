@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Engineering Harness Keynote: Arquitetura Determinística e Adversarial para IA</title>
-  <meta name="description" content="Keynote interativo widescreen de 26 slides (Teams-ready) com 11 diagramas e grafos SVG técnicos sobre a arquitetura de Engineering Harness para desenvolvimento assistido por IA: AGENTS.md Unificado, Tríade Constitucional docs/, Agent Skills, EGM Goldfish, dag-slice-orchestrator, review.ps1, 22 regras de Clean Code, 12 portões determinísticos, Blast Radius, MCPs, Archify 3D e Aegis Harness.">
+  <meta name="description" content="Keynote interativo widescreen de 27 slides (Teams-ready) com 12 diagramas e grafos SVG técnicos sobre a arquitetura de Engineering Harness (Model vs. Harness): Constituição Hub & Spoke (< 22 KB), Seção 0 Multi-Agente (Antigravity, AWS Kiro, Amazon Q, Claude Code, Codex, Cursor), Tríade docs/, EGM Goldfish com Protocolo Semáforo, aegis-hook-guard.mjs, dag-slice-orchestrator, Living Threat Model, review.mjs Multi-OS, 22 regras de Clean Code e 12 portões determinísticos.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,41 +12,42 @@
 </head>
 <body>
   <div class="keynote-shell">
-    <!-- TOP BAR: Horizontal Slide Strip (01 .. 26) & Controls -->
+    <!-- TOP BAR: Horizontal Slide Strip (01 .. 27) & Controls -->
     <header class="keynote-topbar">
       <div class="container keynote-topbar__inner">
         <div class="keynote-brand">
           <a class="wordmark" href="#slide-01" aria-label="AI Engineering Harness">Engineering Harness</a>
-          <span class="chip chip--instrument" id="slideCounterBadge">01 / 26</span>
+          <span class="chip chip--instrument" id="slideCounterBadge">01 / 27</span>
         </div>
 
         <div class="slide-strip" role="tablist" aria-label="Seletor de slides">
-          <button class="strip-btn" role="tab" aria-selected="true" aria-controls="slide-01" id="tab-01" type="button" title="01. Visão Executiva: Os 4 Pilares">01</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-02" id="tab-02" tabindex="-1" type="button" title="02. Tese em Dados: Vibe Coding vs. Harness">02</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-03" id="tab-03" tabindex="-1" type="button" title="03. Arquitetura: 5 Camadas Concêntricas">03</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-04" id="tab-04" tabindex="-1" type="button" title="04. AGENTS.md (Parte 1: Regras 1.1 a 1.10)">04</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-05" id="tab-05" tabindex="-1" type="button" title="05. AGENTS.md (Parte 2: Regras 1.11 a 1.20 & 5 Eixos)">05</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-06" id="tab-06" tabindex="-1" type="button" title="06. AGENTS.md (Parte 3: 7 Core Behaviors & ?? vs ||)">06</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-07" id="tab-07" tabindex="-1" type="button" title="07. Agent Skills (Parte 1: Roteador 5 Fases & Loop Duplo)">07</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-08" id="tab-08" tabindex="-1" type="button" title="08. Agent Skills (Parte 2: Domain-as-a-Skill & Web)">08</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-09" id="tab-09" tabindex="-1" type="button" title="09. Agent Skills (Parte 3: Campanha Mantis & Persistência)">09</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-10" id="tab-10" tabindex="-1" type="button" title="10. EGM Goldfish (Parte 1: Cold Spec & Context Firewall)">10</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-11" id="tab-11" tabindex="-1" type="button" title="11. EGM Goldfish (Parte 2: Matriz GF-01..N & Default Approve)">11</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-12" id="tab-12" tabindex="-1" type="button" title="12. Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas">12</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-13" id="tab-13" tabindex="-1" type="button" title="13. EGM Goldfish (Parte 3: 2º Portão de Implementação)">13</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-14" id="tab-14" tabindex="-1" type="button" title="14. Automação PowerShell: review.ps1 & audit-repo.ps1">14</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-15" id="tab-15" tabindex="-1" type="button" title="15. Clean Code (Parte 1: Faixas de Risco & R1 a R7)">15</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-16" id="tab-16" tabindex="-1" type="button" title="16. Clean Code (Parte 2: Curva CRAP < 10 & R8 a R15)">16</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-17" id="tab-17" tabindex="-1" type="button" title="17. Clean Code (Parte 3: R16 a R22 & Scanner CLI)">17</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-18" id="tab-18" tabindex="-1" type="button" title="18. audit-verify.mjs (Parte 1: Portões 01 a 06)">18</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-19" id="tab-19" tabindex="-1" type="button" title="19. audit-verify.mjs (Parte 2: Portões 07 a 12)">19</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-20" id="tab-20" tabindex="-1" type="button" title="20. Pré-Voo: Grafo Blast Radius & Lock Paralelo">20</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-21" id="tab-21" tabindex="-1" type="button" title="21. Ecossistema MCP: Sequential Thinking & Repomix">21</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-22" id="tab-22" tabindex="-1" type="button" title="22. Skill Archify: Central 3D de 5 Abas">22</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-23" id="tab-23" tabindex="-1" type="button" title="23. Governança de Testes & Paridade Dual E2E">23</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-24" id="tab-24" tabindex="-1" type="button" title="24. Constituição Dupla: AGENTS.md + Tríade docs/">24</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-25" id="tab-25" tabindex="-1" type="button" title="25. Portabilidade Políglota: Bootstrapper aegis-harness">25</button>
-          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-26" id="tab-26" tabindex="-1" type="button" title="26. Fechamento & Bancada Interativa de Comandos">26</button>
+          <button class="strip-btn" role="tab" aria-selected="true" aria-controls="slide-01" id="tab-01" type="button" title="01. Abertura Executiva: Model vs. Engineering Harness">01</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-02" id="tab-02" tabindex="-1" type="button" title="02. Visão Executiva: Os 4 Pilares">02</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-03" id="tab-03" tabindex="-1" type="button" title="03. Tese em Dados: Vibe Coding vs. Harness">03</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-04" id="tab-04" tabindex="-1" type="button" title="04. Arquitetura: 5 Camadas Concêntricas">04</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-05" id="tab-05" tabindex="-1" type="button" title="05. AGENTS.md (Parte 1: Regras 1.1 a 1.10)">05</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-06" id="tab-06" tabindex="-1" type="button" title="06. AGENTS.md (Parte 2: Regras 1.11 a 1.20 & 5 Eixos)">06</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-07" id="tab-07" tabindex="-1" type="button" title="07. AGENTS.md (Parte 3: 7 Core Behaviors & ?? vs ||)">07</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-08" id="tab-08" tabindex="-1" type="button" title="08. Agent Skills (Parte 1: Roteador 5 Fases & Loop Duplo)">08</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-09" id="tab-09" tabindex="-1" type="button" title="09. Agent Skills (Parte 2: Domain-as-a-Skill & Web)">09</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-10" id="tab-10" tabindex="-1" type="button" title="10. Agent Skills (Parte 3: Campanha Mantis & Persistência)">10</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-11" id="tab-11" tabindex="-1" type="button" title="11. EGM Goldfish (Parte 1: Cold Spec & Context Firewall)">11</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-12" id="tab-12" tabindex="-1" type="button" title="12. EGM Goldfish (Parte 2: Matriz GF-01..N & Default Approve)">12</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-13" id="tab-13" tabindex="-1" type="button" title="13. Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas">13</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-14" id="tab-14" tabindex="-1" type="button" title="14. EGM Goldfish (Parte 3: 2º Portão de Implementação)">14</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-15" id="tab-15" tabindex="-1" type="button" title="15. Motores Multi-OS: review.mjs & audit-repo.mjs">15</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-16" id="tab-16" tabindex="-1" type="button" title="16. Clean Code (Parte 1: Faixas de Risco & R1 a R7)">16</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-17" id="tab-17" tabindex="-1" type="button" title="17. Clean Code (Parte 2: Curva CRAP < 10 & R8 a R15)">17</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-18" id="tab-18" tabindex="-1" type="button" title="18. Clean Code (Parte 3: R16 a R22 & Scanner CLI)">18</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-19" id="tab-19" tabindex="-1" type="button" title="19. audit-verify.mjs (Parte 1: Portões 01 a 06)">19</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-20" id="tab-20" tabindex="-1" type="button" title="20. audit-verify.mjs (Parte 2: Portões 07 a 12)">20</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-21" id="tab-21" tabindex="-1" type="button" title="21. Pré-Voo: Grafo Blast Radius & Lock Paralelo">21</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-22" id="tab-22" tabindex="-1" type="button" title="22. Ecossistema MCP: Sequential Thinking & Repomix">22</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-23" id="tab-23" tabindex="-1" type="button" title="23. Skill Archify: Central 3D de 5 Abas">23</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-24" id="tab-24" tabindex="-1" type="button" title="24. Governança de Testes & Paridade Dual E2E">24</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-25" id="tab-25" tabindex="-1" type="button" title="25. Constituição Hub & Spoke (< 22 KB) + Tríade docs/">25</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-26" id="tab-26" tabindex="-1" type="button" title="26. Portabilidade Políglota: Bootstrapper aegis-harness">26</button>
+          <button class="strip-btn" role="tab" aria-selected="false" aria-controls="slide-27" id="tab-27" tabindex="-1" type="button" title="27. Fechamento & Bancada Interativa de Comandos">27</button>
         </div>
 
         <div class="keynote-actions">
@@ -61,13 +62,122 @@
     <main class="keynote-stage">
       <div class="container">
 
-        <!-- SLIDE 01: VISÃO EXECUTIVA (OS 4 PILARES DE ENGENHARIA) -->
-        <section class="slide" role="tabpanel" id="slide-01" aria-labelledby="tab-01" data-title="Visão Executiva: Os 4 Pilares do Engineering Harness">
+        <!-- SLIDE 01: ABERTURA EXECUTIVA (O QUE É UM ENGINEERING HARNESS: MODEL VS. HARNESS) -->
+        <section class="slide" role="tabpanel" id="slide-01" aria-labelledby="tab-01" data-title="Abertura Executiva: O Que é um Engineering Harness (Model vs. Harness)">
+          <div class="slide-head">
+            <div>
+              <h1>O Que é um Engineering Harness? Model vs. Engineering Harness</h1>
+              <div class="slide-head__meta">
+                <span class="chip chip--person">Slide 01 de 27</span>
+                <span class="measured tone-cool">Padrão da Indústria (Addy Osmani &amp; Anthropic SWE-bench) · Motor Probabilístico vs. Contenção Físico-Matemática</span>
+              </div>
+            </div>
+            <p>“Um LLM de fronteira é um motor probabilístico de altíssima potência, mas sem freios nativos. O <strong class="tone-amber">Engineering Harness</strong> não reduz a potência do modelo — ele canaliza 100% dessa força bruta para dentro de trilhos determinísticos onde alucinações, regressões e dívida técnica são fisicamente bloqueadas.” <span class="measured tone-cool">— Síntese inspirada em Addy Osmani (AI-Assisted Engineering) &amp; Anthropic Engineering (Building Effective Agents)</span></p>
+          </div>
+
+          <div class="svg-ribbon svg-ribbon--graph">
+            <!-- SVG 01: Anatomia Model Probabilístico vs. Aegis Engineering Harness Determinístico -->
+            <svg class="svg-canvas" viewBox="0 0 1600 122" role="img" aria-label="Diagrama da Anatomia Model vs. Engineering Harness: à esquerda, o Motor Bruto Probabilístico (LLM Frontier com alta potência criativa mas sujeito a alucinação, truncamento e self-review bias) entra no Aegis Engineering Harness Determinístico composto por 4 barreiras encadeadas (1. Hub and Spoke menor que 22 KB + 55 Skills, 2. PreToolUse Hook aegis-hook-guard.mjs + Hard Sandbox SHA-256, 3. Context Firewall Duplo Portão Goldfish e 4. Esteira de 12 Portões + CRAP menor que 10 + aegis-surface-hash), entregando Código Auditável em Produção">
+              <!-- Nó 0: Motor Probabilístico (LLM) -->
+              <rect x="14" y="20" width="250" height="82" rx="8" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2.2"/>
+              <text x="139" y="45" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">MOTOR PROBABILÍSTICO (LLM)</text>
+              <text x="139" y="65" text-anchor="middle" font-size="10.5" class="svg-ink2">Potência Bruta · Alta Velocidade</text>
+              <text x="139" y="84" text-anchor="middle" font-size="10" class="svg-bad">Sem trilhos: Alucinação &amp; Self-Review Bias</text>
+
+              <line x1="264" y1="61" x2="306" y2="61" stroke="var(--color-accent)" stroke-width="2.5"/>
+              <polygon points="308,61 299,56 299,66" fill="var(--color-accent)"/>
+
+              <!-- Moldura Externa do Engineering Harness -->
+              <rect x="312" y="8" width="1028" height="106" rx="10" fill="var(--color-paper-3)" stroke="var(--color-cool)" stroke-dasharray="6 4" stroke-width="2"/>
+              <text x="826" y="25" text-anchor="middle" font-size="11" font-weight="500" class="svg-cool">AEGIS ENGINEERING HARNESS (APARATO DETERMINÍSTICO DE CONTENÇÃO, ORQUESTRAÇÃO E VERIFICAÇÃO)</text>
+
+              <!-- Subsistema 1: Context Routing -->
+              <rect x="328" y="34" width="234" height="68" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
+              <text x="445" y="55" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-cool">1. Context Routing (&lt; 22 KB)</text>
+              <text x="445" y="73" text-anchor="middle" font-size="10" class="svg-ink2">AGENTS.md Hub &amp; Spoke (Seção 0)</text>
+              <text x="445" y="89" text-anchor="middle" font-size="9.8" class="svg-muted">+ 55 Skills + Living Threat Model</text>
+
+              <line x1="562" y1="68" x2="584" y2="68" stroke="var(--color-cool)" stroke-width="2"/>
+              <polygon points="586,68 578,63 578,73" fill="var(--color-cool)"/>
+
+              <!-- Subsistema 2: Lifecycle Hooks & Sandbox -->
+              <rect x="588" y="34" width="242" height="68" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="1.8"/>
+              <text x="709" y="55" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">2. Hooks Físicos &amp; Sandbox</text>
+              <text x="709" y="73" text-anchor="middle" font-size="10" class="svg-ink2">PreToolUse aegis-hook-guard.mjs</text>
+              <text x="709" y="89" text-anchor="middle" font-size="9.8" class="svg-muted">+ Whitelist SHA-256 (snapshot-slice)</text>
+
+              <line x1="830" y1="68" x2="852" y2="68" stroke="var(--color-accent)" stroke-width="2"/>
+              <polygon points="854,68 846,63 846,73" fill="var(--color-accent)"/>
+
+              <!-- Subsistema 3: Context Firewall EGM -->
+              <rect x="856" y="34" width="234" height="68" rx="6" fill="var(--color-paper-2)" stroke="var(--color-amber)" stroke-width="1.8"/>
+              <text x="973" y="55" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">3. Duplo Portão 🐠 Goldfish</text>
+              <text x="973" y="73" text-anchor="middle" font-size="10" class="svg-ink2">Semáforo Plan (RequestFeedback)</text>
+              <text x="973" y="89" text-anchor="middle" font-size="9.8" class="svg-muted">+ Revisor Sênior a Frio (review.mjs)</text>
+
+              <line x1="1090" y1="68" x2="1112" y2="68" stroke="var(--color-ok)" stroke-width="2"/>
+              <polygon points="1114,68 1106,63 1106,73" fill="var(--color-ok)"/>
+
+              <!-- Subsistema 4: Deterministic Verifiers -->
+              <rect x="1116" y="34" width="208" height="68" rx="6" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="1.8"/>
+              <text x="1220" y="55" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-ok">4. 12 Portões Matemáticos</text>
+              <text x="1220" y="73" text-anchor="middle" font-size="10" class="svg-ink2">AST · Knip · CRAP &lt; 10 · 22/22</text>
+              <text x="1220" y="89" text-anchor="middle" font-size="9.8" class="svg-ok">Carimbo aegis-gate-stamp.json</text>
+
+              <!-- Seta Final: Entrega Auditável -->
+              <line x1="1340" y1="61" x2="1380" y2="61" stroke="var(--color-ok)" stroke-width="2.5"/>
+              <polygon points="1382,61 1373,56 1373,66" fill="var(--color-ok)"/>
+
+              <rect x="1384" y="20" width="202" height="82" rx="8" fill="var(--color-ok-soft)" stroke="var(--color-ok)" stroke-width="2.2"/>
+              <text x="1485" y="46" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-ok">ENGENHARIA SÊNIOR</text>
+              <text x="1485" y="66" text-anchor="middle" font-size="10.5" class="svg-ink2">Zero Drift · Zero Alucinação</text>
+              <text x="1485" y="84" text-anchor="middle" font-size="10" class="svg-ok">8+ Agentes (Kiro, Claude, Codex)</text>
+            </svg>
+          </div>
+
+          <div class="panels panels--3">
+            <div class="cell">
+              <div class="cell__top">
+                <h3>1. Prompt / Rules Pack (.md soltos)</h3>
+                <span class="chip chip--bad">Apenas Sugestão Textual</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-bad">Truncamento Silencioso (&gt; 24 KB)</strong><span class="measured">Cegueira de Regras</span></div><span>Arquivos monolíticos estouram o orçamento de bytes do hospedeiro e decepam as regras finais de revisão sem aviso.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-bad">Obediência Voluntária Frágil</strong><span class="measured">Fadiga de Contexto</span></div><span>Em sessões longas, o modelo ignora instruções passivas, exibe o botão <span class="measured">Proceed</span> sem auditar o plano e pede commit sem rodar testes.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell">
+              <div class="cell__top">
+                <h3>2. Agent Framework (LangChain / CrewAI)</h3>
+                <span class="chip chip--instrument">SDK de Produto</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-cool">Foco em Runtime de Aplicação</strong><span class="measured">Chatbots &amp; Pipelines</span></div><span>Excelente para programar agentes de negócio dentro do seu app, mas não governa o ciclo de engenharia do próprio código-fonte.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Sem Barreiras de Repositório</strong><span class="measured">Sem AST / CRAP Gate</span></div><span>Não possui radar de colisão em <span class="measured">.git/</span>, nem sandbox criptográfico de fatias, nem bloqueio físico de commits não auditados.</span></li>
+              </ul>
+            </div>
+
+            <div class="cell cell--deep">
+              <div class="cell__top">
+                <h3>3. Engineering Harness (Aegis Harness)</h3>
+                <span class="chip chip--ok">Padrão Ouro da Indústria</span>
+              </div>
+              <ul class="list-compact">
+                <li><div class="list-compact__row"><strong class="tone-ok">Travas Físicas PreToolUse &amp; Sandbox</strong><span class="measured">aegis-hook-guard.mjs</span></div><span>Bloqueia fisicamente (<span class="measured tone-bad">decision: "deny"</span>) o botão <span class="measured">Proceed</span> sem o 1º Goldfish e bloqueia <span class="measured">git commit</span> sem o carimbo <span class="measured tone-ok">aegis-gate-stamp.json</span>.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">100% Agnóstico de Nuvem e Agente</strong><span class="measured">Hub &amp; Spoke (&lt; 22 KB)</span></div><span>Governa nativamente <strong class="tone-cool">Antigravity, AWS Kiro, Amazon Q, Claude Code, OpenAI Codex, Cursor, Windsurf e Copilot</strong> em qualquer linguagem.</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 02: VISÃO EXECUTIVA (OS 4 PILARES DE ENGENHARIA) -->
+        <section class="slide" role="tabpanel" id="slide-02" aria-labelledby="tab-02" data-title="Visão Executiva: Os 4 Pilares do Engineering Harness" hidden>
           <div class="slide-head">
             <div>
               <h1>Engineering Harness para Desenvolvimento Assistido por IA</h1>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 01 de 26</span>
+                <span class="chip chip--person">Slide 02 de 27</span>
                 <span class="measured tone-cool">Arquitetura Reutilizável Multi-Projeto · Governança Determinística e Adversarial</span>
               </div>
             </div>
@@ -97,7 +207,7 @@
                 <span class="chip chip--person">Memória Zero</span>
               </div>
               <h2>Auditoria EGM Goldfish</h2>
-              <p>Subagentes isolados com zero contexto da conversa auditam friamente o plano (<span class="measured tone-amber">Cold Spec Review</span>) e o diff final (<span class="measured tone-amber">review.ps1</span>).</p>
+              <p>Subagentes isolados com zero contexto auditam o plano (<span class="measured tone-amber">Protocolo Semáforo</span>) e o diff final (<span class="measured tone-amber">review.mjs / review.ps1</span>) sob fiscalização <span class="measured tone-cool">PreToolUse</span>.</p>
             </div>
             <div class="cell">
               <div class="kpi-row">
@@ -112,10 +222,10 @@
           <div class="panels panels--3">
             <div class="cell cell--deep">
               <div class="cell__top">
-                <h3>1. Constituição Unificada + Tríade docs/</h3>
+                <h3>1. Constituição Hub &amp; Spoke (&lt; 22 KB) + Tríade docs/</h3>
                 <span class="chip chip--person">Zero Drift</span>
               </div>
-              <p>Leis operacionais centralizadas na raiz (<span class="measured tone-amber">AGENTS.md</span>) exigindo atualização prévia de <span class="measured tone-cool">docs/PRD.md</span>, <span class="measured tone-cool">ARCHITECTURE.md</span> e <span class="measured tone-cool">DIRETRIZES_DOMINIO.md</span> antes do código.</p>
+              <p>Hub <span class="measured tone-amber">AGENTS.md</span> (&lt; 16 KB, Seção 0 Universal) + módulos <span class="measured tone-cool">.agents/rules/*.md</span> (&lt; 6 KB) + Tríade <span class="measured tone-cool">docs/PRD, ARCHITECTURE e DIRETRIZES</span>.</p>
             </div>
             <div class="cell cell--deep">
               <div class="cell__top">
@@ -134,13 +244,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 02: A TESE EM DADOS (CURVA VELOCIDADE VS DÍVIDA TÉCNICA + COMPARATIVO) -->
-        <section class="slide" role="tabpanel" id="slide-02" aria-labelledby="tab-02" data-title="A Tese em Dados: Vibe Coding vs. Engineering Harness" hidden>
+        <!-- SLIDE 03: A TESE EM DADOS (CURVA VELOCIDADE VS DÍVIDA TÉCNICA + COMPARATIVO) -->
+        <section class="slide" role="tabpanel" id="slide-03" aria-labelledby="tab-03" data-title="A Tese em Dados: Vibe Coding vs. Engineering Harness" hidden>
           <div class="slide-head">
             <div>
               <h2>A Tese em Dados: Vibe Coding vs. Engineering Harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 02 de 26</span>
+                <span class="chip chip--person">Slide 03 de 27</span>
                 <span class="measured tone-cool">Curva de Velocidade Efetiva de Entrega vs. Acúmulo de Dívida Técnica (Dia 1 ao Dia 30)</span>
               </div>
             </div>
@@ -154,7 +264,7 @@
                 <span class="chip chip--instrument">Telemetria de Engenharia</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 01: Curva Velocidade vs Dívida Técnica -->
+                <!-- SVG 02: Curva Velocidade vs Dívida Técnica -->
                 <svg class="svg-canvas" viewBox="0 0 620 340" role="img" aria-label="Gráfico comparando a curva de velocidade do Vibe Coding sem Harness, que cai drasticamente após o Dia 7 por dívida técnica, contra a curva crescente e estável do Engineering Harness do Dia 1 ao Dia 30">
                   <rect x="52" y="22" width="540" height="260" fill="none" stroke="var(--color-rule)" stroke-width="1"/>
                   <line x1="52" y1="87" x2="592" y2="87" stroke="var(--color-rule)" stroke-dasharray="4 4" stroke-width="1"/>
@@ -224,13 +334,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 03: ARQUITETURA EM 5 CAMADAS CONCÊNTRICAS -->
-        <section class="slide" role="tabpanel" id="slide-03" aria-labelledby="tab-03" data-title="Arquitetura Geral em 5 Camadas Concêntricas" hidden>
+        <!-- SLIDE 04: ARQUITETURA EM 5 CAMADAS CONCÊNTRICAS -->
+        <section class="slide" role="tabpanel" id="slide-04" aria-labelledby="tab-04" data-title="Arquitetura Geral em 5 Camadas Concêntricas" hidden>
           <div class="slide-head">
             <div>
               <h2>As 5 Camadas Concêntricas do Nosso Harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 03 de 26</span>
+                <span class="chip chip--person">Slide 04 de 27</span>
                 <span class="measured tone-cool">Topologia Defense-in-Depth da Intenção ao Commit</span>
               </div>
             </div>
@@ -244,7 +354,7 @@
                 <span class="chip chip--person">5 Escudos Encadeados</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 02: 5 Camadas Concêntricas + Vetor de Travessia Defense-in-Depth -->
+                <!-- SVG 03: 5 Camadas Concêntricas + Vetor de Travessia Defense-in-Depth -->
                 <svg class="svg-canvas" viewBox="0 0 560 340" role="img" aria-label="Diagrama de 5 anéis concêntricos com Vetor de Travessia Defense-in-Depth: a Intenção/Prompt entra pela esquerda, atravessa os 5 filtros numerados ① AGENTS.md, ② Agent Skills, ③ Cognição MCP, ④ Duplo Goldfish e converge no núcleo ⑤ Barreira de 12 Portões (Exit 0)">
                   <ellipse cx="300" cy="168" rx="242" ry="150" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
                   <text x="300" y="38" text-anchor="middle" font-size="11.5" font-weight="500" class="svg-amber">1. CONSTITUIÇÃO: AGENTS.md (20 Leis + Tríade docs/)</text>
@@ -335,8 +445,8 @@
                 </div>
                 <div class="layer-band__cols">
                   <div class="layer-box"><strong class="measured tone-amber">1º Portão: Cold Spec</strong><span>Audita o implementation_plan.md a frio gerando matriz GF-01..N para decisão humana.</span></div>
-                  <div class="layer-box"><strong class="measured tone-amber">2º Portão: review.ps1</strong><span>Extrai BDD e diff completo com funções e audita nos 4 Eixos até emitir Aprovado.</span></div>
-                  <div class="layer-box"><strong class="measured tone-amber">audit-repo.ps1</strong><span>Health check arquitetural do monorepo inteiro para diagnóstico estrutural rastreável.</span></div>
+                  <div class="layer-box"><strong class="measured tone-amber">2º Portão: review.mjs</strong><span>Injeta BDD, THREAT_MODEL, AST/CRAP e diff completo nos 4 Eixos + carimbo pré-commit.</span></div>
+                  <div class="layer-box"><strong class="measured tone-amber">aegis-hook-guard.mjs</strong><span>Hook PreToolUse que bloqueia Proceed sem GF-01 e git commit sem aegis-gate-stamp.json.</span></div>
                 </div>
               </div>
 
@@ -355,13 +465,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 04: AGENTS.MD (PARTE 1: REGRAS 1.1 A 1.10) -->
-        <section class="slide" role="tabpanel" id="slide-04" aria-labelledby="tab-04" data-title="AGENTS.md (Parte 1: Leis Constitucionais 1.1 a 1.10)" hidden>
+        <!-- SLIDE 05: AGENTS.MD (PARTE 1: REGRAS 1.1 A 1.10) -->
+        <section class="slide" role="tabpanel" id="slide-05" aria-labelledby="tab-05" data-title="AGENTS.md (Parte 1: Leis Constitucionais 1.1 a 1.10)" hidden>
           <div class="slide-head">
             <div>
               <h2>AGENTS.md (Parte 1): Leis Constitucionais 1.1 a 1.10</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 04 de 26</span>
+                <span class="chip chip--person">Slide 05 de 27</span>
                 <span class="measured tone-cool">Controle de Versão, Planejamento BDD, Execução Serverless/Containers e TDD</span>
               </div>
             </div>
@@ -396,7 +506,7 @@
                 <tr>
                   <td class="measured tone-amber">Regra 1.3</td>
                   <td>Implementation Plan, Trade-offs &amp; BDD 1:1</td>
-                  <td>Plano isolado em <span class="measured tone-cool">brain/&lt;conversation-id&gt;/implementation_plan.md</span>, exigindo <strong class="tone-ok">Boost Trade-off Matrix (Opção A vs. B)</strong>, cenários BDD Gherkin 1:1, Cold Spec Review com Pre-Mortem / Occam e fechamento com o <strong class="tone-cool">Grafo DAG Pós-Goldfish (dag-slice-orchestrator)</strong>.</td>
+                  <td>Plano isolado em <span class="measured tone-cool">brain/&lt;id&gt;/implementation_plan.md</span> com <strong class="tone-amber">Protocolo Semáforo</strong> (<span class="measured tone-cool">RequestFeedback: false</span> no rascunho frio → 1º Goldfish → <span class="measured tone-ok">RequestFeedback: true</span> com <span class="measured">GF-01..N</span> + Grafo DAG, fiscalizado por <span class="measured tone-cool">aegis-hook-guard.mjs</span>).</td>
                 </tr>
                 <tr>
                   <td class="measured tone-amber">Regra 1.4</td>
@@ -416,7 +526,7 @@
                 <tr>
                   <td class="measured tone-amber">Regra 1.7 / 1.8</td>
                   <td>Blast Radius, Audit &amp; Sequential Thinking</td>
-                  <td>Análise pré-voo com <span class="measured tone-cool">blast-radius.mjs</span>, mini-auditoria pós-voo com <span class="measured tone-cool">audit:verify</span> e raciocínio estruturado via MCP <span class="measured tone-cool">sequential-thinking</span> em tarefas críticas.</td>
+                  <td>Pré-voo único com <span class="measured tone-cool">blast-radius.mjs</span> (<span class="measured">securitySurfaceTouched</span> + <span class="measured">recommendedSkills</span>), Living Threat Model (<span class="measured tone-amber">workspace/kb/THREAT_MODEL.md</span> + <span class="measured tone-cool">aegis-surface-hash</span> + selo nominal <span class="measured">TM-ID</span>) e <span class="measured tone-cool">sequential-thinking</span>.</td>
                 </tr>
                 <tr>
                   <td class="measured tone-amber">Regra 1.9 / 1.10</td>
@@ -428,13 +538,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 05: AGENTS.MD (PARTE 2: REGRAS 1.11 A 1.20 & TOPOLOGIA DOS 5 EIXOS) -->
-        <section class="slide" role="tabpanel" id="slide-05" aria-labelledby="tab-05" data-title="AGENTS.md (Parte 2: Leis 1.11 a 1.20 & Matriz dos 5 Eixos)" hidden>
+        <!-- SLIDE 06: AGENTS.MD (PARTE 2: REGRAS 1.11 A 1.20 & TOPOLOGIA DOS 5 EIXOS) -->
+        <section class="slide" role="tabpanel" id="slide-06" aria-labelledby="tab-06" data-title="AGENTS.md (Parte 2: Leis 1.11 a 1.20 & Matriz dos 5 Eixos)" hidden>
           <div class="slide-head">
             <div>
               <h2>AGENTS.md (Parte 2): Leis 1.11 a 1.20 e a Matriz dos 5 Eixos</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 05 de 26</span>
+                <span class="chip chip--person">Slide 06 de 27</span>
                 <span class="measured tone-cool">Anti-Scope Creep (Stop-and-Warn), Zero Dual-Schema, Telemetria e Plataforma Web Moderna</span>
               </div>
             </div>
@@ -462,7 +572,7 @@
                 <span class="chip chip--bad">Bloqueio &gt; 2 Eixos ou A + D</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 03: Pentágono dos 5 Eixos e Duplo Gatilho Stop-and-Warn -->
+                <!-- SVG 04: Pentágono dos 5 Eixos e Duplo Gatilho Stop-and-Warn -->
                 <svg class="svg-canvas" viewBox="0 0 520 330" role="img" aria-label="Diagrama pentagonal mostrando os 5 Eixos Arquiteturais da Regra 1.11 (Eixo A Infra, Eixo B Segurança, Eixo C IA e Domínio, Eixo D UI e Frontend, Eixo E Persistência) e os dois gatilhos Stop-and-Warn: cruzamento A com D e tarefa tocando mais de 2 Eixos simultâneos">
                   <!-- Conexões permitidas (máx 2 adjacentes) -->
                   <polygon points="260,38 455,128 385,285 135,285 65,128" fill="none" stroke="var(--color-rule-2)" stroke-width="1.8" stroke-dasharray="5 4"/>
@@ -507,13 +617,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 06: AGENTS.MD (PARTE 3: OS 7 CORE OPERATING BEHAVIORS & ?? SOBRE ||) -->
-        <section class="slide" role="tabpanel" id="slide-06" aria-labelledby="tab-06" data-title="AGENTS.md (Parte 3: Os 7 Core Operating Behaviors Inegociáveis)" hidden>
+        <!-- SLIDE 07: AGENTS.MD (PARTE 3: OS 7 CORE OPERATING BEHAVIORS & ?? SOBRE ||) -->
+        <section class="slide" role="tabpanel" id="slide-07" aria-labelledby="tab-07" data-title="AGENTS.md (Parte 3: Os 7 Core Operating Behaviors Inegociáveis)" hidden>
           <div class="slide-head">
             <div>
               <h2>AGENTS.md (Parte 3): Os 7 Core Operating Behaviors</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 06 de 26</span>
+                <span class="chip chip--person">Slide 07 de 27</span>
                 <span class="measured tone-cool">Seção 3 do AGENTS.md · Postura Sênior Anti-Sycophancy e Coalescência Nula Estrita</span>
               </div>
             </div>
@@ -571,13 +681,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 07: AGENT SKILLS (PARTE 1: ROTEADOR DE 5 FASES & TWO-CYCLE WORKFLOW) -->
-        <section class="slide" role="tabpanel" id="slide-07" aria-labelledby="tab-07" data-title="Agent Skills (Parte 1: Roteador de 5 Fases & Two-Cycle Workflow)" hidden>
+        <!-- SLIDE 08: AGENT SKILLS (PARTE 1: ROTEADOR DE 5 FASES & TWO-CYCLE WORKFLOW) -->
+        <section class="slide" role="tabpanel" id="slide-08" aria-labelledby="tab-08" data-title="Agent Skills (Parte 1: Roteador de 5 Fases & Two-Cycle Workflow)" hidden>
           <div class="slide-head">
             <div>
               <h2>Suíte Agent Skills (Parte 1): Roteador de 5 Fases e Loop Duplo</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 07 de 26</span>
+                <span class="chip chip--person">Slide 08 de 27</span>
                 <span class="measured tone-cool">.agents/skills/using-agent-skills/SKILL.md · 18 Skills de Fluxo + Regra 1.16</span>
               </div>
             </div>
@@ -585,7 +695,7 @@
           </div>
 
           <div class="svg-ribbon svg-ribbon--graph">
-            <!-- SVG 04: Grafo do Duplo Loop Fechado (∞ Inner Loop TDD vs. Outer Loop Precommit) -->
+            <!-- SVG 05: Grafo do Duplo Loop Fechado (∞ Inner Loop TDD vs. Outer Loop Precommit) -->
             <svg class="svg-canvas" viewBox="0 0 1600 118" role="img" aria-label="Grafo do Duplo Loop Fechado (Two-Cycle Workflow): as fases 1. Define e 2. Plan alimentam o Inner Loop fechado entre 3. Build e 4. Verify (com arcos bidirecionais Red-Green-Refactor em 3 segundos via blast-radius), enquanto a fase 5. Review and Ship fecha o arco externo do Outer Loop (12 Portões e 2º Goldfish) até liberar o Commit Exit 0">
               <!-- Fase 1: Define -->
               <rect x="16" y="26" width="215" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-cool)" stroke-width="1.8"/>
@@ -629,7 +739,7 @@
               <!-- Fase 5: Review & Ship (Outer Loop Gate) -->
               <rect x="1149" y="22" width="248" height="62" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
               <text x="1273" y="45" text-anchor="middle" font-size="12.5" font-weight="500" class="svg-amber">5. REVIEW &amp; PRECOMMIT</text>
-              <text x="1273" y="63" text-anchor="middle" font-size="10.5" class="svg-ink2">12 Portões + 2º Goldfish (review.ps1)</text>
+              <text x="1273" y="63" text-anchor="middle" font-size="10.5" class="svg-ink2">12 Portões + 2º Goldfish (review.mjs)</text>
 
               <!-- Arco Externo do Outer Loop (Review ↶ Build se reprovado) -->
               <path d="M 1273 84 C 1220 116, 710 116, 635 82" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-dasharray="6 4"/>
@@ -694,13 +804,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 08: AGENT SKILLS (PARTE 2: ENCAPSULAMENTO DE DOMÍNIO & QUALIDADE WEB) -->
-        <section class="slide" role="tabpanel" id="slide-08" aria-labelledby="tab-08" data-title="Agent Skills (Parte 2: Conhecimento de Domínio em Skills & Web)" hidden>
+        <!-- SLIDE 09: AGENT SKILLS (PARTE 2: ENCAPSULAMENTO DE DOMÍNIO & QUALIDADE WEB) -->
+        <section class="slide" role="tabpanel" id="slide-09" aria-labelledby="tab-09" data-title="Agent Skills (Parte 2: Conhecimento de Domínio em Skills & Web)" hidden>
           <div class="slide-head">
             <div>
               <h2>Suíte Agent Skills (Parte 2): Padrão Domain-as-a-Skill e Web</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 08 de 26</span>
+                <span class="chip chip--person">Slide 09 de 27</span>
                 <span class="measured tone-cool">Cartuchos Sob Demanda (Exemplo Heldora) + Governança Modern Web (Regra 1.20)</span>
               </div>
             </div>
@@ -746,14 +856,14 @@
           </div>
         </section>
 
-        <!-- SLIDE 09: AGENT SKILLS (PARTE 3: CAMPANHA DEFENSIVA MANTIS & PERSISTÊNCIA DE DADOS) -->
-        <section class="slide" role="tabpanel" id="slide-09" aria-labelledby="tab-09" data-title="Agent Skills (Parte 3: Campanha Mantis & Segurança de Dados)" hidden>
+        <!-- SLIDE 10: AGENT SKILLS (PARTE 3: CAMPANHA DEFENSIVA MANTIS & PERSISTÊNCIA DE DADOS) -->
+        <section class="slide" role="tabpanel" id="slide-10" aria-labelledby="tab-10" data-title="Agent Skills (Parte 3: Campanha Mantis & Segurança de Dados)" hidden>
           <div class="slide-head">
             <div>
-              <h2>Suíte Agent Skills (Parte 3): Campanha Mantis e Segurança de Dados</h2>
+              <h2>Segurança Shift-Left: Living Threat Model e Arquitetura Mantis Hub-Skill</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 09 de 26</span>
-                <span class="measured tone-cool">19 Skills de Segurança Defensiva (Mantis) + Subagentes Especialistas de Persistência</span>
+                <span class="chip chip--person">Slide 10 de 27</span>
+                <span class="measured tone-cool">workspace/kb/THREAT_MODEL.md (aegis-surface-hash) + Mantis Hub-Skill (mantis-advise &amp; mantis-meta-agent)</span>
               </div>
             </div>
             <p>Uma linha de montagem completa de engenharia de segurança para mapear superfícies de ataque, eliminar falsos positivos, reproduzir falhas e blindar regras de banco de dados.</p>
@@ -791,27 +901,27 @@
             </div>
 
             <div class="cell cell--deep">
-              <div class="cell__top"><h3>4. Governança de Persistência</h3><span class="chip chip--person">Políticas de Dados</span></div>
+              <div class="cell__top"><h3>4. Living Threat Model (&lt; 20ms)</h3><span class="chip chip--person">Zero Rubber-Stamping</span></div>
               <ul class="list-compact">
-                <li><strong class="measured tone-amber">Subagentes Especialistas de Banco</strong><span>Políticas críticas de acesso a dados (RLS em SQL, ACLs ou Security Rules em NoSQL) são delegadas a subagentes dedicados.</span></li>
-                <li><strong class="measured tone-amber">Isolamento Multi-Tenant Estrito</strong><span>Garante partição por locatário (<span class="measured">tenant_id / user_id</span>), validação de schema na escrita e limites de payload.</span></li>
-                <li><strong class="measured tone-amber">Auditoria Red-Team de Acesso</strong><span>Inspeciona vulnerabilidades de escalação de privilégio, bypass de papel (RBAC) e inconsistência create vs. update.</span></li>
+                <li><strong class="measured tone-amber">THREAT_MODEL.md + aegis-surface-hash</strong><span>Hash SHA-256 das rotas e serviços verificado no precommit; se a superfície mudar sem atualizar a tabela <span class="measured">TM-*</span>, a esteira bloqueia.</span></li>
+                <li><strong class="measured tone-amber">Mantis Hub-Skill (2 Entrypoints)</strong><span>Consolida <span class="measured">mantis-advise</span> (uso contínuo por Issue) e <span class="measured">mantis-meta-agent</span> (campanha Red Team de 15 estágios em <span class="measured">references/</span>).</span></li>
+                <li><strong class="measured tone-ok">Selo Nominal TM-ID &amp; Pré-Injeção</strong><span><span class="measured">review.mjs</span> pré-injeta os controles <span class="measured">TM-*</span> para o 2º Goldfish e exige citação nominal <span class="measured tone-ok">TM-XX: CWE-YY</span> na entrega.</span></li>
               </ul>
             </div>
           </div>
         </section>
 
-        <!-- SLIDE 10: PADRÃO EGM (PARTE 1: 1º PORTÃO COLD SPEC REVIEW & CONTEXT FIREWALL) -->
-        <section class="slide" role="tabpanel" id="slide-10" aria-labelledby="tab-10" data-title="EGM Goldfish (Parte 1: 1º Portão Cold Spec Review & Context Firewall)" hidden>
+        <!-- SLIDE 11: PADRÃO EGM (PARTE 1: 1º PORTÃO COLD SPEC REVIEW & CONTEXT FIREWALL) -->
+        <section class="slide" role="tabpanel" id="slide-11" aria-labelledby="tab-11" data-title="EGM Goldfish (Parte 1: 1º Portão Cold Spec Review & Context Firewall)" hidden>
           <div class="slide-head">
             <div>
               <h2>Padrão EGM (Parte 1): O 1º Portão Cold Spec Review</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 10 de 26</span>
+                <span class="chip chip--person">Slide 11 de 27</span>
                 <span class="measured tone-cool">Regra 1.3.7 · Barreira de Isolamento Cognitivo (Context Firewall) na Fase Plan</span>
               </div>
             </div>
-            <p>Para eliminar o viés de autoconfirmação da sessão principal (<strong class="tone-amber">Elephant</strong>), todo plano multi-arquivo ou de risco médio/alto atravessa uma barreira de memória zero e é auditado a frio (<strong class="tone-cool">Goldfish</strong>).</p>
+            <p>Para eliminar o viés de autoconfirmação do <strong class="tone-amber">Elephant</strong> e impedir que o botão <span class="measured tone-bad">Proceed</span> apareça antes da auditoria, o <strong class="tone-cool">Protocolo Semáforo</strong> e o hook <span class="measured tone-cool">aegis-hook-guard.mjs</span> blindam fisicamente a Fase Plan (<span class="measured">planGoldfishRequired</span> / <span class="measured">codeGoldfishRequired</span>).</p>
           </div>
 
           <div class="panels panels--svg-split">
@@ -821,7 +931,7 @@
                 <span class="chip chip--person">invoke_subagent (research)</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 07: Context Firewall Elephant vs Goldfish -->
+                <!-- SVG 06: Context Firewall Elephant vs Goldfish -->
                 <svg class="svg-canvas" viewBox="0 0 600 330" role="img" aria-label="Diagrama do Context Firewall entre a sessão principal Elephant (que acumula o histórico do chat e negociações) e o subagente Goldfish Cold Spec Auditor (que tem memória zero do chat e lê apenas o implementation_plan.md, o blast-radius e o código real)">
                   <!-- Coluna Elephant -->
                   <rect x="20" y="28" width="210" height="274" rx="8" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
@@ -883,8 +993,8 @@
               </div>
               <ol class="spine-list">
                 <li>
-                  <strong class="tone-amber">1. Preparação Factual pelo Elephant (Sessão Principal)</strong>
-                  <span>Roda <span class="measured tone-cool">blast-radius.mjs</span> e <span class="measured tone-cool">plan-collision.mjs</span>, contrasta 2 caminhos reais na <strong class="tone-amber">Boost Trade-off Matrix (Opção A vs. B)</strong> e escreve o <span class="measured tone-cool">implementation_plan.md</span> com cenários BDD Gherkin.</span>
+                  <strong class="tone-amber">1. Passo 1 do Semáforo: Rascunho Frio (RequestFeedback: false)</strong>
+                  <span>Roda <span class="measured tone-cool">blast-radius.mjs</span> e <span class="measured tone-cool">plan-collision.mjs</span> e grava o rascunho de <span class="measured tone-cool">implementation_plan.md</span> obrigatoriamente com <span class="measured tone-amber">RequestFeedback: false</span> (ocultando o botão Proceed enquanto o Goldfish roda).</span>
                 </li>
                 <li>
                   <strong class="tone-cool">2. Invocação do Goldfish Cold Spec Auditor (Zero Contexto)</strong>
@@ -895,21 +1005,21 @@
                   <span>Além de auditar contratos, Clean Code, BDD/TDD, CWEs e runtime Serverless/Container, responde obrigatoriamente ao <strong class="tone-cool">Pre-Mortem de Produção sob carga</strong> e à <strong class="tone-cool">Navalha de Occam</strong> (menos código, estado e acoplamento).</span>
                 </li>
                 <li>
-                  <strong class="tone-ok">4. Trava Anti-Inferência Silenciosa &amp; Default Approve</strong>
-                  <span>O Elephant nunca altera o escopo sozinho: anexa a matriz <span class="measured tone-amber">GF-01..N</span> ao plano. Quando o humano aprova o plano (Proceed) sem ressalvas, todas as recomendações técnicas entram por padrão.</span>
+                  <strong class="tone-ok">4. Passo 2 do Semáforo (RequestFeedback: true) &amp; Hook PreToolUse</strong>
+                  <span>Após o retorno do Goldfish, o Elephant insere a tabela <span class="measured tone-amber">GF-01..N</span> + Grafo DAG e liga <span class="measured tone-ok">RequestFeedback: true</span>. Se tentar ligar antes, <span class="measured tone-cool">aegis-hook-guard.mjs</span> bloqueia com <span class="measured tone-bad">decision: "deny"</span>!</span>
                 </li>
               </ol>
             </div>
           </div>
         </section>
 
-        <!-- SLIDE 11: PADRÃO EGM (PARTE 2: MATRIZ DE DECISÃO GF-01..N E DEFAULT APPROVE) -->
-        <section class="slide" role="tabpanel" id="slide-11" aria-labelledby="tab-11" data-title="EGM Goldfish (Parte 2: Matriz de Decisão GF-01..N)" hidden>
+        <!-- SLIDE 12: PADRÃO EGM (PARTE 2: MATRIZ DE DECISÃO GF-01..N E DEFAULT APPROVE) -->
+        <section class="slide" role="tabpanel" id="slide-12" aria-labelledby="tab-12" data-title="EGM Goldfish (Parte 2: Matriz de Decisão GF-01..N)" hidden>
           <div class="slide-head">
             <div>
               <h2>Padrão EGM (Parte 2): A Matriz GF-01..N e o Controle Humano</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 11 de 26</span>
+                <span class="chip chip--person">Slide 12 de 27</span>
                 <span class="measured tone-cool">Transparência Total entre Crítica Fria (Goldfish) e Contexto de Negócio (Elephant)</span>
               </div>
             </div>
@@ -978,13 +1088,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 12: ORQUESTRAÇÃO PÓS-GOLDFISH (GRAFO DAG & SUBAGENTES POR ONDAS) -->
-        <section class="slide" role="tabpanel" id="slide-12" aria-labelledby="tab-12" data-title="Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas" hidden>
+        <!-- SLIDE 13: ORQUESTRAÇÃO PÓS-GOLDFISH (GRAFO DAG & SUBAGENTES POR ONDAS) -->
+        <section class="slide" role="tabpanel" id="slide-13" aria-labelledby="tab-13" data-title="Orquestração Pós-Goldfish: Grafo DAG & Subagentes por Ondas" hidden>
           <div class="slide-head">
             <div>
               <h2>Orquestração Reativa: Grafo DAG e Subagentes por Ondas</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 12 de 26</span>
+                <span class="chip chip--person">Slide 13 de 27</span>
                 <span class="measured tone-cool">.agents/skills/dag-slice-orchestrator/SKILL.md · Pós-Goldfish DAG, 3 Tiers de Modelo e 5 Travas Caixa-Forte</span>
               </div>
             </div>
@@ -992,7 +1102,7 @@
           </div>
 
           <div class="svg-ribbon svg-ribbon--graph">
-            <!-- SVG 08: Grafo DAG de Execução por Ondas (Pós-Goldfish -> Onda 1 -> Onda 2 Paralela Disjunta -> Onda 3 Convergência) -->
+            <!-- SVG 07: Grafo DAG de Execução por Ondas (Pós-Goldfish -> Onda 1 -> Onda 2 Paralela Disjunta -> Onda 3 Convergência) -->
             <svg class="svg-canvas" viewBox="0 0 1600 122" role="img" aria-label="Grafo Acíclico Dirigido (DAG) de Execução por Ondas: o 1º Portão Goldfish (GF-01..07) alimenta a Onda 1 (Fatia 1 com Model flash para Tríade docs e contratos base), que bifurca via arestas curvas em paralelo para a Onda 2A (Fatia 2 com Model inherit e GF-01..04) e Onda 2B (Fatia 3 com Model pro, GF-05..07 e Retry Escalation) sob a invariante Files(F2) interseção Files(F3) igual a vazio, convergindo na Onda 3 (Portão Final Orquestrador com audit-verify, review.ps1 e 2º Goldfish até APROVADO)">
               <!-- Nó 0: 1º Portão Goldfish -->
               <rect x="14" y="34" width="210" height="54" rx="6" fill="var(--color-paper-2)" stroke="var(--color-accent)" stroke-width="2"/>
@@ -1076,24 +1186,24 @@
               </div>
               <ul class="list-compact">
                 <li><div class="list-compact__row"><strong class="tone-ok">Travas 1 e 2: Fonte Única &amp; Disjunção</strong><span class="measured">Files(F2) ∩ Files(F3) = ∅</span></div><span>Leitura direta do <span class="measured">implementation_plan.md</span> (zero telefone sem fio) e paralelismo permitido apenas quando as Whitelists da onda são disjuntas.</span></li>
-                <li><div class="list-compact__row"><strong class="tone-cool">Trava 3: Subagente Restrito slice-executor</strong><span class="measured">define_subagent</span></div><span>Criado com <span class="measured">EnableWriteTools: true</span>, <span class="measured">EnableSubagentTools: false</span>, enjaulado na <span class="measured tone-cool">Allowed Files Whitelist</span>, obrigado a rodar TDD (<span class="measured">Red → Green → Refactor</span> + <span class="measured">scan-clean-code.mjs</span>) e proibido de rodar <span class="measured tone-bad">git commit</span>.</span></li>
-                <li><div class="list-compact__row"><strong class="tone-amber">Travas 4 e 5: Reactive Wakeup &amp; Convergência</strong><span class="measured">Nó Final Único</span></div><span>Audita cada nó ao acordar (diff restrito à Whitelist + Exit 0) e converge no Orquestrador para os 12 Portões + <span class="measured tone-amber">review.ps1</span> + 2º Goldfish.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Trava 3: Single-Execution Gate Protocol</strong><span class="measured">EnableMCPTools: false</span></div><span>O <span class="measured">slice-executor</span> NÃO lê <span class="measured">AGENTS.md</span> e NÃO re-executa <span class="measured">blast-radius</span>, <span class="measured">scan-clean-code</span> ou <span class="measured">audit-verify</span>: roda exclusivamente 1 teste unitário da sua fatia (zero multiplicação quadrática de tokens).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Travas 4 e 5: Hard Sandbox SHA-256 &amp; Convergência</strong><span class="measured">snapshot / verify-slice</span></div><span>Confinamento físico via <span class="measured tone-cool">plan-collision snapshot-slice</span> e <span class="measured tone-cool">verify-slice --revert-unauthorized</span> (~50ms), convergindo 1x no Orquestrador para <span class="measured">audit-verify</span> + <span class="measured tone-amber">review.mjs</span> + 2º Goldfish.</span></li>
               </ul>
             </div>
           </div>
         </section>
 
-        <!-- SLIDE 13: PADRÃO EGM (PARTE 3: 2º PORTÃO GOLDFISH DE IMPLEMENTAÇÃO) -->
-        <section class="slide" role="tabpanel" id="slide-13" aria-labelledby="tab-13" data-title="EGM Goldfish (Parte 3: 2º Portão de Implementação)" hidden>
+        <!-- SLIDE 14: PADRÃO EGM (PARTE 3: 2º PORTÃO GOLDFISH DE IMPLEMENTAÇÃO) -->
+        <section class="slide" role="tabpanel" id="slide-14" aria-labelledby="tab-14" data-title="EGM Goldfish (Parte 3: 2º Portão de Implementação)" hidden>
           <div class="slide-head">
             <div>
               <h2>Padrão EGM (Parte 3): O 2º Portão Goldfish de Implementação</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 13 de 26</span>
+                <span class="chip chip--person">Slide 14 de 27</span>
                 <span class="measured tone-cool">Regra 1.18 · Loop Autônomo Pré-Entrega Compatível com /goal</span>
               </div>
             </div>
-            <p>É proibido encerrar qualquer tarefa sem rodar <span class="measured tone-cool">clean-code-audit --changed</span>, extrair o dossiê com <span class="measured tone-cool">review.ps1</span> e obter o veredito estrito <span class="measured tone-ok">Aprovado</span> do subagente Goldfish.</p>
+            <p>Obrigatório para 100% dos commits de código (<span class="measured tone-cool">codeGoldfishRequired: true</span>): <span class="measured tone-cool">audit-verify</span> e <span class="measured tone-cool">review.mjs</span> gravam o carimbo <span class="measured tone-ok">.git/aegis-gate-stamp.json</span>; sem ele (ou com arquivos de código fora de <span class="measured">evaluatedFiles</span> via <span class="measured">git diff --cached</span>), <span class="measured tone-amber">aegis-hook-guard.mjs</span> nega o <span class="measured tone-bad">git commit</span>.</p>
           </div>
 
           <div class="panels panels--svg-split">
@@ -1178,33 +1288,33 @@
                   </tbody>
                 </table>
               </div>
-              <div class="cmd-line">powershell -File .\scripts\review.ps1 -Issue 52 -Files "backend/src/ai/batch.ts,backend/src/tests/batch.test.ts"</div>
+              <div class="cmd-line">node scripts/review.mjs --issue 52 --files "backend/src/ai/batch.ts,backend/src/tests/batch.test.ts"</div>
             </div>
           </div>
         </section>
 
-        <!-- SLIDE 14: AUTOMAÇÃO POWERSHELL (REVIEW.PS1 & AUDIT-REPO.PS1) -->
-        <section class="slide" role="tabpanel" id="slide-14" aria-labelledby="tab-14" data-title="Automação PowerShell: review.ps1 & audit-repo.ps1" hidden>
+        <!-- SLIDE 15: AUTOMAÇÃO POWERSHELL (REVIEW.PS1 & AUDIT-REPO.PS1) -->
+        <section class="slide" role="tabpanel" id="slide-15" aria-labelledby="tab-15" data-title="Motores Multi-OS: review.mjs & audit-repo.mjs" hidden>
           <div class="slide-head">
             <div>
-              <h2>Radiografia do review.ps1 e do audit-repo.ps1</h2>
+              <h2>Motores Multi-OS: review.mjs (review.ps1) e audit-repo.mjs</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 14 de 26</span>
+                <span class="chip chip--person">Slide 15 de 27</span>
                 <span class="measured tone-cool">Dossiês Determinísticos com Blindagem Anti-Alucinação de Escopo</span>
               </div>
             </div>
-            <p>Dois scripts PowerShell que automatizam a montagem do contexto factual de auditoria: um cirúrgico por tarefa/issue e outro estrutural para o repositório inteiro.</p>
+            <p>Motores determinísticos Multi-OS em Node.js (<span class="measured tone-cool">execFileSync</span> sem shell, imunes a CWE-78, com wrappers <span class="measured">.ps1</span> no Windows) que pré-injetam telemetria AST/CRAP e o modelo de ameaças vivo.</p>
           </div>
 
           <div class="panels panels--2">
             <div class="cell">
               <div class="cell__top">
-                <h3>1. scripts/review.ps1 (Auditoria Cirúrgica da Tarefa)</h3>
+                <h3>1. scripts/review.mjs &amp; review.ps1 (Dossiê Cirúrgico)</h3>
                 <span class="chip chip--instrument">scratch/review_prompt_issue_ID.md</span>
               </div>
               <ul class="list-compact">
                 <li><div class="list-compact__row"><strong class="tone-cool">Extração BDD 1:1 (Especificação Oficial)</strong><span class="measured">Regex Gherkin</span></div><span>Extrai automaticamente todas as cláusulas <span class="measured tone-cool">Cenário / Dado / Quando / Então / E</span> para conferência obrigatória contra os testes.</span></li>
-                <li><div class="list-compact__row"><strong class="tone-cool">Blindagem de Escopo (Backlog Ativo)</strong><span class="measured">Até 30 itens abertos</span></div><span>Injeta o backlog aberto e proíbe cobrar migrações ou refatorações que pertencem a outras etapas da sequência.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-cool">Pré-Injeção AST/CRAP (Cache mtimeMs) &amp; THREAT_MODEL</strong><span class="measured">Zero Ponto Cego</span></div><span>Injeta automaticamente o JSON do <span class="measured">scan-clean-code.mjs</span>, o resumo <span class="measured">TM-*</span> de <span class="measured">workspace/kb/THREAT_MODEL.md</span> e grava <span class="measured">reviewDossierGeneratedAt</span> em <span class="measured">.git/aegis-gate-stamp.json</span>.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-cool">Isolamento -Files &amp; --function-context</strong><span class="measured">git diff HEAD -W</span></div><span>Extrai o diff apenas dos arquivos tocados com o corpo completo das funções, excluindo lockfiles e pastas auxiliares.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-amber">Matriz Inegociável de 4 Eixos</strong><span class="measured">Avaliação estrita</span></div><span><strong class="tone-ok">Eixo 1:</strong> BDD 1:1 e Anti-Mock Oco; <strong class="tone-ok">Eixo 2:</strong> Zero Spec Drift e Regra 1.12; <strong class="tone-ok">Eixo 3:</strong> Segurança Serverless e Tipagem; <strong class="tone-ok">Eixo 4:</strong> Simulação de Execução Mental.</span></li>
               </ul>
@@ -1212,7 +1322,7 @@
 
             <div class="cell cell--deep">
               <div class="cell__top">
-                <h3>2. scripts/audit-repo.ps1 (Health Check Global)</h3>
+                <h3>2. scripts/audit-repo.mjs &amp; audit-repo.ps1 (Health Check)</h3>
                 <span class="chip chip--person">scratch/audit_prompt.md</span>
               </div>
               <ul class="list-compact">
@@ -1225,13 +1335,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 15: CLEAN CODE (PARTE 1: FAIXAS DE RISCO & REGRAS R1 A R7) -->
-        <section class="slide" role="tabpanel" id="slide-15" aria-labelledby="tab-15" data-title="Clean Code (Parte 1: Faixas de Risco & Regras R1 a R7)" hidden>
+        <!-- SLIDE 16: CLEAN CODE (PARTE 1: FAIXAS DE RISCO & REGRAS R1 A R7) -->
+        <section class="slide" role="tabpanel" id="slide-16" aria-labelledby="tab-16" data-title="Clean Code (Parte 1: Faixas de Risco & Regras R1 a R7)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 1): Faixas de Risco e Regras R1 a R7</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 15 de 26</span>
+                <span class="chip chip--person">Slide 16 de 27</span>
                 <span class="measured tone-cool">.agents/skills/clean-code-audit/SKILL.md · Coesão, SRP, Semântica e Tipos</span>
               </div>
             </div>
@@ -1269,13 +1379,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 16: CLEAN CODE (PARTE 2: CURVA CRAP < 10 & REGRAS R8 A R15) -->
-        <section class="slide" role="tabpanel" id="slide-16" aria-labelledby="tab-16" data-title="Clean Code (Parte 2: Curva CRAP < 10 & Regras R8 a R15)" hidden>
+        <!-- SLIDE 17: CLEAN CODE (PARTE 2: CURVA CRAP < 10 & REGRAS R8 A R15) -->
+        <section class="slide" role="tabpanel" id="slide-17" aria-labelledby="tab-17" data-title="Clean Code (Parte 2: Curva CRAP < 10 & Regras R8 a R15)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 2): Curva CRAP &lt; 10 e Regras R8 a R15</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 16 de 26</span>
+                <span class="chip chip--person">Slide 17 de 27</span>
                 <span class="measured tone-cool">Injeção de Dependência, Fronteira Matemática CRAP(m) &lt; 10, Erros Estruturados e Assinaturas</span>
               </div>
             </div>
@@ -1353,13 +1463,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 17: CLEAN CODE (PARTE 3: REGRAS R16 A R22 & PROTOCOLO ANTI-CASCATA) -->
-        <section class="slide" role="tabpanel" id="slide-17" aria-labelledby="tab-17" data-title="Clean Code (Parte 3: Regras R16 a R22 & Scanner CLI)" hidden>
+        <!-- SLIDE 18: CLEAN CODE (PARTE 3: REGRAS R16 A R22 & PROTOCOLO ANTI-CASCATA) -->
+        <section class="slide" role="tabpanel" id="slide-18" aria-labelledby="tab-18" data-title="Clean Code (Parte 3: Regras R16 a R22 & Scanner CLI)" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill clean-code-audit (Parte 3): Regras R16 a R22 e Scanner CLI</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 17 de 26</span>
+                <span class="chip chip--person">Slide 18 de 27</span>
                 <span class="measured tone-cool">Imutabilidade, Runtime Anti-Freeze/Stateless, Fronteiras de Schema e Zero Ciclos</span>
               </div>
             </div>
@@ -1398,13 +1508,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 18: AUDIT-VERIFY.MJS (PARTE 1: PORTÕES 01 A 06) -->
-        <section class="slide" role="tabpanel" id="slide-18" aria-labelledby="tab-18" data-title="audit-verify.mjs (Parte 1: Portões Determinísticos 01 a 06)" hidden>
+        <!-- SLIDE 19: AUDIT-VERIFY.MJS (PARTE 1: PORTÕES 01 A 06) -->
+        <section class="slide" role="tabpanel" id="slide-19" aria-labelledby="tab-19" data-title="audit-verify.mjs (Parte 1: Portões Determinísticos 01 a 06)" hidden>
           <div class="slide-head">
             <div>
               <h2>audit-verify.mjs (Parte 1): Portões Determinísticos 01 a 06</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 18 de 26</span>
+                <span class="chip chip--person">Slide 19 de 27</span>
                 <span class="measured tone-cool">scripts/audit-verify.mjs · Supply Chain, AST, Fronteiras, Código Morto e Frontend</span>
               </div>
             </div>
@@ -1456,13 +1566,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 19: AUDIT-VERIFY.MJS (PARTE 2: PORTÕES 07 A 12) -->
-        <section class="slide" role="tabpanel" id="slide-19" aria-labelledby="tab-19" data-title="audit-verify.mjs (Parte 2: Portões Determinísticos 07 a 12)" hidden>
+        <!-- SLIDE 20: AUDIT-VERIFY.MJS (PARTE 2: PORTÕES 07 A 12) -->
+        <section class="slide" role="tabpanel" id="slide-20" aria-labelledby="tab-20" data-title="audit-verify.mjs (Parte 2: Portões Determinísticos 07 a 12)" hidden>
           <div class="slide-head">
             <div>
               <h2>audit-verify.mjs (Parte 2): Portões Determinísticos 07 a 12</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 19 de 26</span>
+                <span class="chip chip--person">Slide 20 de 27</span>
                 <span class="measured tone-cool">scripts/audit-verify.mjs · Backend, Landing, Archify 3D, Vitest e Clean Code 22/22</span>
               </div>
             </div>
@@ -1514,13 +1624,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 20: PREVENÇÃO PRÉ-VOO (BLAST RADIUS & PLAN COLLISION) -->
-        <section class="slide" role="tabpanel" id="slide-20" aria-labelledby="tab-20" data-title="Inteligência Pré-Voo: blast-radius.mjs & plan-collision.mjs" hidden>
+        <!-- SLIDE 21: PREVENÇÃO PRÉ-VOO (BLAST RADIUS & PLAN COLLISION) -->
+        <section class="slide" role="tabpanel" id="slide-21" aria-labelledby="tab-21" data-title="Inteligência Pré-Voo: blast-radius.mjs & plan-collision.mjs" hidden>
           <div class="slide-head">
             <div>
               <h2>Inteligência Pré-Voo: Blast Radius e Radar de Colisão</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 20 de 26</span>
+                <span class="chip chip--person">Slide 21 de 27</span>
                 <span class="measured tone-cool">Regras 1.3.2 e 1.7.1 · Proteção Topológica Antes da Primeira Linha de Código</span>
               </div>
             </div>
@@ -1528,7 +1638,7 @@
           </div>
 
           <div class="svg-ribbon svg-ribbon--graph">
-            <!-- SVG 11: Grafo Direcionado Real de Blast Radius (Grade 2x3) + Grafo de Lock Paralelo .git/active-plans.json -->
+            <!-- SVG 10: Grafo Direcionado Real de Blast Radius (Grade 2x3) + Grafo de Lock Paralelo .git/active-plans.json -->
             <svg class="svg-canvas" viewBox="0 0 1600 122" role="img" aria-label="Grafo Direcionado Duplo: à esquerda, o nó types/project.ts irradia 6 arestas Bezier para 6 módulos consumidores organizados em grade 2 por 3 (api/export.ts, services/parser.ts, hooks/useBook.ts, store/project.ts, ui/Editor.tsx e workers/job.ts), disparando o limiar 6 maior ou igual a 5 (RISCO HIGH) e selecionando 3 suítes .spec.ts; à direita, o semáforo .git/active-plans.json concede LOCK OK para a Sessão A #52 e bloqueia por COLLISION BLOCK a Sessão B #53 ao tentar reservar o mesmo arquivo">
               <!-- METADE ESQUERDA: GRAFO DE BLAST RADIUS REVERSO (FAN-OUT 1 -> 6 EM GRADE 2x3) -->
               <rect x="14" y="34" width="164" height="54" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
@@ -1628,7 +1738,7 @@
                 <li><div class="list-compact__row"><strong class="tone-cool">Resolução Completa do Grafo de Imports</strong><span class="measured">Diretos + Barrels</span></div><span>Rastreia importações nomeadas, re-exports (<span class="measured">backend/src/index.ts</span>) e referências ao carregador de prompts (<span class="measured">loader.ts</span>).</span></li>
                 <li><div class="list-compact__row"><strong class="tone-cool">Detecção Automática de Camada e Eixo</strong><span class="measured">5 Camadas / 5 Eixos</span></div><span>Classifica o alvo nas camadas (<span class="measured">Clients, Core, Services, Persistence, Publication</span>) e nos Eixos <span class="measured">A a E</span> da Regra 1.11.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-amber">Limiar de Risco High (&ge; 5 consumidores)</strong><span class="measured">Aciona Regra 1.8</span></div><span>Se 5 ou mais arquivos dependerem do módulo, dispara obrigatoriamente o <span class="measured tone-cool">sequential-thinking</span> e o <span class="measured tone-amber">Goldfish Cold Spec Auditor</span>.</span></li>
-                <li><div class="list-compact__row"><strong class="tone-ok">Seleção Cirúrgica de Testes para o Inner Loop</strong><span class="measured">Feedback em segundos</span></div><span>Devolve exatamente quais suítes Vitest cobrem os dependentes afetados para validação rápida durante o TDD.</span></li>
+                <li><div class="list-compact__row"><strong class="tone-ok">Detecção de Superfície de Segurança &amp; Skills</strong><span class="measured">securitySurfaceTouched</span></div><span>Detecta rotas/auth/webhooks (<span class="measured">relatedDocs: ["workspace/kb/THREAT_MODEL.md"]</span>), recomenda skills mínimas (<span class="measured">recommendedSkills</span>) e seleciona as suítes de teste do Inner Loop.</span></li>
               </ul>
             </div>
 
@@ -1648,13 +1758,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 21: ECOSSISTEMA MCP, SEQUENTIAL-THINKING & REPOMIX -->
-        <section class="slide" role="tabpanel" id="slide-21" aria-labelledby="tab-21" data-title="Ecossistema MCP: Sequential Thinking, DevTools & Repomix" hidden>
+        <!-- SLIDE 22: ECOSSISTEMA MCP, SEQUENTIAL-THINKING & REPOMIX -->
+        <section class="slide" role="tabpanel" id="slide-22" aria-labelledby="tab-22" data-title="Ecossistema MCP: Sequential Thinking, DevTools & Repomix" hidden>
           <div class="slide-head">
             <div>
               <h2>Ecossistema MCP, Sequential Thinking e Repomix</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 21 de 26</span>
+                <span class="chip chip--person">Slide 22 de 27</span>
                 <span class="measured tone-cool">.agents/skills/mcp-ecosystem-guide/SKILL.md · Tolerância Zero a Tentativa e Erro</span>
               </div>
             </div>
@@ -1662,7 +1772,7 @@
           </div>
 
           <div class="svg-ribbon svg-ribbon--graph">
-            <!-- SVG 12: Gráfico Quantitativo de Escala de Tokens (Tree-sitter AST vs. Leitura Bruta) -->
+            <!-- SVG 11: Gráfico Quantitativo de Escala de Tokens (Tree-sitter AST vs. Leitura Bruta) -->
             <svg class="svg-canvas" viewBox="0 0 1600 118" role="img" aria-label="Gráfico quantitativo em escala comparando a leitura de código bruto (~50.000 tokens, 100% da janela ocupada com implementação imperativa e ruído) contra o compressor Tree-sitter AST do Repomix (menos de 3.000 tokens, apenas 6% da barra com 100% das assinaturas e tipos, gerando redução líquida de -94% de tokens) para liberar orçamento cognitivo para o Córtex sequential-thinking">
               <!-- Rótulos do Eixo Y (Comparativo Direto em Escala 800px = 100%) -->
               <text x="16" y="36" font-size="11.5" font-weight="500" class="svg-bad">Sem AST (Código Bruto)</text>
@@ -1735,13 +1845,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 22: SKILL ARCHIFY & AS 5 ABAS 3D -->
-        <section class="slide" role="tabpanel" id="slide-22" aria-labelledby="tab-22" data-title="Skill Archify: Compilador Anti-Drift & Central 3D de 5 Abas" hidden>
+        <!-- SLIDE 23: SKILL ARCHIFY & AS 5 ABAS 3D -->
+        <section class="slide" role="tabpanel" id="slide-23" aria-labelledby="tab-23" data-title="Skill Archify: Compilador Anti-Drift & Central 3D de 5 Abas" hidden>
           <div class="slide-head">
             <div>
               <h2>Skill Archify e a Central 3D Viva de 5 Abas</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 22 de 26</span>
+                <span class="chip chip--person">Slide 23 de 27</span>
                 <span class="measured tone-cool">.agents/skills/archify/SKILL.md · Fidelidade Factual Verificada no Portão 09 do Precommit</span>
               </div>
             </div>
@@ -1781,13 +1891,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 23: GOVERNANÇA DE TESTES & PARIDADE DUAL E2E -->
-        <section class="slide" role="tabpanel" id="slide-23" aria-labelledby="tab-23" data-title="Governança Semântica de Testes & Paridade Dual E2E 1:1" hidden>
+        <!-- SLIDE 24: GOVERNANÇA DE TESTES & PARIDADE DUAL E2E -->
+        <section class="slide" role="tabpanel" id="slide-24" aria-labelledby="tab-24" data-title="Governança Semântica de Testes & Paridade Dual E2E 1:1" hidden>
           <div class="slide-head">
             <div>
               <h2>Governança de Testes e Paridade Dual E2E 1:1</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 23 de 26</span>
+                <span class="chip chip--person">Slide 24 de 27</span>
                 <span class="measured tone-cool">Regras 1.14 e 1.15 · check-test-naming-governance.mjs &amp; run-mcp-e2e-scenario.mjs</span>
               </div>
             </div>
@@ -1823,17 +1933,17 @@
           </div>
         </section>
 
-        <!-- SLIDE 24: CONSTITUIÇÃO DUPLA (AGENTS.MD UNIFICADO + TRÍADE DOCS/) -->
-        <section class="slide" role="tabpanel" id="slide-24" aria-labelledby="tab-24" data-title="Constituição Dupla: AGENTS.md Unificado e a Tríade docs/" hidden>
+        <!-- SLIDE 25: CONSTITUIÇÃO DUPLA (AGENTS.MD UNIFICADO + TRÍADE DOCS/) -->
+        <section class="slide" role="tabpanel" id="slide-25" aria-labelledby="tab-25" data-title="Constituição Hub & Spoke (< 22 KB): AGENTS.md + .agents/rules/ + Tríade docs/" hidden>
           <div class="slide-head">
             <div>
-              <h2>Constituição Dupla: AGENTS.md Unificado e a Tríade docs/</h2>
+              <h2>Constituição Hub &amp; Spoke (&lt; 22 KB): AGENTS.md, .agents/rules/ e Tríade docs/</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 24 de 26</span>
-                <span class="measured tone-cool">Regra 1.4 · Zero Fragmentação de Rules e Documentação Viva Pré-Código</span>
+                <span class="chip chip--person">Slide 25 de 27</span>
+                <span class="measured tone-cool">Regra 1.4 e Regra 1.19 · Fim do Truncamento de 24 KB (Seção 0 Universal) e Documentação Viva Pré-Código</span>
               </div>
             </div>
-            <p>Todas as regras operacionais vivem unificadas na raiz em <span class="measured tone-cool">AGENTS.md</span> (eliminando pastas <span class="measured">.agents/rules/</span> fragmentadas) e blindam os 3 documentos constitucionais de <span class="measured tone-cool">docs/</span> antes de qualquer linha de código.</p>
+            <p>Para impedir o corte físico de <span class="measured tone-bad">24.000 bytes</span> por arquivo de regra, o <span class="measured tone-cool">AGENTS.md</span> (&lt; 16 KB) atua como Hub universal na raiz com a <strong class="tone-amber">Seção 0 (Universal Multi-Agent Routing)</strong>, carregando sob demanda módulos enxutos em <span class="measured tone-cool">.agents/rules/*.md</span> (&lt; 6 KB) e blindando a Tríade <span class="measured tone-cool">docs/</span>.</p>
           </div>
 
           <div class="panels panels--svg-split">
@@ -1843,12 +1953,12 @@
                 <span class="chip chip--person">Leitura Pré-Voo</span>
               </div>
               <div class="svg-box">
-                <!-- SVG 15: Pirâmide Constitucional AGENTS.md + Tríade docs/ -->
+                <!-- SVG 12: Pirâmide Constitucional AGENTS.md + Tríade docs/ -->
                 <svg class="svg-canvas" viewBox="0 0 580 320" role="img" aria-label="Diagrama da Constituição Dupla do projeto: no topo o arquivo raiz unificado AGENTS.md governando a Tríade Constitucional em docs/ composta por docs/PRD.md (Produto), docs/ARCHITECTURE.md (Técnica) e docs/DIRETRIZES_DOMINIO.md (Domínio e DDD)">
                   <!-- Topo: AGENTS.md Unificado -->
                   <rect x="90" y="22" width="400" height="72" rx="8" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2.2"/>
-                  <text x="290" y="50" text-anchor="middle" font-size="14" font-weight="500" class="svg-amber">1. AGENTS.md UNIFICADO (Raiz)</text>
-                  <text x="290" y="72" text-anchor="middle" font-size="11" class="svg-ink2">20 Leis · 7 Core Behaviors · Zero .agents/rules/ soltas</text>
+                  <text x="290" y="50" text-anchor="middle" font-size="13.5" font-weight="500" class="svg-amber">1. AGENTS.md HUB (&lt; 16 KB · Seção 0 Universal)</text>
+                  <text x="290" y="72" text-anchor="middle" font-size="10.5" class="svg-ink2">20 Leis + Spoke Modules .agents/rules/*.md (&lt; 6 KB · Check &le; 22 KB)</text>
 
                   <!-- Linhas de comando sobre a Tríade -->
                   <line x1="180" y1="94" x2="105" y2="156" stroke="var(--color-cool)" stroke-width="2"/>
@@ -1884,7 +1994,7 @@
                 <span class="chip chip--ok">Fonte Única da Verdade</span>
               </div>
               <ul class="list-compact">
-                <li><div class="list-compact__row"><strong class="tone-amber">1. AGENTS.md Unificado (Raiz do Repositório)</strong><span class="measured">Zero .agents/rules/ soltas</span></div><span>Unifica as 20 Leis, os 7 Core Behaviors, perfis de runtime Serverless/Container, segurança Shift-Left (<span class="measured">mantis-advise</span>), integridade física 1:1 de prompts e qualidade web (<span class="measured">modern-web-guidance</span> + critério seletivo da <span class="measured">/hallmark</span>).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">1. AGENTS.md Hub (&lt; 16 KB) + .agents/rules/*.md (&lt; 6 KB)</strong><span class="measured">Teto Duro &le; 22.000 bytes</span></div><span>A <strong class="tone-amber">Seção 0</strong> no topo do <span class="measured">AGENTS.md</span> roteia módulos de infraestrutura e domínio (<span class="measured">.agents/rules/*.md</span>) para qualquer agente do mercado, validado por <span class="measured tone-cool">aegis-hook-guard.mjs --check-rules</span>.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-cool">2. docs/PRD.md (Constituição do Produto)</strong><span class="measured">templates/docs/PRD</span></div><span>Define propósito, personas, modelo de negócio, cotas operacionais, jornadas críticas E2E (<span class="measured">RF-01..N</span>), SLAs de latência e privacidade LGPD/GDPR.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-cool">3. docs/ARCHITECTURE.md (Constituição Técnica)</strong><span class="measured">templates/docs/ARCH</span></div><span>Define decisões imutáveis de stack, fronteiras de módulos, separação de persistência (Banco Estruturado vs. Object Storage), telemetria tripla e topologia viva.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-ok">4. docs/DIRETRIZES_DOMINIO.md (Negócio &amp; DDD)</strong><span class="measured">templates/docs/DOMINIO</span></div><span>Codifica as invariantes especialistas do negócio (editorial KDP, acústica Solfeggio/RVC ou regras fiscais), rubricas de qualidade e glossário da Linguagem Ubíqua.</span></li>
@@ -1893,14 +2003,14 @@
           </div>
         </section>
 
-        <!-- SLIDE 25: PORTABILIDADE MULTI-PROJETO VIA AEGIS HARNESS -->
-        <section class="slide" role="tabpanel" id="slide-25" aria-labelledby="tab-25" data-title="Portabilidade Políglota: O Bootstrapper aegis-harness" hidden>
+        <!-- SLIDE 26: PORTABILIDADE MULTI-PROJETO VIA AEGIS HARNESS -->
+        <section class="slide" role="tabpanel" id="slide-26" aria-labelledby="tab-26" data-title="Portabilidade Políglota: O Bootstrapper aegis-harness" hidden>
           <div class="slide-head">
             <div>
-              <h2>Portabilidade Multi-Projeto: O Bootstrapper aegis-harness</h2>
+              <h2>Portabilidade Políglota e Multi-Agente: Bootstrapper aegis-harness</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 25 de 26</span>
-                <span class="measured tone-cool">bin/init-harness.mjs · Auto-Detecção Políglota + Upstream GitHub com Fallback Local</span>
+                <span class="chip chip--person">Slide 26 de 27</span>
+                <span class="measured tone-cool">bin/init-harness.mjs --agent · Suporte Nativo a 8+ Ferramentas (Antigravity, AWS Kiro, Amazon Q, Claude Code, Codex, Cursor, Windsurf, Copilot)</span>
               </div>
             </div>
             <p>Toda esta engenharia foi empacotada na skill global <span class="measured tone-cool">aegis-harness</span>: um único comando instala e configura os agentes, as 55 skills e os scripts em qualquer projeto novo ou legado.</p>
@@ -1939,7 +2049,7 @@
                 <span class="chip chip--person">Node.js &amp; Python</span>
               </div>
               <ul class="list-compact">
-                <li><div class="list-compact__row"><strong class="tone-amber">Scripts PowerShell de Auditoria EGM</strong><span class="measured">scripts/*.ps1</span></div><span>Instala <span class="measured tone-amber">review.ps1</span> (2º Portão Goldfish cirúrgico) e <span class="measured tone-amber">audit-repo.ps1</span> (Health check global).</span></li>
+                <li><div class="list-compact__row"><strong class="tone-amber">Compatibilidade Universal (8+ Agentes)</strong><span class="measured">--agent auto-detect</span></div><span>Roda nativamente em <strong class="tone-amber">Google Antigravity, AWS Kiro, Amazon Q Developer, Anthropic Claude Code, OpenAI Codex CLI, Cursor, Windsurf e GitHub Copilot</strong> via Seção 0 + <span class="measured">aegis-hook-guard.mjs</span>.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-cool">Motores de Pré-Voo e Precommit</strong><span class="measured">.mjs e .py</span></div><span>Instala <span class="measured">blast-radius</span>, <span class="measured">plan-collision</span>, <span class="measured">audit-verify</span>, <span class="measured">check-test-naming-governance</span> e <span class="measured">scan-clean-code</span>.</span></li>
                 <li><div class="list-compact__row"><strong class="tone-ok">Preservação Inteligente</strong><span class="measured">Non-destructive</span></div><span>Nunca sobrescreve documentos <span class="measured">docs/PRD.md</span> ou <span class="measured">ARCHITECTURE.md</span> que já existam no projeto-alvo.</span></li>
               </ul>
@@ -1947,13 +2057,13 @@
           </div>
         </section>
 
-        <!-- SLIDE 26: FECHAMENTO EXECUTIVO & BANCADA INTERATIVA DE COMANDOS -->
-        <section class="slide" role="tabpanel" id="slide-26" aria-labelledby="tab-26" data-title="Fechamento: O Ciclo Completo de Engenharia" hidden>
+        <!-- SLIDE 27: FECHAMENTO EXECUTIVO & BANCADA INTERATIVA DE COMANDOS -->
+        <section class="slide" role="tabpanel" id="slide-27" aria-labelledby="tab-27" data-title="Fechamento: O Ciclo Completo de Engenharia" hidden>
           <div class="slide-head">
             <div>
               <h2>Resumo Operacional: Do Requisito ao Commit Auditado</h2>
               <div class="slide-head__meta">
-                <span class="chip chip--person">Slide 26 de 26</span>
+                <span class="chip chip--person">Slide 27 de 27</span>
                 <span class="measured tone-cool">Bancada Interativa dos Comandos Oficiais do Harness</span>
               </div>
             </div>
@@ -1994,7 +2104,7 @@
                 <span class="chip chip--person">Fase Review/Ship</span>
               </div>
               <h3>2º Goldfish &amp; Release</h3>
-              <p>Dossiê <span class="measured tone-amber">review.ps1</span> auditado até <span class="measured tone-ok">Aprovado</span> + staging cirúrgico (sob ordem) + <span class="measured tone-cool">release</span>.</p>
+              <p>Dossiê <span class="measured tone-amber">review.mjs</span> + carimbo <span class="measured tone-ok">aegis-gate-stamp.json</span> + commit cirúrgico + <span class="measured tone-cool">release</span>.</p>
               <button class="btn" type="button" data-cmd-pick="3">Ver comando</button>
             </div>
           </div>
@@ -2017,11 +2127,11 @@
     <!-- FOOTER BAR -->
     <footer class="keynote-footer">
       <div class="container keynote-footer__inner">
-        <div id="footerSlideInfo" class="measured tone-cool">Slide 01 / 26 · Visão Executiva: Os 4 Pilares do Engineering Harness</div>
+        <div id="footerSlideInfo" class="measured tone-cool">Slide 01 / 27 · Abertura Executiva: O Que é um Engineering Harness (Model vs. Harness)</div>
         <div class="progress-bar" aria-hidden="true">
           <div class="progress-bar__fill" id="progressBarFill"></div>
         </div>
-        <div>Navegação horizontal: setas <span class="measured tone-amber">←</span> <span class="measured tone-amber">→</span> ou clique em <span class="measured tone-cool">01..26</span> no topo</div>
+        <div>Navegação horizontal: setas <span class="measured tone-amber">←</span> <span class="measured tone-amber">→</span> ou clique em <span class="measured tone-cool">01..27</span> no topo</div>
       </div>
     </footer>
   </div>
@@ -2130,7 +2240,7 @@
         {
           title: 'Estágio 04 · 2º Portão Goldfish (review.ps1) & Liberação Pós-Commit',
           badge: 'Regra 1.1.1 e 1.18',
-          cmd: 'powershell -File .\\scripts\\review.ps1 -Issue 52 -Files "frontend/src/types/project.ts" && node scripts/plan-collision.mjs release --issue 52',
+          cmd: 'node scripts/review.mjs --issue 52 --files "src/types/project.ts" && node scripts/plan-collision.mjs release --issue 52',
           desc: 'Extrai o dossiê BDD Gherkin e o diff com funções completas para aprovação pelo subagente Goldfish e libera o registro paralelo após o commit autorizado.'
         }
       ];
