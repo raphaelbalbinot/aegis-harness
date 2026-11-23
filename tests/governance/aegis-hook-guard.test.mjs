@@ -88,7 +88,7 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
         name: 'write_file',
         args: {
           Path: 'C:/tmp/brain/123/implementation_plan.md',
-          Content: '# Plano Sem Goldfish\n## Objetivo\nTeste.',
+          Content: '# Plano Sem Goldfish\n## 🎯 Confidence Gate (≥ 95%)\n- Escopo e arquitetura: 100%\n\n## Objetivo\nTeste.',
           ArtifactMetadata: { RequestFeedback: true, Summary: 'Ready', UserFacing: true },
         },
       },
@@ -101,10 +101,10 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
     const tmpDir = createTempWorkspace();
     const planFile = path.join(tmpDir, 'implementation_plan.md');
     try {
-      // Caso 1: Arquivo no disco já tem o relatório Goldfish e o edit_file só altera o topo
+      // Caso 1: Arquivo no disco já tem Confidence Gate + relatório Goldfish e o edit_file só altera o topo
       fs.writeFileSync(
         planFile,
-        '# Plano\nStatus: DRAFT\n\n## 🐠 Relatório Cold Spec Review (EGM Goldfish)\n| **GF-01** | Cat | Achado | OK | Proceed |\n',
+        '# Plano\nStatus: DRAFT\n\n## 🎯 Confidence Gate (≥ 95%)\n- Escopo: 98%\n\n## 🐠 Relatório Cold Spec Review (EGM Goldfish)\n| **GF-01** | Cat | Achado | OK | Proceed |\n',
         'utf8'
       );
       const allowRes = evaluatePreToolUseHook({
@@ -185,7 +185,7 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
     assert.match(tplText, /interview-me/i, 'AGENTS.template.md deve acionar interview-me para dúvidas de requisito');
     assert.match(tplText, /BDD Gherkin/i, 'AGENTS.template.md deve exigir Gherkin em 100% dos planos');
     assert.match(tplText, /resumo executivo compacto/i, 'AGENTS.template.md deve exigir resumo compacto no chat');
-    assert.doesNotMatch(tplText, /CONFIDENCE.*95%/i, 'v2 remove cálculo artificial CONFIDENCE >= 95%');
+    assert.match(tplText, /Confidence Gate.*95%/i, 'AGENTS.template.md deve exigir Confidence Gate >= 95%');
 
     const tmpDir = createTempWorkspace();
     try {
@@ -214,12 +214,78 @@ describe('aegis-hook-guard.mjs — Guardrail Determinístico Nativo (GF-01, GF-0
           name: 'write_file',
           args: {
             Path: path.join(tmpDir, 'implementation_plan.md'),
-            Content: '# Plano Tier 0\n## Cenários Gherkin\nDado X Quando Y Então Z',
+            Content: '# Plano Tier 0\n## 🎯 Confidence Gate (≥ 95%)\n- Escopo isolado: 100%\n\n## Cenários Gherkin\nDado X Quando Y Então Z',
             ArtifactMetadata: { RequestFeedback: true, Summary: 'Tier 0', UserFacing: true },
           },
         },
       });
-      assert.equal(fastPathPlanAllow.decision, 'allow', 'Tier 0 XS_EXPRESS deve liberar RequestFeedback: true sem GF-01');
+      assert.equal(fastPathPlanAllow.decision, 'allow', 'Tier 0 XS_EXPRESS com Confidence Gate >= 95% deve liberar RequestFeedback: true sem GF-01');
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('Cenário 9: Confidence Gate (>= 95%) bloqueia RequestFeedback: true sem seção ou com qualquer ponto < 95% mesmo em XS_EXPRESS', () => {
+    const tmpDir = createTempWorkspace();
+    try {
+      fs.writeFileSync(
+        path.join(tmpDir, '.git', 'aegis-gate-stamp.json'),
+        JSON.stringify({
+          blastRadiusEvaluation: {
+            planGoldfishRequired: false,
+            codeGoldfishRequired: true,
+            ceremonyTier: 'XS_EXPRESS',
+            evaluatedFiles: ['src/utils/math.ts'],
+            evaluatedAt: Date.now(),
+          },
+        }),
+        'utf8'
+      );
+
+      // 1. Sem seção Confidence Gate -> deny mesmo em XS_EXPRESS
+      const missingGate = evaluatePreToolUseHook({
+        cwd: tmpDir,
+        toolCall: {
+          name: 'write_file',
+          args: {
+            Path: path.join(tmpDir, 'implementation_plan.md'),
+            Content: '# Plano XS_EXPRESS\n## Cenários Gherkin\nDado X Quando Y Então Z',
+            ArtifactMetadata: { RequestFeedback: true, Summary: 'Tier 0', UserFacing: true },
+          },
+        },
+      });
+      assert.equal(missingGate.decision, 'deny');
+      assert.match(missingGate.reason ?? '', /Confidence Gate/i);
+
+      // 2. Com item 85% (< 95%) -> deny
+      const lowPct = evaluatePreToolUseHook({
+        cwd: tmpDir,
+        toolCall: {
+          name: 'write_file',
+          args: {
+            Path: path.join(tmpDir, 'implementation_plan.md'),
+            Content: '# Plano\n## 🎯 Confidence Gate (≥ 95%)\n- Etapa 1: 100%\n- Etapa 2 (GPU L4): 85%\n',
+            ArtifactMetadata: { RequestFeedback: true, Summary: 'Low', UserFacing: true },
+          },
+        },
+      });
+      assert.equal(lowPct.decision, 'deny');
+      assert.match(lowPct.reason ?? '', /85%/);
+
+      // 3. Com texto literal "< 95%" -> deny
+      const literalLt = evaluatePreToolUseHook({
+        cwd: tmpDir,
+        toolCall: {
+          name: 'write_file',
+          args: {
+            Path: path.join(tmpDir, 'implementation_plan.md'),
+            Content: '# Plano\n## 🎯 Confidence Gate (≥ 95%)\n- Etapa 2: < 95% (em aberto)\n',
+            ArtifactMetadata: { RequestFeedback: true, Summary: 'Open', UserFacing: true },
+          },
+        },
+      });
+      assert.equal(literalLt.decision, 'deny');
+      assert.match(literalLt.reason ?? '', /< 95%/);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }

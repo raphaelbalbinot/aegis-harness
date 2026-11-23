@@ -20,6 +20,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const MAX_RULE_FILE_BYTES = 22000;
+const MIN_CONFIDENCE_PERCENT = 95;
+const CONFIDENCE_HEADER_RE = /^##\s+.*(?:Confidence Gate|Gate de Certeza)/im;
+const CONFIDENCE_LT_95_RE = /<\s*95\s*%/i;
+const CONFIDENCE_PCT_RE = /(\d+(?:[.,]\d+)?)\s*%/g;
 const GOLDFISH_HEADER_RE = /##\s+.*Cold Spec Review/i;
 const GOLDFISH_ROW_RE = /\|\s*\*{0,2}GF-01\*{0,2}\s*\|/i;
 const GIT_COMMIT_CMD_RE = /(?:^|[;&|]\s*)git\s+commit\b/i;
@@ -255,6 +259,54 @@ function listStagedFiles(repoRoot) {
 }
 
 /**
+ * Valida a seção obrigatória `## 🎯 Confidence Gate (≥ 95%)` em `implementation_plan.md` (Regra 1.2).
+ * @param {string} planText
+ * @returns {{ ok: boolean; reason?: string }}
+ */
+function evaluateConfidenceGate(planText) {
+  const headerMatch = CONFIDENCE_HEADER_RE.exec(planText);
+  if (!headerMatch) {
+    return {
+      ok: false,
+      reason:
+        'BLOQUEADO PELA REGRA 1.2 (Confidence Gate ≥ 95%): Proibido usar RequestFeedback: true em implementation_plan.md sem a seção "## 🎯 Confidence Gate (≥ 95%)" declarando certeza >= 95% em todos os pontos críticos (inclusive em XS_EXPRESS).',
+    };
+  }
+  const afterHeader = planText.slice(headerMatch.index + headerMatch[0].length);
+  const nextSectionIdx = afterHeader.search(/\r?\n##\s+/);
+  const sectionBody = nextSectionIdx === -1 ? afterHeader : afterHeader.slice(0, nextSectionIdx);
+
+  if (CONFIDENCE_LT_95_RE.test(sectionBody)) {
+    return {
+      ok: false,
+      reason:
+        'BLOQUEADO PELA REGRA 1.2 (Confidence Gate ≥ 95%): Detectado item com certeza "< 95%" na seção Confidence Gate. Pare e alinhe a decisão com o usuário (via interview-me / ask_question) antes de pedir Proceed.',
+    };
+  }
+
+  const percentages = Array.from(sectionBody.matchAll(CONFIDENCE_PCT_RE), (m) =>
+    Number.parseFloat(m[1].replace(',', '.'))
+  ).filter((n) => Number.isFinite(n));
+
+  if (percentages.length === 0) {
+    return {
+      ok: false,
+      reason:
+        'BLOQUEADO PELA REGRA 1.2 (Confidence Gate ≥ 95%): A seção "## 🎯 Confidence Gate (≥ 95%)" deve declarar explicitamente o percentual de certeza (>= 95%) para os pontos críticos.',
+    };
+  }
+
+  const lowScore = percentages.find((pct) => pct < MIN_CONFIDENCE_PERCENT);
+  if (lowScore !== undefined) {
+    return {
+      ok: false,
+      reason: `BLOQUEADO PELA REGRA 1.2 (Confidence Gate ≥ 95%): Detectado ponto com ${lowScore}% de certeza (< ${MIN_CONFIDENCE_PERCENT}%). Resolva a ambiguidade com o usuário antes de pedir Proceed.`,
+    };
+  }
+  return { ok: true };
+}
+
+/**
  * Avalia chamadas `write_file` / `edit_file` / `multi_edit_file` sobre `implementation_plan.md`.
  * @param {string} repoRoot
  * @param {Record<string, any>} args
@@ -268,12 +320,17 @@ function evaluatePlanWriteGuard(repoRoot, args) {
   const reqFeedback = Boolean(args.ArtifactMetadata?.RequestFeedback);
   if (!reqFeedback) return { decision: 'allow' };
 
+  const resultingText = simulatePlanContent(args);
+  const confidenceCheck = evaluateConfidenceGate(resultingText);
+  if (!confidenceCheck.ok) {
+    return { decision: 'deny', reason: confidenceCheck.reason };
+  }
+
   const stamp = readGateStamp(repoRoot);
   if (stamp?.blastRadiusEvaluation?.planGoldfishRequired === false) {
     return { decision: 'allow' };
   }
 
-  const resultingText = simulatePlanContent(args);
   const hasGoldfishSection = GOLDFISH_HEADER_RE.test(resultingText) && GOLDFISH_ROW_RE.test(resultingText);
   if (!hasGoldfishSection) {
     return {
