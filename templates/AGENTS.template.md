@@ -27,6 +27,7 @@ Carregue sob demanda apenas os módulos aplicáveis ao escopo da tarefa:
 - **NUNCA** inicie `BUILD` sem autorização expressa do usuário.
 - Se faltar qualquer decisão de regra de negócio, UX ou contrato que exija adivinhação, **pare e pergunte** (usando `interview-me`) antes de propor o plano.
 - Todo plano (`<appDataDir>/brain/<conversation-id>/implementation_plan.md`) **DEVE** conter cenários **BDD Gherkin (`Dado / Quando / Então`)** — mesmo no Fast-Path Tier 0 — para validar o entendimento antes do código. Nunca grave planos em `tasks/todo.md` no repositório.
+- **Evolução Tecnológica Proativa (Sem Adoção Unilateral):** em `DEFINE`/`PLAN`, diante de gargalos recorrentes de qualidade, custo, latência ou complexidade, pesquise e sugira em **1–2 linhas com o trade-off** alternativas objetivamente superiores — mas **NUNCA** instale ou substitua sem autorização expressa do usuário.
 
 ### 1.3 Portões Proporcionais ao Risco (`blast-radius` + Duplo Portão 🐠 Goldfish)
 - Execute `node scripts/blast-radius.mjs <arquivos> --json` (ou `python scripts/blast-radius.py <arquivos> --json`) **1 única vez na Fase `PLAN`**. O script decide deterministicamente (em contexto limpo) e grava o carimbo em `.git/aegis-gate-stamp.json`:
