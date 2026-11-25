@@ -423,6 +423,14 @@ function runCliOrHook(argv) {
     if (diag.blockedByParallelIssue) process.stderr.write(`${diag.banner}\n`);
     return;
   }
+  if (argv.includes('--pre-commit')) {
+    const res = evaluateGitCommitGuard(repoRoot, { CommandLine: 'git commit' });
+    if (res.decision === 'deny') {
+      process.stderr.write(`❌ [aegis-hook-guard] ${res.reason}\n`);
+      process.exit(1);
+    }
+    return;
+  }
   if (argv.includes('--check-rules')) {
     const res = checkRuleFilesBudget(repoRoot);
     if (!res.ok) {

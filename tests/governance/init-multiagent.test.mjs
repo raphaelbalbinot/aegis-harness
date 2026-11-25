@@ -36,6 +36,9 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.equal(fs.existsSync(claudePath), true, 'CLAUDE.md deve ser criado');
       assert.equal(fs.existsSync(goldfishAgentPath), true, '.claude/agents/goldfish-auditor.md deve ser criado');
       assert.equal(fs.existsSync(sliceExecutorPath), true, '.claude/agents/slice-executor.md deve ser criado');
+      assert.equal(fs.existsSync(path.join(tmpDir, '.claude', 'settings.json')), true, '.claude/settings.json deve ser criado');
+      assert.equal(fs.existsSync(path.join(tmpDir, '.kiro', 'steering', 'aegis.md')), true, '.kiro/steering/aegis.md deve ser criado');
+      assert.equal(fs.existsSync(path.join(tmpDir, '.cursor', 'hooks.json')), true, '.cursor/hooks.json deve ser criado');
 
       // 2. Verifica presença dos scripts Multi-OS em scripts/ e .agents/hooks.json (GF-08)
       const expectedScripts = [
@@ -199,6 +202,9 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
       assert.equal(fs.existsSync(pluginPath), true, 'Plugin OpenCode deve ser criado');
       assert.equal(fs.existsSync(goldfishPath), true, 'Subagente goldfish-auditor OpenCode deve ser criado');
       assert.equal(fs.existsSync(slicePath), true, 'Subagente slice-executor OpenCode deve ser criado');
+      const preCommitPath = path.join(tmpDir, '.git', 'hooks', 'pre-commit');
+      assert.equal(fs.existsSync(preCommitPath), true, 'Git hook universal .git/hooks/pre-commit deve ser criado');
+      assert.match(fs.readFileSync(preCommitPath, 'utf-8'), /aegis-hook-guard\.mjs --pre-commit/);
 
       const { AegisHookGuardPlugin } = await import(pathToFileURL(pluginPath).href);
       const hooks = await AegisHookGuardPlugin({ directory: tmpDir });
@@ -206,6 +212,23 @@ describe('Aegis Harness v2.0 — Multi-Agent & Multi-OS Bootstrapper (Fatia 4)',
         () => hooks['tool.execute.before']({ tool: 'bash' }, { args: { command: 'git commit -am "bypass"' } }),
         /REGRA 1\.1/i,
         'Plugin OpenCode deve bloquear git commit -a via scripts/aegis-hook-guard.mjs'
+      );
+
+      // Rascunho marcado com Status: DRAFT deve ser permitido no OpenCode
+      await hooks['tool.execute.before'](
+        { tool: 'write' },
+        { args: { filePath: path.join(tmpDir, 'implementation_plan.md'), content: '# Plano\nStatus: DRAFT\n' } }
+      );
+
+      // Plano final sem Confidence Gate deve ser bloqueado fisicamente no OpenCode
+      await assert.rejects(
+        () =>
+          hooks['tool.execute.before'](
+            { tool: 'write' },
+            { args: { filePath: path.join(tmpDir, 'implementation_plan.md'), content: '# Plano Final\nSem gate.' } }
+          ),
+        /Confidence Gate/i,
+        'Plugin OpenCode deve bloquear implementation_plan.md final sem Confidence Gate (>= 95%)'
       );
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });

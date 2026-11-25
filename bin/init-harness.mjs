@@ -24,7 +24,7 @@ function cliPrint(message) {
   process.stdout.write(`${message}\n`);
 }
 
-const VALID_AGENT_HOSTS = new Set(['antigravity', 'claude', 'codex', 'opencode', 'all']);
+const VALID_AGENT_HOSTS = new Set(['antigravity', 'claude', 'codex', 'opencode', 'kiro', 'cursor', 'all']);
 
 function parseArgs(argv) {
   let target = process.cwd();
@@ -53,6 +53,8 @@ export function detectAgentHost(targetDir, requestedAgent = 'auto', env = proces
   const hasMarker = (rel) => fs.existsSync(path.join(targetDir, rel));
   if (hasMarker('.claude') || hasMarker('CLAUDE.md') || Boolean(env.CLAUDE_CODE)) return 'claude';
   if (hasMarker('.opencode') || hasMarker('opencode.json') || Boolean(env.OPENCODE)) return 'opencode';
+  if (hasMarker('.kiro')) return 'kiro';
+  if (hasMarker('.cursor')) return 'cursor';
   if (hasMarker('.gemini') || hasMarker('.agents') || hasMarker('.agent')) return 'antigravity';
   if (Boolean(env.CODEX_CLI)) return 'codex';
   return 'all';
@@ -266,6 +268,11 @@ export function installMultiAgentBridge(targetDir, stack, { force = false } = {}
     path.join(targetDir, '.claude', 'agents'),
     { force, extFilter: '.md' }
   );
+  copyFileIfAllowed(
+    path.join(HARNESS_ROOT, 'templates', 'claude-settings.template.json'),
+    path.join(targetDir, '.claude', 'settings.json'),
+    force
+  );
 }
 
 /**
@@ -282,6 +289,43 @@ export function installOpenCodeBridge(targetDir, { force = false } = {}) {
     path.join(targetDir, '.opencode', 'agents'),
     { force, extFilter: '.md' }
   );
+}
+
+/**
+ * Instala Steering nativo do AWS Kiro em `.kiro/steering/aegis.md`.
+ */
+export function installKiroBridge(targetDir, { force = false } = {}) {
+  copyFlatFiles(
+    path.join(HARNESS_ROOT, 'templates', 'kiro', 'steering'),
+    path.join(targetDir, '.kiro', 'steering'),
+    { force, extFilter: '.md' }
+  );
+}
+
+/**
+ * Instala hooks nativos do Cursor em `.cursor/hooks.json`.
+ */
+export function installCursorBridge(targetDir, { force = false } = {}) {
+  fs.mkdirSync(path.join(targetDir, '.cursor'), { recursive: true });
+  copyFileIfAllowed(
+    path.join(HARNESS_ROOT, 'templates', 'cursor', 'hooks.json'),
+    path.join(targetDir, '.cursor', 'hooks.json'),
+    force
+  );
+}
+
+/**
+ * Instala Git hook universal `.git/hooks/pre-commit` (funciona em 100% de qualquer IDE/CLI).
+ */
+export function installGitPreCommitHook(targetDir, { force = false } = {}) {
+  const gitDir = path.join(targetDir, '.git');
+  if (!fs.existsSync(gitDir) || !fs.statSync(gitDir).isDirectory()) return;
+  const hooksDir = path.join(gitDir, 'hooks');
+  fs.mkdirSync(hooksDir, { recursive: true });
+  const hookPath = path.join(hooksDir, 'pre-commit');
+  if (fs.existsSync(hookPath) && !force) return;
+  const script = `#!/bin/sh\n# Aegis Harness — Trava física universal de pré-commit\nnode scripts/aegis-hook-guard.mjs --pre-commit\n`;
+  fs.writeFileSync(hookPath, script, { encoding: 'utf-8', mode: 0o755 });
 }
 
 const MANTIS_TOP_LEVEL_SKILLS = new Set(['mantis-meta-agent', 'mantis-advise']);
@@ -373,6 +417,13 @@ function main() {
   if (agentHost === 'opencode' || agentHost === 'all') {
     installOpenCodeBridge(opts.target, opts);
   }
+  if (agentHost === 'kiro' || agentHost === 'all') {
+    installKiroBridge(opts.target, opts);
+  }
+  if (agentHost === 'cursor' || agentHost === 'all') {
+    installCursorBridge(opts.target, opts);
+  }
+  installGitPreCommitHook(opts.target, opts);
   cliPrint(`🎉 [Aegis Harness v2.0 | host=${agentHost}] Instalação concluída em ${opts.target}!`);
 }
 

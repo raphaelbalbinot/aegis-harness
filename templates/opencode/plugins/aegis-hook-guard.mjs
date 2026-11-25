@@ -7,8 +7,13 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+const DRAFT_MARKER_RE = /(?:^|\r?\n)\s*(?:Status:\s*DRAFT\b|<!--\s*aegis-draft\s*-->)/i;
+
 /**
  * Converte o evento `tool.execute.before` do OpenCode no payload padrão do `aegis-hook-guard.mjs`.
+ * No OpenCode, `write`/`edit` não possuem `ArtifactMetadata.RequestFeedback`: qualquer escrita em
+ * `implementation_plan.md` sem marcador explícito de rascunho (`Status: DRAFT` ou `<!-- aegis-draft -->`)
+ * é avaliada como plano pronto (`RequestFeedback: true`), ativando fisicamente o Confidence Gate e o 1º Goldfish.
  * @param {string} cwd
  * @param {{ tool?: string }} input
  * @param {{ args?: Record<string, any> }} output
@@ -29,16 +34,25 @@ function buildHookPayload(cwd, input, output) {
 
   if (rawTool === 'write' || rawTool === 'edit' || rawTool === 'write_file' || rawTool === 'edit_file') {
     const mappedName = rawTool.startsWith('edit') ? 'edit_file' : 'write_file';
+    const targetPath = String(args.filePath ?? args.path ?? args.Path ?? '');
+    const content = args.content ?? args.Content;
+    const replacement = args.newString ?? args.Replacement;
+    const textSample = String(content ?? replacement ?? '');
+    const isPlanFile = targetPath.replace(/\\/g, '/').endsWith('/implementation_plan.md') || targetPath === 'implementation_plan.md';
+    const artifactMeta =
+      args.ArtifactMetadata ??
+      (isPlanFile ? { RequestFeedback: !DRAFT_MARKER_RE.test(textSample) } : undefined);
+
     return {
       cwd,
       toolCall: {
         name: mappedName,
         args: {
-          Path: String(args.filePath ?? args.path ?? args.Path ?? ''),
-          Content: args.content ?? args.Content,
+          Path: targetPath,
+          Content: content,
           Target: args.oldString ?? args.Target,
-          Replacement: args.newString ?? args.Replacement,
-          ArtifactMetadata: args.ArtifactMetadata,
+          Replacement: replacement,
+          ArtifactMetadata: artifactMeta,
         },
       },
     };

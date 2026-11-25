@@ -32,14 +32,19 @@ Graças à **Seção 0 (Universal Multi-Agent Routing)** no topo do `AGENTS.md` 
 | Ferramenta / IDE Agêntica | Como Lê a Constituição e os Módulos `.agent(s)/rules/*.md` | Como Executa o Duplo Portão 🐠 Goldfish & Guardrails |
 | :--- | :--- | :--- |
 | **1. Google Antigravity / Gemini CLI** | Lê `AGENTS.md` e descobre automaticamente `.agents/rules/*.md` (ou `.agent/rules/*.md`). | Executa `.agents/hooks.json` (`aegis-hook-guard.mjs` em `PreToolUse`) e despacha subagentes nativos via `invoke_subagent` (`research` e `slice-executor`). |
-| **2. AWS Kiro (Amazon Spec-Driven IDE)** | Lê `AGENTS.md` nativamente na raiz e segue a tabela de roteamento da **Seção 0** para carregar `.agents/rules/*.md`. *(Opcionalmente, crie `.kiro/steering/aegis.md` contendo `#[[file:AGENTS.md]]` para fixar no Steering nativo do Kiro).* | Durante as fases *Requirements / Design / Tasks* do Kiro, executa `node scripts/blast-radius.mjs`, `node scripts/audit-verify.mjs` e `node scripts/review.mjs` (que carimbam `.git/aegis-gate-stamp.json`). |
+| **2. AWS Kiro (Amazon Spec-Driven IDE)** | Instalado com `--agent kiro` (ou `--agent all`): lê `AGENTS.md` nativamente e cria `.kiro/steering/aegis.md` (`#[[file:AGENTS.md]]` com `inclusion: always`). | Durante as fases *Requirements / Design / Tasks* do Kiro, executa `node scripts/blast-radius.mjs`, `node scripts/audit-verify.mjs` e `node scripts/review.mjs` (que carimbam `.git/aegis-gate-stamp.json`). |
 | **3. Amazon Q Developer (IDE & CLI)** | Lê `AGENTS.md` e `.amazonq/rules/*.md` (basta apontar para `AGENTS.md` e seguir a Seção 0). | Executa `node scripts/audit-verify.mjs`, `node scripts/review.mjs` e `node scripts/aegis-hook-guard.mjs --check-rules`. |
-| **4. Anthropic Claude Code** | Instalado com `--agent claude`: gera `CLAUDE.md` (que importa `@AGENTS.md`) e lê os módulos da Seção 0. | Despacha os subagentes nativos `.claude/agents/goldfish-auditor.md` (somente-leitura) e `.claude/agents/slice-executor.md`. |
+| **4. Anthropic Claude Code** | Instalado com `--agent claude`: gera `CLAUDE.md` (importando `@AGENTS.md`), `.claude/settings.json` e lê os módulos da Seção 0. | Trava física `PreToolUse` via `.claude/settings.json` (`scripts/aegis-hook-guard.mjs`) + subagentes nativos `.claude/agents/goldfish-auditor.md` e `slice-executor.md`. |
 | **5. OpenAI Codex CLI & Web** | Lê `AGENTS.md` nativamente na raiz e carrega os módulos da Seção 0 sob demanda. | Despacha `codex exec --sandbox read-only` (para `🐠 Goldfish`) e `codex exec --full-auto` (para fatias DAG). |
-| **6. Cursor (Anysphere)** | Lê `AGENTS.md` nativamente na raiz e navega pelos módulos listados na Seção 0. | Executa os scripts Multi-OS (`blast-radius.mjs`, `plan-collision.mjs`, `audit-verify.mjs`, `review.mjs`). |
+| **6. Cursor (Anysphere)** | Instalado com `--agent cursor` (ou `--agent all`): lê `AGENTS.md` nativamente na raiz e cria `.cursor/hooks.json`. | Trava física `beforeShellExecution` em `.cursor/hooks.json` (`scripts/aegis-hook-guard.mjs`) + scripts Multi-OS (`blast-radius`, `plan-collision`, `audit-verify`, `review`). |
 | **7. Windsurf (Codeium)** | Lê `AGENTS.md` nativamente na raiz e carrega `.agents/rules/*.md` via Seção 0. | Executa os scripts determinísticos Multi-OS em `scripts/`. |
-| **8. OpenCode (CLI / TUI)** | Instalado com `--agent opencode` (ou `--agent all`): lê `AGENTS.md` + `.agents/skills/` nativamente e instala `.opencode/agents/{goldfish-auditor,slice-executor}.md`. | Plugin nativo `.opencode/plugins/aegis-hook-guard.mjs` (`tool.execute.before`) delega para `scripts/aegis-hook-guard.mjs` bloqueando commits sem carimbo e planos fora do `Confidence Gate (≥ 95%)`. |
-| **9. GitHub Copilot Coding Agent & Cline / Roo Code** | Leem `AGENTS.md` nativamente na raiz do repositório. | Executam a esteira determinística (`node scripts/audit-verify.mjs`) e o verificador `aegis-hook-guard.mjs`. |
+| **8. OpenCode (CLI / TUI)** | Instalado com `--agent opencode` (ou `--agent all`): lê `AGENTS.md` + `.agents/skills/` nativamente e instala `.opencode/agents/{goldfish-auditor,slice-executor}.md`. | **100% Nativo:** plugin `.opencode/plugins/aegis-hook-guard.mjs` (`tool.execute.before`) valida `implementation_plan.md` (libera `Status: DRAFT`, bloqueia plano final sem `Confidence Gate ≥ 95%` / 1º Goldfish) e bloqueia commits sem carimbo + `.git/hooks/pre-commit`. |
+| **9. GitHub Copilot, Cline, Roo Code, Kilo Code & Windsurf / Codex** | Leem `AGENTS.md` nativamente na raiz do repositório. | **Máximo suportado pela ferramenta:** não oferecem hook `PreToolUse` local para interceptar escrita de `implementation_plan.md` em tempo real; a trava física de commit é garantida universalmente por **`.git/hooks/pre-commit`** (`node scripts/aegis-hook-guard.mjs --pre-commit`). |
+
+> **Nota sobre roteadores, forks e ambientes em nuvem:**
+> - **Roteadores de API (`OpenRouter`, `Claude Code Router`, `LiteLLM`, `Ollama`):** não precisam de adaptador próprio — usam exatamente o comando do cliente na ponta (ex.: `--agent opencode` com OpenRouter, ou `--agent claude` com Claude Code Router).
+> - **Extensões VS Code (`Cline`, `Roo Code`, `Kilo Code`, `GitHub Copilot`):** funcionam com a instalação padrão (`AGENTS.md` + `.git/hooks/pre-commit`).
+> - **Ambientes remotos (`AWS Cloud9`, `GitHub Codespaces`, `Dev Containers`):** qualquer CLI agêntica rodando no terminal (OpenCode, Claude Code, Codex, Gemini CLI) herda automaticamente `AGENTS.md`, `scripts/` e `.git/hooks/pre-commit`.
 
 ### 🤖 Modelos Recomendados por Fase & Adaptação para Outros Agentes
 
@@ -85,7 +90,7 @@ O `aegis-harness` é **100% agnóstico de provedor/modelo** (Gemini, Claude, GPT
 # Auto-detecção do agente hospedeiro (Antigravity, OpenCode, Claude Code, Codex, Kiro, Cursor, etc.):
 node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto
 
-# Forçar modo específico de hospedeiro (--agent antigravity | opencode | claude | codex | all) e modo 100% offline:
+# Forçar modo específico de hospedeiro (--agent antigravity | opencode | claude | kiro | cursor | codex | all) e modo 100% offline:
 node ~/.gemini/config/skills/aegis-harness/bin/init-harness.mjs --target /caminho/do/seu/projeto --agent opencode --offline
 ```
 
