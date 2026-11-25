@@ -35,8 +35,10 @@ Esta skill codifica o protocolo operacional completo da separação cognitiva en
 
 | Portão / Papel | **Google Antigravity** | **Anthropic Claude Code** | **OpenAI Codex CLI** |
 | :--- | :--- | :--- | :--- |
-| **1º Portão — Cold Spec Auditor (`PLAN`)** | `invoke_subagent(TypeName: "research", Model: "inherit", Role: "Goldfish Cold Spec Auditor")` | Subagente nativo `.claude/agents/goldfish-auditor.md` via tool `Task` / `Agent` (`subagent_type: "goldfish-auditor"`) | `codex exec --sandbox read-only "Audite implementation_plan.md conforme egm-goldfish-review (Portão 1)"` |
-| **2º Portão — Goldfish de Implementação (`REVIEW`)** | `invoke_subagent(TypeName: "research", Model: "inherit", Role: "Revisor Tecnico Senior - EGM Goldfish")` lendo `scratch/review_prompt.md` | Subagente `.claude/agents/goldfish-auditor.md` via tool `Task` / `Agent` lendo `scratch/review_prompt.md` | `codex exec --sandbox read-only "Leia scratch/review_prompt.md e emita veredito APROVADO ou REPROVADO nos 4 Eixos"` |
+| **1º Portão — Cold Spec Auditor (`PLAN`)** | `invoke_subagent(TypeName: "research", Model: "pro", Role: "Goldfish Cold Spec Auditor")` | Subagente nativo `.claude/agents/goldfish-auditor.md` via tool `Task` / `Agent` (`subagent_type: "goldfish-auditor"`) | `codex exec --sandbox read-only "Audite implementation_plan.md conforme egm-goldfish-review (Portão 1)"` |
+| **2º Portão — Goldfish de Implementação (`REVIEW`)** | `invoke_subagent(TypeName: "research", Model: "pro", Role: "Revisor Tecnico Senior - EGM Goldfish")` lendo `scratch/review_prompt.md` | Subagente `.claude/agents/goldfish-auditor.md` via tool `Task` / `Agent` lendo `scratch/review_prompt.md` | `codex exec --sandbox read-only "Leia scratch/review_prompt.md e emita veredito APROVADO ou REPROVADO nos 4 Eixos"` |
+
+> **Blindagem contra Roteamento Dinâmico / Modo Orchestrator:** O auditor 🐠 Goldfish **NUNCA** deve herdar um modelo executor rápido (como `Hydrogen` / `flash_lite`) em IDEs com modo *Orchestrator* ou roteamento automático de modelos. Fixar `Model: "pro"` (ou equivalente de raciocínio/frontier no host) garante que a revisão adversarial em contexto frio nunca seja rebaixada silenciosamente.
 
 ---
 

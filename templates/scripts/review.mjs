@@ -342,9 +342,23 @@ export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
  * Atualiza o carimbo determinístico `reviewDossierGeneratedAt` em `.git/aegis-gate-stamp.json` (GF-03).
  * @param {string} root
  */
+function resolveGitDir(root) {
+  const dotGit = path.join(root, '.git');
+  if (!fs.existsSync(dotGit)) return null;
+  try {
+    if (fs.statSync(dotGit).isDirectory()) return dotGit;
+    const match = fs.readFileSync(dotGit, 'utf8').match(/^gitdir:\s*(.+)$/im);
+    if (!match) return null;
+    const resolved = path.resolve(root, match[1].trim());
+    return fs.existsSync(resolved) ? resolved : null;
+  } catch {
+    return null;
+  }
+}
+
 function recordReviewGateStamp(root) {
-  const gitDir = path.join(root, '.git');
-  if (!fs.existsSync(gitDir)) return;
+  const gitDir = resolveGitDir(root);
+  if (!gitDir) return;
   const stampPath = path.join(gitDir, 'aegis-gate-stamp.json');
   let current = {};
   if (fs.existsSync(stampPath)) {

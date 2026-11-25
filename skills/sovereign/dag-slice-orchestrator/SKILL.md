@@ -125,3 +125,12 @@ Quando **100% das ondas do grafo DAG estiverem `[x]`**, o **🐘 Elephant** exec
    - Executa `node scripts/review.mjs --issue <ID> --files "<todos_arquivos>"` (ou `powershell -File .\scripts\review.ps1 -Issue <ID> -Files "<todos_arquivos>"` / `--plan <caminho_plano>`), que reutiliza `scratch/clean_code_telemetry.json` quando os arquivos não mudaram, e invoca **1 única vez** o subagente **🐠 Goldfish de Implementação** até obter **`APROVADO`**;
 3. **Commit Cirúrgico (Quando Ordenado pelo Usuário) e Release:**
    - Executa `node scripts/plan-collision.mjs release --issue <ID>` (Node.js) ou `python scripts/plan-collision.py release --issue <ID>` (Python).
+
+---
+
+## 🐝 4. Integração com Modos Swarm Nativos (ex.: Antigravity `/swarm` com *Git Worktrees*)
+
+Quando o usuário acionar explicitamente `/swarm` (em épicos ou refatorações amplas com múltiplos módulos paralelos):
+1. **Sem Dupla Orquestração nos Workers:** Cada worker do `/swarm` já atua como o `slice-executor` da sua fatia (obedecendo ao `Single-Execution Gate`: roda apenas o teste unitário da sua fatia e **NUNCA** dispara `dag-slice-orchestrator`, `audit-verify` ou `git commit` isoladamente).
+2. **Suporte a *Git Worktrees* (`workspace: "share"`):** Os scripts determinísticos (`aegis-hook-guard.mjs`, `blast-radius.mjs`, `plan-collision.mjs`, `review.mjs`) resolvem automaticamente o ponteiro `gitdir:` de *worktrees* para evitar falhas `ENOTDIR`.
+3. **2º Portão 🐠 Goldfish no Coordinator (Não Substituir pelo `@verifier`):** O `@verifier` do *Message Board* pode validar diffs intermediários entre workers, mas **não substitui o 2º Portão Goldfish** (pois compartilha o histórico do board). Após integrar os *worktrees* no workspace principal, o **Coordinator** executa **1 única vez** a Trava 5 (`audit-verify` → `review.mjs` → **🐠 Goldfish** em contexto frio com `Model: "pro"`).

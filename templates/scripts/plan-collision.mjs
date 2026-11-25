@@ -12,15 +12,26 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
-const REGISTRY_PATH = path.resolve(process.cwd(), '.git', 'active-plans.json');
+function resolveGitDir(baseDir) {
+  const dotGit = path.resolve(baseDir, '.git');
+  if (!fs.existsSync(dotGit)) return dotGit;
+  try {
+    if (fs.statSync(dotGit).isDirectory()) return dotGit;
+    const match = fs.readFileSync(dotGit, 'utf8').match(/^gitdir:\s*(.+)$/im);
+    return match ? path.resolve(baseDir, match[1].trim()) : dotGit;
+  } catch {
+    return dotGit;
+  }
+}
 
 /**
- * Resolve o caminho do registro `.git/active-plans.json` para um diretório raiz.
+ * Resolve o caminho do registro `.git/active-plans.json` para um diretório raiz (suporta Git Worktrees).
  * @param {string} [rootDir]
  * @returns {string}
  */
 function resolveRegistryPath(rootDir) {
-  return rootDir ? path.resolve(rootDir, '.git', 'active-plans.json') : REGISTRY_PATH;
+  const baseDir = rootDir ?? process.cwd();
+  return path.join(resolveGitDir(baseDir), 'active-plans.json');
 }
 
 /**

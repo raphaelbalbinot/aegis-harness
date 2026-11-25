@@ -63,14 +63,35 @@ function resolveCurrentHeadSha(repoRoot) {
 }
 
 /**
+ * Resolve o diretório `.git` real, suportando repositórios padrão e Git Worktrees
+ * (onde `.git` é um arquivo com `gitdir: <caminho>`, como no Antigravity `/swarm` `workspace: "share"`).
+ * @param {string} repoRoot
+ * @returns {string | null}
+ */
+export function resolveGitDir(repoRoot) {
+  const dotGit = path.join(repoRoot, '.git');
+  if (!fs.existsSync(dotGit)) return null;
+  try {
+    if (fs.statSync(dotGit).isDirectory()) return dotGit;
+    const raw = fs.readFileSync(dotGit, 'utf8');
+    const match = raw.match(/^gitdir:\s*(.+)$/im);
+    if (!match) return null;
+    const resolved = path.resolve(repoRoot, match[1].trim());
+    return fs.existsSync(resolved) ? resolved : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Grava com merge JSON um carimbo determinístico em `.git/aegis-gate-stamp.json` (GF-03).
  * Vinculado ao `HEAD` atual (sem expiração por relógio/TTL).
  * @param {string} repoRoot
  * @param {'auditVerifyPassedAt' | 'reviewDossierGeneratedAt'} fieldName
  */
 export function recordGateStamp(repoRoot, fieldName) {
-  const gitDir = path.join(repoRoot, '.git');
-  if (!fs.existsSync(gitDir)) return;
+  const gitDir = resolveGitDir(repoRoot);
+  if (!gitDir) return;
   const stampPath = path.join(gitDir, 'aegis-gate-stamp.json');
   let current = {};
   if (fs.existsSync(stampPath)) {
@@ -126,9 +147,11 @@ function findMatchingEntryFiles(rawFiles, normError) {
  * @param {string} [currentIssueId]
  */
 export function diagnoseParallelIssueBlocker(repoRoot, errorOutput, currentIssueId = '') {
-  const activePlansPath = path.join(repoRoot, '.git', 'active-plans.json');
+  const gitDir = resolveGitDir(repoRoot);
   const emptyResult = { blockedByParallelIssue: false, conflictingIssues: [], matchedFiles: [], banner: '' };
-  if (!fs.existsSync(activePlansPath) || !errorOutput) return emptyResult;
+  if (!gitDir || !errorOutput) return emptyResult;
+  const activePlansPath = path.join(gitDir, 'active-plans.json');
+  if (!fs.existsSync(activePlansPath)) return emptyResult;
 
   let rawState = {};
   try {
@@ -228,7 +251,9 @@ function simulatePlanContent(args) {
  * @returns {Record<string, any>}
  */
 function readGateStamp(repoRoot) {
-  const stampPath = path.join(repoRoot, '.git', 'aegis-gate-stamp.json');
+  const gitDir = resolveGitDir(repoRoot);
+  if (!gitDir) return {};
+  const stampPath = path.join(gitDir, 'aegis-gate-stamp.json');
   if (!fs.existsSync(stampPath)) return {};
   try {
     return JSON.parse(fs.readFileSync(stampPath, 'utf8'));
@@ -368,8 +393,9 @@ function evaluateGitCommitGuard(repoRoot, args) {
       reason: 'BLOQUEADO PELA REGRA 1.1: Proibido usar `git commit -a` / `--all`. Faça staging cirúrgico (`git add <arqs>`).',
     };
   }
-  const stampPath = path.join(repoRoot, '.git', 'aegis-gate-stamp.json');
-  if (!fs.existsSync(stampPath)) {
+  const gitDir = resolveGitDir(repoRoot);
+  const stampPath = gitDir ? path.join(gitDir, 'aegis-gate-stamp.json') : '';
+  if (!stampPath || !fs.existsSync(stampPath)) {
     return {
       decision: 'deny',
       reason: 'BLOQUEADO PELAS REGRAS 1.3 e 1.4: Nenhum carimbo (.git/aegis-gate-stamp.json) encontrado. Execute audit-verify e review antes de commitar.',

@@ -37,13 +37,13 @@ Carregue sob demanda apenas os módulos aplicáveis ao escopo da tarefa:
 
 ### 1.4 TDD, Verificação Real & Escopo Cirúrgico
 - Siga **🔴 RED → 🟢 GREEN → 🔵 REFACTOR** (usando `test-driven-development` + `code-review-and-quality`).
-- **Outer Loop Único:** execute `audit-verify` (exit code `0`) 1 vez ao concluir todas as fatias.
-- **Trava Anti-Burla:** o `aegis-hook-guard.mjs` valida `git diff --cached --name-only` contra os arquivos avaliados pelo `blast-radius` no commit.
-- **Simplicidade & Zero Compatibilidade Zumbi:** ao evoluir um contrato/schema, remova 100% do formato antigo. Não crie abstrações prematuras.
+- **Outer Loop Único:** execute `audit-verify` (`0`) 1x ao final; em `/swarm`/`/teamwork`, workers rodam `audit-verify` sem commit e o Coordenador faz o portão final (`audit-verify` + `review` + 2º Goldfish `pro`).
+- **Trava Anti-Burla:** `aegis-hook-guard.mjs` valida `git diff --cached --name-only` contra `blast-radius`.
+- **Simplicidade & Zero Compatibilidade Zumbi:** ao evoluir contratos, remova o formato antigo; sem abstrações prematuras.
 
 ### 1.5 Segurança Básica Universal
-- Em JS/TS, use sempre `??` (*Nullish Coalescing*) em vez de `||` para fallbacks de valores potencialmente falsy.
-- Em qualquer linguagem, execute subprocessos com lista de argumentos (`execFileSync` / `shell=False`) sem interpolação de shell (`CWE-78`). Nunca vaze segredos ou dados sensíveis em logs.
+- Em JS/TS, use `??` (*Nullish Coalescing*) em vez de `||` para fallbacks.
+- Execute subprocessos com lista de argumentos (`execFileSync` / `shell=False`), sem shell interpolation (`CWE-78`). Nunca vaze segredos em logs.
 
 ### 1.6 Desambiguação Rápida de Skills
 Use `recommendedSkills` do `blast-radius` como **piso mínimo garantido** (catálogo permanece aberto):

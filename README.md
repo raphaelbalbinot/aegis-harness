@@ -52,9 +52,19 @@ O `aegis-harness` é **100% agnóstico de provedor/modelo** (Gemini, Claude, GPT
 
 | Fase do Ciclo | Perfil de Modelo Recomendado | Exemplos |
 | :--- | :--- | :--- |
-| **`DEFINE` / `PLAN` & 1º/2º 🐠 Goldfish** | **Reasoning / Frontier** (alta capacidade de crítica arquitetural e detecção de *edge cases*) | Gemini Pro / Argon, Claude Sonnet/Opus, GPT-5 / o3, DeepSeek-R1 |
-| **`BUILD` (Fatias DAG isoladas)** | **Fast / Mid-tier** (baixa latência para ciclos curtos de TDD em arquivos delimitados) | Gemini Flash / Neon, Claude Sonnet/Haiku, GPT-4.1 / Codex-mini |
+| **`DEFINE` / `PLAN` & 1º/2º 🐠 Goldfish** | **Reasoning / Frontier** (alta capacidade de crítica arquitetural e detecção de *edge cases*; **sempre fixado em `Model: "pro"` / reasoning** para blindagem contra downgrade silencioso) | Gemini 4 Carbon / Argon / Neon, Claude Sonnet/Opus, GPT-5 / o3, DeepSeek-R1 |
+| **`BUILD` (Sessão Principal ou Fatias DAG)** | **Fast / Mid-tier** (baixa latência para ciclos curtos de TDD em arquivos delimitados) | Gemini 4 Hydrogen / Flash / Neon, Claude Sonnet/Haiku, GPT-4.1 / Codex-mini |
 | **`AUDIT` (`blast-radius`, `audit-verify`, `scan-clean-code`)** | **0 tokens (100% determinístico local)** | Node.js / Python scripts em `scripts/` |
+
+> **Compatibilidade com Modos *Orchestrator*, `/swarm`, `/teamwork`, `/boost` & `run-workflow` (Google Antigravity e IDEs equivalentes):**
+> - **Orchestrator / Roteamento Dinâmico (`Neon/Carbon + Hydrogen`, Cursor Auto):** 100% nativo na sessão principal (alterna Planner e Executor no mesmo cache mantendo `aegis-hook-guard.mjs`). Os 2 Portões **🐠 Goldfish** ficam fixados em `Model: "pro"` para evitar downgrade silencioso.
+> - **`/swarm` & `/teamwork` (*Git Worktrees*):** os scripts determinísticos (`aegis-hook-guard`, `blast-radius`, `plan-collision`, `review`) resolvem automaticamente ponteiros `gitdir:` de *worktrees* (`workspace: "share"`). Workers/milestones usam `audit-verify` sem commit isolado; o Coordenador roda a esteira final única (`audit-verify` + `review` + 2º Goldfish `pro`) após integrar.
+> - **`/boost`, `run-workflow`, `/grill-me`, `/plan`, `/goal` & `/compact`:** 100% compatíveis sem ajustes adicionais (sinergia nativa com `Confidence Gate ≥ 95%` e loop `ACCEPT & FIX`).
+
+> **⚠️ Uso com Rotação Free-Tier / Modelos Básicos (OpenRouter, roteadores multi-modelo):**
+> - **O que continua 100% blindado:** toda a camada determinística (`aegis-hook-guard.mjs`, `.git/hooks/pre-commit`, `audit-verify`, `ast-grep`, `CRAP < 10` e `plan-collision verify-slice`). Código quebrado ou fora da fatia é bloqueado/revertido independentemente do modelo.
+> - **Onde modelos muito básicos degradam:** na camada **semântica** — podem alucinar certeza (`98%`) no `Confidence Gate`, escrever testes teatrais/mocks ocos ou transformar um **🐠 Goldfish** fraco em carimbador (*rubber-stamping*).
+> - **Regra prática:** pode rotacionar modelos baratos/free-tier livremente no **`BUILD`** (fatias isoladas), mas **fixe um modelo forte (reasoning/frontier)** no **`PLAN`** e no **`goldfish-auditor`** (via campo `model:` no frontmatter de `.opencode/agents/goldfish-auditor.md` ou `.claude/agents/goldfish-auditor.md`).
 
 **Como adaptar para qualquer outro agente/IDE não listado:**
 1. **Instruções:** aponte o arquivo de regras do seu agente para `AGENTS.md` na raiz (ex.: `@AGENTS.md`, `#[[file:AGENTS.md]]` ou cópia de referência) e mantenha `.agents/rules/*.md` sob demanda.

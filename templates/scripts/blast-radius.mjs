@@ -132,9 +132,23 @@ export function computeRecommendedSkills(validReports) {
  * @param {string} repoRoot
  * @param {{ planGoldfishRequired: boolean; codeGoldfishRequired: boolean; ceremonyTier: string; evaluatedFiles: string[] }} evaluation
  */
+function resolveGitDir(repoRoot) {
+  const dotGit = path.join(repoRoot, '.git');
+  if (!fs.existsSync(dotGit)) return null;
+  try {
+    if (fs.statSync(dotGit).isDirectory()) return dotGit;
+    const match = fs.readFileSync(dotGit, 'utf8').match(/^gitdir:\s*(.+)$/im);
+    if (!match) return null;
+    const resolved = path.resolve(repoRoot, match[1].trim());
+    return fs.existsSync(resolved) ? resolved : null;
+  } catch {
+    return null;
+  }
+}
+
 export function recordBlastRadiusStamp(repoRoot, evaluation) {
-  const gitDir = path.join(repoRoot, '.git');
-  if (!fs.existsSync(gitDir)) return;
+  const gitDir = resolveGitDir(repoRoot);
+  if (!gitDir) return;
   const stampPath = path.join(gitDir, 'aegis-gate-stamp.json');
   let current = {};
   if (fs.existsSync(stampPath)) {
