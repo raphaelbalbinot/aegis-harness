@@ -17,6 +17,13 @@ import { computeIssueFinOpsMarkdown } from './aegis-finops-telemetry.mjs';
 const BDD_LINE_REGEX =
   /^\s*(?:#{1,6}\s+|\d+\.\s+|[-*]\s+)?(?:\*\*|__)?(?:Cen[aá]rio|Dado|Quando|Ent[aã]o|E\s)(?:\*\*|__|:|\b)/i;
 
+const GH_CLI_TIMEOUT_MS = 10000;
+const NON_INTERACTIVE_CLI_ENV = {
+  ...process.env,
+  GH_PROMPT_DISABLED: '1',
+  GIT_TERMINAL_PROMPT: '0',
+};
+
 const DEFAULT_DIFF_EXCLUDES = [
   ':/',
   ':(exclude):/package-lock.json',
@@ -42,17 +49,23 @@ export function extractBddClauses(rawText, emptyMessage) {
 }
 
 /**
- * Carrega requisitos da GitHub Issue (`gh issue view`) ou do arquivo de plano local (`--plan`).
- * @param {{ issueId?: string | number; planPath?: string; root: string }} params
+ * Carrega requisitos da GitHub Issue (`gh issue view`), do plano local (`--plan`) ou de alteração pontual (`--context`).
+ * @param {{ issueId?: string | number; planPath?: string; context?: string; root: string }} params
  */
-function readIssueOrPlanRequirements({ issueId, planPath, root }) {
+function readIssueOrPlanRequirements({ issueId, planPath, context, root }) {
   let issueContent = '';
   let planContent = '';
   let bddChecklistContent = '';
 
   if (issueId) {
     try {
-      issueContent = execFileSync('gh', ['issue', 'view', String(issueId)], { cwd: root, encoding: 'utf8' });
+      issueContent = execFileSync('gh', ['issue', 'view', String(issueId)], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: GH_CLI_TIMEOUT_MS,
+        env: NON_INTERACTIVE_CLI_ENV,
+      });
       bddChecklistContent = extractBddClauses(
         issueContent,
         'Nenhuma cláusula BDD formal detectada automaticamente; valide os Critérios de Aceite da Issue.',
@@ -70,6 +83,14 @@ function readIssueOrPlanRequirements({ issueId, planPath, root }) {
       process.stderr.write(`[WARN] Plano não encontrado: ${planPath}\n`);
     }
   }
+  if (!issueId && !planPath) {
+    planContent =
+      context && context.trim() !== ''
+        ? context.trim()
+        : 'Alteração pontual executada sem GitHub Issue e sem implementation_plan.md.';
+    bddChecklistContent =
+      'Alteração pontual (sem Issue/Plano formal): validar comportamento esperado, testes automatizados e ausência de regressões diretamente sobre o diff.';
+  }
   return { issueContent, planContent, bddChecklistContent };
 }
 
@@ -84,6 +105,8 @@ function fetchOpenIssuesList(root) {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: GH_CLI_TIMEOUT_MS,
+      env: NON_INTERACTIVE_CLI_ENV,
     });
     return issuesRaw.trim() !== '' ? issuesRaw.trim() : 'Nenhuma outra issue aberta listada.';
   } catch {
@@ -303,10 +326,10 @@ function writeReviewScratchFiles({ root, prompt, issueId, planPath }) {
  * Gera o dossiê cirúrgico para o 2º Portão EGM Goldfish (GF-02, GF-06).
  * Exemplo: generateReviewDossier({ planPath: 'implementation_plan.md', files: 'src/a.mjs' });
  *
- * @param {{ issueId?: string | number; planPath?: string; files?: string; rootDir?: string }} options
+ * @param {{ issueId?: string | number; planPath?: string; context?: string; files?: string; rootDir?: string }} options
  * @returns {string} Conteúdo Markdown do dossiê gerado
  */
-export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
+export function generateReviewDossier({ issueId, planPath, context, files, rootDir }) {
   const root = rootDir ?? process.cwd();
   const fileArray = files
     ? files.split(',').map((f) => f.trim()).filter(Boolean)
@@ -314,16 +337,21 @@ export function generateReviewDossier({ issueId, planPath, files, rootDir }) {
   const { issueContent, planContent, bddChecklistContent } = readIssueOrPlanRequirements({
     issueId,
     planPath,
+    context,
     root,
   });
   const openIssuesContent = fetchOpenIssuesList(root);
   const { statusContent, diffContent } = collectGitStatusAndDiff(root, fileArray);
   const telemetryContent = runPreInjectedCleanCodeScan(root, fileArray);
 
+  const issueOrPlanHeader = issueId
+    ? `- Requisitos Exclusivos da Issue #${issueId}:`
+    : planPath
+      ? '- Requisitos Extraídos do Plano de Implementação:'
+      : '- Contexto da Alteração Pontual (Sem Issue/Plano):';
+
   const prompt = `${buildReviewPromptText({
-    issueOrPlanHeader: issueId
-      ? `- Requisitos Exclusivos da Issue #${issueId}:`
-      : '- Requisitos Extraídos do Plano de Implementação:',
+    issueOrPlanHeader,
     issueOrPlanContent: issueId ? issueContent : planContent,
     bddChecklistContent,
     threatModelContent: readThreatModelSummary(root),
@@ -379,16 +407,18 @@ function recordReviewGateStamp(root) {
 function parseCliArgs(argv) {
   let issueId;
   let planPath;
+  let context;
   let files;
   let rootDir;
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     if (flag === '--issue' || flag === '-IssueNumber') issueId = argv[++i];
     else if (flag === '--plan' || flag === '-PlanPath') planPath = argv[++i];
+    else if (flag === '--context' || flag === '-Context' || flag === '--summary') context = argv[++i];
     else if (flag === '--files' || flag === '-Files') files = argv[++i];
     else if (flag === '--root') rootDir = argv[++i];
   }
-  return { issueId, planPath, files, rootDir };
+  return { issueId, planPath, context, files, rootDir };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

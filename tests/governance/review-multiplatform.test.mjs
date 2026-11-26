@@ -112,3 +112,16 @@ test('GF-07 / Threat Model Summary Injection in review.mjs', () => {
         fs.rmSync(rootDir, { recursive: true, force: true });
     }
 });
+
+test('GF-06 / Ad-hoc Review without Issue or Plan supports optional context', () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-review-adhoc-'));
+    try {
+        generateReviewDossier({ context: 'Ajuste pontual de timeout no cliente HTTP', rootDir });
+        const prompt = fs.readFileSync(path.join(rootDir, 'scratch', 'review_prompt.md'), 'utf8');
+        assert.match(prompt, /- Contexto da Alteração Pontual \(Sem Issue\/Plano\):/);
+        assert.match(prompt, /Ajuste pontual de timeout no cliente HTTP/);
+        assert.match(prompt, /Alteração pontual \(sem Issue\/Plano formal\)/);
+    } finally {
+        fs.rmSync(rootDir, { recursive: true, force: true });
+    }
+});

@@ -1,6 +1,7 @@
 ﻿param (
     [Parameter(Mandatory = $false, Position = 0)] [string]$Issue,
     [Parameter(Mandatory = $false)] [string]$PlanPath = "",
+    [Parameter(Mandatory = $false)] [string]$Context = "",
     [Parameter(Mandatory = $false)] [string]$Files = ""
 )
 
@@ -13,6 +14,10 @@ if ($Issue) {
 if ($PlanPath) {
     $argsArray += "--plan"
     $argsArray += $PlanPath
+}
+if ($Context) {
+    $argsArray += "--context"
+    $argsArray += $Context
 }
 if ($Files) {
     $argsArray += "--files"
